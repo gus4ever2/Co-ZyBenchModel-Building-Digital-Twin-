@@ -1,0 +1,70 @@
+.footer {
+    background-color: #4682b4; /* Couleur bleue du fond */
+    padding: 30px 20px;
+    color: white;
+    border-radius: 15px 15px 0 0;
+    font-family: Arial, sans-serif;
+    margin-top: 50px;
+  }
+  
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  
+  .contact-info {
+    max-width: 300px;
+  }
+  
+  .contact-info h3 {
+    background-color: #b9ff66;
+    color: black;
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .contact-info p {
+    margin: 5px 0;
+    line-height: 1.6;
+  }
+  
+  .social-links {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .social-links a {
+    display: inline-block;
+  }
+  
+  .social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+  
+  .social-icon:hover {
+    transform: scale(1.1); /* Agrandit l'image légèrement au survol */
+  }
+  
+  .footer-bottom {
+    text-align: center;
+    font-size: 0.9rem;
+    border-top: 1px solid white;
+    padding-top: 10px;
+  }
+  
+  .footer-bottom a {
+    color: white;
+    text-decoration: underline;
+  }
+  
+  .footer-bottom a:hover {
+    text-decoration: none;
+  }
+  

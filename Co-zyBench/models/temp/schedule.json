@@ -1,0 +1,795 @@
+[
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Activity Default Schedule",
+    "properties": {
+      "Name": "Office Activity Default Schedule",
+      "Schedule_Type_Limits_Name": "ActivityLevel",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "132"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Activity Summer Design Day",
+    "properties": {
+      "Name": "Office Activity Summer Design Day",
+      "Schedule_Type_Limits_Name": "ActivityLevel",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "132"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Activity Winter Design Day",
+    "properties": {
+      "Name": "Office Activity Winter Design Day",
+      "Schedule_Type_Limits_Name": "ActivityLevel",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "132"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Equip Default Schedule",
+    "properties": {
+      "Name": "Office Bldg Equip Default Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "08:00",
+      "Value_Until_Time_1": "0.4",
+      "Time_2": "12:00",
+      "Value_Until_Time_2": "0.9",
+      "Time_3": "13:00",
+      "Value_Until_Time_3": "0.8",
+      "Time_4": "17:00",
+      "Value_Until_Time_4": "0.9",
+      "Time_5": "18:00",
+      "Value_Until_Time_5": "0.8",
+      "Time_6": "20:00",
+      "Value_Until_Time_6": "0.6",
+      "Time_7": "22:00",
+      "Value_Until_Time_7": "0.5",
+      "Time_8": "24:00",
+      "Value_Until_Time_8": "0.4"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Equip Rule 1 Day Schedule",
+    "properties": {
+      "Name": "Office Bldg Equip Rule 1 Day Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "0.3"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Equip Rule 2 Day Schedule",
+    "properties": {
+      "Name": "Office Bldg Equip Rule 2 Day Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "0.3",
+      "Time_2": "08:00",
+      "Value_Until_Time_2": "0.4",
+      "Time_3": "14:00",
+      "Value_Until_Time_3": "0.5",
+      "Time_4": "17:00",
+      "Value_Until_Time_4": "0.35",
+      "Time_5": "24:00",
+      "Value_Until_Time_5": "0.3"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Equip Summer Design Day",
+    "properties": {
+      "Name": "Office Bldg Equip Summer Design Day",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "1"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Equip Winter Design Day",
+    "properties": {
+      "Name": "Office Bldg Equip Winter Design Day",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "0"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Light Default Schedule",
+    "properties": {
+      "Name": "Office Bldg Light Default Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "05:00",
+      "Value_Until_Time_1": "0.05",
+      "Time_2": "07:00",
+      "Value_Until_Time_2": "0.1",
+      "Time_3": "08:00",
+      "Value_Until_Time_3": "0.3",
+      "Time_4": "17:00",
+      "Value_Until_Time_4": "0.9",
+      "Time_5": "18:00",
+      "Value_Until_Time_5": "0.7",
+      "Time_6": "20:00",
+      "Value_Until_Time_6": "0.5",
+      "Time_7": "22:00",
+      "Value_Until_Time_7": "0.3",
+      "Time_8": "23:00",
+      "Value_Until_Time_8": "0.1",
+      "Time_9": "24:00",
+      "Value_Until_Time_9": "0.05"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Light Rule 1 Day Schedule",
+    "properties": {
+      "Name": "Office Bldg Light Rule 1 Day Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "0.05"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Light Rule 2 Day Schedule",
+    "properties": {
+      "Name": "Office Bldg Light Rule 2 Day Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "0.05",
+      "Time_2": "08:00",
+      "Value_Until_Time_2": "0.1",
+      "Time_3": "14:00",
+      "Value_Until_Time_3": "0.5",
+      "Time_4": "17:00",
+      "Value_Until_Time_4": "0.15",
+      "Time_5": "24:00",
+      "Value_Until_Time_5": "0.05"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Light Summer Design Day",
+    "properties": {
+      "Name": "Office Bldg Light Summer Design Day",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "1"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Light Winter Design Day",
+    "properties": {
+      "Name": "Office Bldg Light Winter Design Day",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "0"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Occ Default Schedule",
+    "properties": {
+      "Name": "Office Bldg Occ Default Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "0",
+      "Time_2": "07:00",
+      "Value_Until_Time_2": "0.100000001490116",
+      "Time_3": "08:00",
+      "Value_Until_Time_3": "0.200000002980232",
+      "Time_4": "12:00",
+      "Value_Until_Time_4": "0.850000023841858",
+      "Time_5": "13:00",
+      "Value_Until_Time_5": "0.5",
+      "Time_6": "17:00",
+      "Value_Until_Time_6": "0.850000023841858",
+      "Time_7": "18:00",
+      "Value_Until_Time_7": "0.699999988079071",
+      "Time_8": "20:00",
+      "Value_Until_Time_8": "0.400000005960464",
+      "Time_9": "22:00",
+      "Value_Until_Time_9": "0.100000001490116",
+      "Time_10": "24:00",
+      "Value_Until_Time_10": "0.0500000007450581"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Occ Default Schedule 1",
+    "properties": {
+      "Name": "Office Bldg Occ Default Schedule 1",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "0",
+      "Time_2": "07:00",
+      "Value_Until_Time_2": "0.100000001490116",
+      "Time_3": "08:00",
+      "Value_Until_Time_3": "0.200000002980232",
+      "Time_4": "20:00",
+      "Value_Until_Time_4": "0.400000005960464",
+      "Time_5": "22:00",
+      "Value_Until_Time_5": "0.100000001490116",
+      "Time_6": "24:00",
+      "Value_Until_Time_6": "0.0500000007450581"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Occ Rule 1 Day Schedule",
+    "properties": {
+      "Name": "Office Bldg Occ Rule 1 Day Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "0"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Occ Rule 1 Day Schedule 1",
+    "properties": {
+      "Name": "Office Bldg Occ Rule 1 Day Schedule 1",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "0"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Occ Rule 2 Day Schedule",
+    "properties": {
+      "Name": "Office Bldg Occ Rule 2 Day Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "0",
+      "Time_2": "08:00",
+      "Value_Until_Time_2": "0.100000001490116",
+      "Time_3": "14:00",
+      "Value_Until_Time_3": "0.400000005960464",
+      "Time_4": "17:00",
+      "Value_Until_Time_4": "0.100000001490116",
+      "Time_5": "24:00",
+      "Value_Until_Time_5": "0"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Occ Rule 2 Day Schedule 1",
+    "properties": {
+      "Name": "Office Bldg Occ Rule 2 Day Schedule 1",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "0",
+      "Time_2": "08:00",
+      "Value_Until_Time_2": "0.100000001490116",
+      "Time_3": "14:00",
+      "Value_Until_Time_3": "0.25",
+      "Time_4": "17:00",
+      "Value_Until_Time_4": "0.100000001490116",
+      "Time_5": "24:00",
+      "Value_Until_Time_5": "0"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Occ Summer Design Day",
+    "properties": {
+      "Name": "Office Bldg Occ Summer Design Day",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "0",
+      "Time_2": "22:00",
+      "Value_Until_Time_2": "1",
+      "Time_3": "24:00",
+      "Value_Until_Time_3": "0.05"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Occ Summer Design Day 1",
+    "properties": {
+      "Name": "Office Bldg Occ Summer Design Day 1",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "0",
+      "Time_2": "22:00",
+      "Value_Until_Time_2": "1",
+      "Time_3": "24:00",
+      "Value_Until_Time_3": "0.05"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Occ Winter Design Day",
+    "properties": {
+      "Name": "Office Bldg Occ Winter Design Day",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "0"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Bldg Occ Winter Design Day 1",
+    "properties": {
+      "Name": "Office Bldg Occ Winter Design Day 1",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "0"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Infil Quarter On Default Schedule",
+    "properties": {
+      "Name": "Office Infil Quarter On Default Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "1",
+      "Time_2": "22:00",
+      "Value_Until_Time_2": "0.25",
+      "Time_3": "24:00",
+      "Value_Until_Time_3": "1"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Infil Quarter On Rule 1 Day Schedule",
+    "properties": {
+      "Name": "Office Infil Quarter On Rule 1 Day Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "24:00",
+      "Value_Until_Time_1": "1"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Infil Quarter On Rule 2 Day Schedule",
+    "properties": {
+      "Name": "Office Infil Quarter On Rule 2 Day Schedule",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "1",
+      "Time_2": "18:00",
+      "Value_Until_Time_2": "0.25",
+      "Time_3": "24:00",
+      "Value_Until_Time_3": "1"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Infil Quarter On Summer Design Day",
+    "properties": {
+      "Name": "Office Infil Quarter On Summer Design Day",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "1",
+      "Time_2": "22:00",
+      "Value_Until_Time_2": "0.25",
+      "Time_3": "24:00",
+      "Value_Until_Time_3": "1"
+    }
+  },
+  {
+    "type": "SCHEDULE:DAY:INTERVAL",
+    "name": "Office Infil Quarter On Winter Design Day",
+    "properties": {
+      "Name": "Office Infil Quarter On Winter Design Day",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Interpolate_to_Timestep": "No",
+      "Time_1": "06:00",
+      "Value_Until_Time_1": "1",
+      "Time_2": "18:00",
+      "Value_Until_Time_2": "0.25",
+      "Time_3": "24:00",
+      "Value_Until_Time_3": "1"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Activity Week Rule - Jan1-Dec31",
+    "properties": {
+      "Name": "Office Activity Week Rule - Jan1-Dec31",
+      "Sunday_ScheduleDay_Name": "Office Activity Default Schedule",
+      "Monday_ScheduleDay_Name": "Office Activity Default Schedule",
+      "Tuesday_ScheduleDay_Name": "Office Activity Default Schedule",
+      "Wednesday_ScheduleDay_Name": "Office Activity Default Schedule",
+      "Thursday_ScheduleDay_Name": "Office Activity Default Schedule",
+      "Friday_ScheduleDay_Name": "Office Activity Default Schedule",
+      "Saturday_ScheduleDay_Name": "Office Activity Default Schedule",
+      "Holiday_ScheduleDay_Name": "Office Activity Default Schedule",
+      "SummerDesignDay_ScheduleDay_Name": "Office Activity Summer Design Day",
+      "WinterDesignDay_ScheduleDay_Name": "Office Activity Winter Design Day",
+      "CustomDay1_ScheduleDay_Name": "Office Activity Default Schedule",
+      "CustomDay2_ScheduleDay_Name": "Office Activity Default Schedule"
+    }
+  },
+  {
+    "type": "SCHEDULE:YEAR",
+    "name": "Office Activity",
+    "properties": {
+      "Name": "Office Activity",
+      "Schedule_Type_Limits_Name": "ActivityLevel",
+      "Start_Month_1": "1",
+      "Start_Day_1": "1",
+      "End_Month_1": "12",
+      "End_Day_1": "31",
+      "ScheduleWeek_Name_1": "Office Activity Week Rule - Jan1-Dec31"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Bldg Equip Week Rule - Jan1-Jan3",
+    "properties": {
+      "Name": "Office Bldg Equip Week Rule - Jan1-Jan3",
+      "Sunday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Monday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Tuesday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Wednesday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Thursday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Friday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Saturday_ScheduleDay_Name": "Office Bldg Equip Rule 2 Day Schedule",
+      "Holiday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "SummerDesignDay_ScheduleDay_Name": "Office Bldg Equip Summer Design Day",
+      "WinterDesignDay_ScheduleDay_Name": "Office Bldg Equip Winter Design Day",
+      "CustomDay1_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "CustomDay2_ScheduleDay_Name": "Office Bldg Equip Default Schedule"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Bldg Equip Week Rule - Jan4-Dec31",
+    "properties": {
+      "Name": "Office Bldg Equip Week Rule - Jan4-Dec31",
+      "Sunday_ScheduleDay_Name": "Office Bldg Equip Rule 1 Day Schedule",
+      "Monday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Tuesday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Wednesday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Thursday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Friday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "Saturday_ScheduleDay_Name": "Office Bldg Equip Rule 2 Day Schedule",
+      "Holiday_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "SummerDesignDay_ScheduleDay_Name": "Office Bldg Equip Summer Design Day",
+      "WinterDesignDay_ScheduleDay_Name": "Office Bldg Equip Winter Design Day",
+      "CustomDay1_ScheduleDay_Name": "Office Bldg Equip Default Schedule",
+      "CustomDay2_ScheduleDay_Name": "Office Bldg Equip Default Schedule"
+    }
+  },
+  {
+    "type": "SCHEDULE:YEAR",
+    "name": "Office Bldg Equip",
+    "properties": {
+      "Name": "Office Bldg Equip",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Start_Month_1": "1",
+      "Start_Day_1": "1",
+      "End_Month_1": "1",
+      "End_Day_1": "3",
+      "Start_Month_2": "1",
+      "Start_Day_2": "4",
+      "End_Month_2": "12",
+      "End_Day_2": "31",
+      "ScheduleWeek_Name_1": "Office Bldg Equip Week Rule - Jan1-Jan3",
+      "ScheduleWeek_Name_2": "Office Bldg Equip Week Rule - Jan4-Dec31"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Bldg Light Week Rule - Jan1-Jan3",
+    "properties": {
+      "Name": "Office Bldg Light Week Rule - Jan1-Jan3",
+      "Sunday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Monday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Tuesday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Wednesday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Thursday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Friday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Saturday_ScheduleDay_Name": "Office Bldg Light Rule 2 Day Schedule",
+      "Holiday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "SummerDesignDay_ScheduleDay_Name": "Office Bldg Light Summer Design Day",
+      "WinterDesignDay_ScheduleDay_Name": "Office Bldg Light Winter Design Day",
+      "CustomDay1_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "CustomDay2_ScheduleDay_Name": "Office Bldg Light Default Schedule"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Bldg Light Week Rule - Jan4-Dec31",
+    "properties": {
+      "Name": "Office Bldg Light Week Rule - Jan4-Dec31",
+      "Sunday_ScheduleDay_Name": "Office Bldg Light Rule 1 Day Schedule",
+      "Monday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Tuesday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Wednesday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Thursday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Friday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "Saturday_ScheduleDay_Name": "Office Bldg Light Rule 2 Day Schedule",
+      "Holiday_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "SummerDesignDay_ScheduleDay_Name": "Office Bldg Light Summer Design Day",
+      "WinterDesignDay_ScheduleDay_Name": "Office Bldg Light Winter Design Day",
+      "CustomDay1_ScheduleDay_Name": "Office Bldg Light Default Schedule",
+      "CustomDay2_ScheduleDay_Name": "Office Bldg Light Default Schedule"
+    }
+  },
+  {
+    "type": "SCHEDULE:YEAR",
+    "name": "Office Bldg Light",
+    "properties": {
+      "Name": "Office Bldg Light",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Start_Month_1": "1",
+      "Start_Day_1": "1",
+      "End_Month_1": "1",
+      "End_Day_1": "3",
+      "Start_Month_2": "1",
+      "Start_Day_2": "4",
+      "End_Month_2": "12",
+      "End_Day_2": "31",
+      "ScheduleWeek_Name_1": "Office Bldg Light Week Rule - Jan1-Jan3",
+      "ScheduleWeek_Name_2": "Office Bldg Light Week Rule - Jan4-Dec31"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Infil Quarter On Week Rule - Jan1-Jan3",
+    "properties": {
+      "Name": "Office Infil Quarter On Week Rule - Jan1-Jan3",
+      "Sunday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Monday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Tuesday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Wednesday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Thursday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Friday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Saturday_ScheduleDay_Name": "Office Infil Quarter On Rule 2 Day Schedule",
+      "Holiday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "SummerDesignDay_ScheduleDay_Name": "Office Infil Quarter On Summer Design Day",
+      "WinterDesignDay_ScheduleDay_Name": "Office Infil Quarter On Winter Design Day",
+      "CustomDay1_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "CustomDay2_ScheduleDay_Name": "Office Infil Quarter On Default Schedule"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Infil Quarter On Week Rule - Jan4-Dec31",
+    "properties": {
+      "Name": "Office Infil Quarter On Week Rule - Jan4-Dec31",
+      "Sunday_ScheduleDay_Name": "Office Infil Quarter On Rule 1 Day Schedule",
+      "Monday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Tuesday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Wednesday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Thursday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Friday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "Saturday_ScheduleDay_Name": "Office Infil Quarter On Rule 2 Day Schedule",
+      "Holiday_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "SummerDesignDay_ScheduleDay_Name": "Office Infil Quarter On Summer Design Day",
+      "WinterDesignDay_ScheduleDay_Name": "Office Infil Quarter On Winter Design Day",
+      "CustomDay1_ScheduleDay_Name": "Office Infil Quarter On Default Schedule",
+      "CustomDay2_ScheduleDay_Name": "Office Infil Quarter On Default Schedule"
+    }
+  },
+  {
+    "type": "SCHEDULE:YEAR",
+    "name": "Office Infil Quarter On",
+    "properties": {
+      "Name": "Office Infil Quarter On",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Start_Month_1": "1",
+      "Start_Day_1": "1",
+      "End_Month_1": "1",
+      "End_Day_1": "3",
+      "Start_Month_2": "1",
+      "Start_Day_2": "4",
+      "End_Month_2": "12",
+      "End_Day_2": "31",
+      "ScheduleWeek_Name_1": "Office Infil Quarter On Week Rule - Jan1-Jan3",
+      "ScheduleWeek_Name_2": "Office Infil Quarter On Week Rule - Jan4-Dec31"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Misc Occ Week Rule - Jan1-Jan3",
+    "properties": {
+      "Name": "Office Misc Occ Week Rule - Jan1-Jan3",
+      "Sunday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Monday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Tuesday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Wednesday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Thursday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Friday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Saturday_ScheduleDay_Name": "Office Bldg Occ Rule 2 Day Schedule 1",
+      "Holiday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "SummerDesignDay_ScheduleDay_Name": "Office Bldg Occ Summer Design Day 1",
+      "WinterDesignDay_ScheduleDay_Name": "Office Bldg Occ Winter Design Day 1",
+      "CustomDay1_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "CustomDay2_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Misc Occ Week Rule - Jan4-Dec31",
+    "properties": {
+      "Name": "Office Misc Occ Week Rule - Jan4-Dec31",
+      "Sunday_ScheduleDay_Name": "Office Bldg Occ Rule 1 Day Schedule 1",
+      "Monday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Tuesday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Wednesday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Thursday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Friday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "Saturday_ScheduleDay_Name": "Office Bldg Occ Rule 2 Day Schedule 1",
+      "Holiday_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "SummerDesignDay_ScheduleDay_Name": "Office Bldg Occ Summer Design Day 1",
+      "WinterDesignDay_ScheduleDay_Name": "Office Bldg Occ Winter Design Day 1",
+      "CustomDay1_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1",
+      "CustomDay2_ScheduleDay_Name": "Office Bldg Occ Default Schedule 1"
+    }
+  },
+  {
+    "type": "SCHEDULE:YEAR",
+    "name": "Office Misc Occ",
+    "properties": {
+      "Name": "Office Misc Occ",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Start_Month_1": "1",
+      "Start_Day_1": "1",
+      "End_Month_1": "1",
+      "End_Day_1": "3",
+      "Start_Month_2": "1",
+      "Start_Day_2": "4",
+      "End_Month_2": "12",
+      "End_Day_2": "31",
+      "ScheduleWeek_Name_1": "Office Misc Occ Week Rule - Jan1-Jan3",
+      "ScheduleWeek_Name_2": "Office Misc Occ Week Rule - Jan4-Dec31"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Work Occ Week Rule - Jan1-Jan3",
+    "properties": {
+      "Name": "Office Work Occ Week Rule - Jan1-Jan3",
+      "Sunday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Monday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Tuesday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Wednesday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Thursday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Friday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Saturday_ScheduleDay_Name": "Office Bldg Occ Rule 2 Day Schedule",
+      "Holiday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "SummerDesignDay_ScheduleDay_Name": "Office Bldg Occ Summer Design Day",
+      "WinterDesignDay_ScheduleDay_Name": "Office Bldg Occ Winter Design Day",
+      "CustomDay1_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "CustomDay2_ScheduleDay_Name": "Office Bldg Occ Default Schedule"
+    }
+  },
+  {
+    "type": "SCHEDULE:WEEK:DAILY",
+    "name": "Office Work Occ Week Rule - Jan4-Dec31",
+    "properties": {
+      "Name": "Office Work Occ Week Rule - Jan4-Dec31",
+      "Sunday_ScheduleDay_Name": "Office Bldg Occ Rule 1 Day Schedule",
+      "Monday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Tuesday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Wednesday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Thursday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Friday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "Saturday_ScheduleDay_Name": "Office Bldg Occ Rule 2 Day Schedule",
+      "Holiday_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "SummerDesignDay_ScheduleDay_Name": "Office Bldg Occ Summer Design Day",
+      "WinterDesignDay_ScheduleDay_Name": "Office Bldg Occ Winter Design Day",
+      "CustomDay1_ScheduleDay_Name": "Office Bldg Occ Default Schedule",
+      "CustomDay2_ScheduleDay_Name": "Office Bldg Occ Default Schedule"
+    }
+  },
+  {
+    "type": "SCHEDULE:YEAR",
+    "name": "Office Work Occ",
+    "properties": {
+      "Name": "Office Work Occ",
+      "Schedule_Type_Limits_Name": "Fraction",
+      "Start_Month_1": "1",
+      "Start_Day_1": "1",
+      "End_Month_1": "1",
+      "End_Day_1": "3",
+      "Start_Month_2": "1",
+      "Start_Day_2": "4",
+      "End_Month_2": "12",
+      "End_Day_2": "31",
+      "ScheduleWeek_Name_1": "Office Work Occ Week Rule - Jan1-Jan3",
+      "ScheduleWeek_Name_2": "Office Work Occ Week Rule - Jan4-Dec31"
+    }
+  },
+  {
+    "type": "SCHEDULE:CONSTANT",
+    "name": "Always On Discrete",
+    "properties": {
+      "Name": "Always On Discrete",
+      "Schedule_Type_Limits_Name": "",
+      "Hourly_Value": "1"
+    }
+  },
+  {
+    "type": "SCHEDULE:CONSTANT",
+    "name": "Always Off Discrete",
+    "properties": {
+      "Name": "Always Off Discrete",
+      "Schedule_Type_Limits_Name": "",
+      "Hourly_Value": "0"
+    }
+  },
+  {
+    "type": "SCHEDULE:CONSTANT",
+    "name": "Always On Continuous",
+    "properties": {
+      "Name": "Always On Continuous",
+      "Schedule_Type_Limits_Name": "",
+      "Hourly_Value": "1"
+    }
+  },
+  {
+    "type": "SCHEDULESET",
+    "name": "Default Schedules - Office Misc Occ",
+    "properties": {
+      "Hours_of_Operation_Schedule_Name": "",
+      "Number_of_People_Schedule_Name": "Office Misc Occ",
+      "People_Activity_Schedule_Name": "Office Activity",
+      "Lighting_Schedule_Name": "Office Bldg Light",
+      "Electric_Equipment_Schedule_Name": "Office Bldg Equip",
+      "Gas_Equipment_Schedule_Name": "",
+      "Hot_Water_Equipment_Schedule_Name": "",
+      "Steam_Equipment_Schedule_Name": "",
+      "Other_Equipment_Schedule_Name": "",
+      "Infiltration_Schedule_Name": "Office Infil Quarter On"
+    }
+  },
+  {
+    "type": "SCHEDULESET",
+    "name": "Default Schedules - Office Work Occ",
+    "properties": {
+      "Hours_of_Operation_Schedule_Name": "",
+      "Number_of_People_Schedule_Name": "Office Work Occ",
+      "People_Activity_Schedule_Name": "Office Activity",
+      "Lighting_Schedule_Name": "Office Bldg Light",
+      "Electric_Equipment_Schedule_Name": "Office Bldg Equip",
+      "Gas_Equipment_Schedule_Name": "",
+      "Hot_Water_Equipment_Schedule_Name": "",
+      "Steam_Equipment_Schedule_Name": "",
+      "Other_Equipment_Schedule_Name": "",
+      "Infiltration_Schedule_Name": "Office Infil Quarter On"
+    }
+  }
+]

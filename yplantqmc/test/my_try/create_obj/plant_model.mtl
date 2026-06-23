@@ -1,0 +1,13 @@
+newmtl leaf_green
+Ka 0.04 0.16 0.04
+Kd 0.14 0.55 0.16
+Ks 0.06 0.08 0.06
+Ns 18
+d 1.0
+
+newmtl stem_green
+Ka 0.04 0.10 0.02
+Kd 0.28 0.40 0.10
+Ks 0.03 0.03 0.03
+Ns 8
+d 1.0

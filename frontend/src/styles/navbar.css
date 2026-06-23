@@ -1,0 +1,45 @@
+.navbar {
+  background-color: #ffffff;
+  color: #000000;
+  padding-top: 20px; /* Ajustez la hauteur si nécessaire */
+  padding-bottom: 20px; /* Ajustez la hauteur si nécessaire */
+  margin-bottom: 60px;
+  width: 100%; /* S'assure que la navbar occupe toute la largeur */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optionnel : ajoute une ombre pour un effet moderne */
+  display: flex;
+  align-items: center; /* Aligne les éléments verticalement */
+  justify-content: space-between; /* Répartit les éléments */
+  position: fixed; /* Reste en haut de la page lors du défilement */
+  top: 0;
+  z-index: 1000; /* Priorise la navbar au-dessus d'autres éléments */
+  height: 20px;
+}
+
+.navbar-logo {
+  width: 150px;
+  height: auto;
+  margin-left: 20px; /* Espace entre le bord gauche et le logo */
+}
+
+.navbar-links {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+.navbar-create-account {
+  border: 1.5px solid black; /* Simplifie la définition de la bordure */
+  color: black;
+  padding: 5px 15px;
+  margin-right: 20px; /* Espace entre le bord droit et le bouton */
+}
+
+.navbar-create-account:hover {
+  background-color: transparent;
+  border-color: black;
+}
+
+.navbar-menu-icon {
+  display: none; /* Pour activer les icônes de menu si nécessaire sur des écrans réduits */
+}

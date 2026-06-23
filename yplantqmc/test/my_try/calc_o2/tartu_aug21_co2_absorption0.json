@@ -1,0 +1,2448 @@
+{
+  "location": "Tartu, Estonia",
+  "date": "Aug 21",
+  "nsteps": 24,
+  "unit_timeofday": "hour (local time)",
+  "unit_duration": "seconds",
+  "unit_value": "grams CO2 per step",
+  "400": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "500": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "600": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "700": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "800": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "900": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "1000": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "1100": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "1200": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "1300": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "1400": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "1500": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "1600": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "1700": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "1800": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "1900": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "2000": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "2100": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "2200": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ],
+  "2300": [
+    {
+      "timeofday_h": 4.9138,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    },
+    {
+      "timeofday_h": 5.5344,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 6.155,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.000538
+    },
+    {
+      "timeofday_h": 6.7757,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.010784
+    },
+    {
+      "timeofday_h": 7.3963,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007643
+    },
+    {
+      "timeofday_h": 8.0169,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011715
+    },
+    {
+      "timeofday_h": 8.6375,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015357
+    },
+    {
+      "timeofday_h": 9.2581,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.036375
+    },
+    {
+      "timeofday_h": 9.8787,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.063982
+    },
+    {
+      "timeofday_h": 10.4993,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.064107
+    },
+    {
+      "timeofday_h": 11.1199,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022937
+    },
+    {
+      "timeofday_h": 11.7405,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023502
+    },
+    {
+      "timeofday_h": 12.3612,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023792
+    },
+    {
+      "timeofday_h": 12.9818,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.023483
+    },
+    {
+      "timeofday_h": 13.6024,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.022458
+    },
+    {
+      "timeofday_h": 14.223,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.020479
+    },
+    {
+      "timeofday_h": 14.8436,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.017985
+    },
+    {
+      "timeofday_h": 15.4642,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.015147
+    },
+    {
+      "timeofday_h": 16.0848,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.011422
+    },
+    {
+      "timeofday_h": 16.7054,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.007684
+    },
+    {
+      "timeofday_h": 17.326,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.004254
+    },
+    {
+      "timeofday_h": 17.9467,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": 0.001296
+    },
+    {
+      "timeofday_h": 18.5673,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.004492
+    },
+    {
+      "timeofday_h": 19.1879,
+      "duration_s": 2234.201,
+      "co2_absorbed_g": -0.006815
+    }
+  ]
+}

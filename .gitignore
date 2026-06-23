@@ -1,0 +1,164 @@
+# =========================================================
+# Java / Spring / Maven / Gradle
+# =========================================================
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven wrapper files are usually committed, so do NOT ignore:
+# mvnw
+# mvnw.cmd
+# .mvn/
+
+.gradle/
+
+
+# =========================================================
+# IntelliJ / JetBrains
+# =========================================================
+.idea/
+*.iml
+*.iws
+*.ipr
+
+
+# =========================================================
+# VS Code
+# =========================================================
+.vscode/
+.history/
+
+
+# =========================================================
+# React / Node / Vite
+# =========================================================
+node_modules/
+frontend/node_modules/
+
+dist/
+frontend/dist/
+
+.vite/
+frontend/.vite/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+.cache/
+frontend/.cache/
+frontend/node_modules/.cache/
+
+
+# =========================================================
+# Python
+# =========================================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+.venv/
+venv/
+env/
+ENV/
+
+.ipynb_checkpoints/
+
+
+# =========================================================
+# Conda / Python environment files
+# =========================================================
+.conda/
+conda-meta/
+
+
+# =========================================================
+# Environment / secrets
+# =========================================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+*.pem
+*.key
+*.crt
+
+
+# =========================================================
+# MongoDB / database / dumps
+# =========================================================
+data/
+dump/
+dumps/
+*.bson
+*.wt
+*.sqlite
+*.sqlite3
+*.db
+
+
+# =========================================================
+# Generated simulation files / EnergyPlus outputs
+# =========================================================
+generated_objs/
+simulation_results/
+outputs/
+output/
+results/
+result/
+runs/
+run/
+
+*.obj
+*.eso
+*.err
+*.eio
+*.mtr
+*.rdd
+*.mdd
+*.audit
+*.sql
+*.csv
+*.html
+*.htm
+
+
+# =========================================================
+# Large CozyBench / KNN data files
+# =========================================================
+Co-zyBench/knn/raw_ashrae_db2.01.csv
+
+# Keep this one if your code needs it
+!Co-zyBench/knn/ashrae_comfort_data.csv
+
+
+# =========================================================
+# Logs
+# =========================================================
+*.log
+logs/
+
+
+# =========================================================
+# OS files
+# =========================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# =========================================================
+# Temporary files
+# =========================================================
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo

@@ -1,0 +1,218 @@
+.Home {
+    display: flex;
+    flex-direction: column;
+    padding-left: 70px;
+    padding-right: 100px;
+  }
+  
+  .flex-container {
+    display: flex;
+    align-items: flex-start; /* Aligne les éléments en haut */
+    justify-content: space-between; /* Espace entre les éléments */
+    width: 80%;
+    margin-top: 35px;
+    padding-left: 150px;
+    padding-right: 150px;
+  }
+  
+  .text-container {
+    margin-top: 100px;
+    width: 400px;
+    height: auto;
+  }
+  
+  .text-container h1 {
+    font-size: 3em; /* Même taille que le titre principal */
+    font-weight: 400;
+    margin-bottom: 20px; /* Ajout d'espace en dessous */
+  }
+  
+  .text-container h2 {
+    font-size: 1em;
+    font-weight: 400;
+    margin-bottom: 35px; /* Ajout d'espace similaire au précédent */
+  }
+  
+  .start-button {
+    padding: 20px 35px;
+    width: 261px;
+    height: 68px;
+    background: #4682b4;
+    border-radius: 10px;
+  }
+  
+  .button-text {
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px;
+    margin: 0px;
+    color: #ffffff;
+  }
+  
+  .services-section {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .services-section h1 {
+    margin-bottom: 20px; /* Réduction de l'espace sous le titre */
+    font-size: 2.5em; /* Même taille que le titre principal */
+    font-weight: 400;
+    margin-left: 115px;
+    margin-bottom: 50px;
+  }
+  
+  .services-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espacement vertical entre les lignes de boîtes */
+    align-items: center;
+    margin-top: 0; /* Supprime tout espacement vertical au-dessus */
+  }
+  
+  .service-box-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Espacement horizontal entre les boîtes */
+    width: 100%;
+    margin-top: 0; /* Supprime tout espacement vertical au-dessus des lignes */
+  }
+  
+  .service-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-radius: 15px;
+    width: 350px;
+    height: 150px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .service-box h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  
+  .service-box p {
+    color: black;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .service-box.light-gray {
+    background-color: #F3F3F3;
+   
+    border: 1px solid #191A23;
+    box-shadow: 0px 3px 0px #191A23;
+    border-radius: 30px;
+  }
+  
+  .service-box.green {
+    background-color: #9ACD32;
+    border: 1px solid #191A23;
+    box-shadow: 0px 3px 0px #191A23;
+    border-radius: 30px;
+  }
+  
+  .service-box.blue {
+    background-color: #4682B4;
+    border: 1px solid #191A23;
+    box-shadow: 0px 3px 0px #191A23;
+    border-radius: 30px;
+  }
+  
+
+  .service-text {
+    flex: 1; /* Prend toute la largeur restante pour le texte */
+  }
+
+  .service-image img {
+    width: 150px;
+    height: auto;
+    margin-left: 20px;
+  }
+  
+
+  .team-section {
+    text-align: center;
+    padding: 50px 20px;
+    margin-top: 90px;
+  }
+  
+  .team-header h1 {
+    margin-bottom: 20px; /* Réduction de l'espace sous le titre */
+    font-size: 2.5em; /* Même taille que le titre principal */
+    font-weight: 400;
+    margin-left: 125px;
+    margin-bottom: 50px;
+    background-color: #B9FF66;
+    width: 120px;
+  }
+  
+  .team-header p {
+    font-size: 1.2em;
+    color: #555;
+    margin-bottom: 30px;
+  }
+  
+  .team-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  .team-card {
+    position: relative; 
+    background: #FFFFFF;
+    border: 1px solid #191A23;
+    border-radius: 30px;
+    box-shadow: 0px 3px 0px #191A23;
+    padding: 20px;
+    width: 300px;
+    text-align: left;
+    margin-bottom: 30px;
+  }
+  
+  .team-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-left: 30px;
+  }
+  
+
+
+  .team-card .linkedin-icon {
+    position: absolute;
+    top: 35px; /* Position dans le coin supérieur droit */
+    right: 60px;
+    width: 2px;
+    height: 15px;
+    background-color: #0077b5; /* Couleur bleu LinkedIn */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .team-card .linkedin-icon img {
+    width: 40px;
+    height: 40px;
+  }
+
+
+  
+  .team-card h3 {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+    text-align: center;
+  }
+  
+  .team-card p {
+    font-size: 1em;
+    color: #555;
+    text-align: center;
+  }
