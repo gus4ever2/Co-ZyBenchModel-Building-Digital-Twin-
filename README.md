@@ -91,7 +91,7 @@ Do not run docker compose down -v unless you intend to delete persistent MongoDB
 
 ## Troubleshooting
 
-- SSH permission denied: verify the username, host and public key in that account's ~/.ssh/authorized_keys.
+- SSH login fails: check that the server IP address and username are correct, then enter the password provided for your server.
 - Git clone or pull fails: confirm the server can access the Git remote and that docker-deployment was pushed.
 - Compose reports a missing build context: all three project directories must be siblings inside the same checkout.
 - A service is unhealthy: inspect docker compose ps and docker compose logs SERVICE_NAME.
