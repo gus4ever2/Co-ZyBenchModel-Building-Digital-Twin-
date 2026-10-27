@@ -1,0 +1,16 @@
+.git
+.idea/
+target/
+.codex-build/
+.runtime-tmp/
+deliverables/
+document-edits/
+output/
+tmp/
+docs/
+*.docx
+*.pdf
+*.pptx
+*.rar
+.env
+.env.*

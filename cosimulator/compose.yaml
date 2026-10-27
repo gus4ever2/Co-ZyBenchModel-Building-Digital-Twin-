@@ -1,0 +1,83 @@
+name: cozybench
+
+services:
+  mongo:
+    image: mongo:7.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: cozybench
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  cosimulator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ENERGYPLUS_HOME: /opt/EnergyPlus-26.1.0-6f2e40d102-Linux-Ubuntu24.04-x86_64
+      COSIMULATOR_HOST: 0.0.0.0
+      COSIMULATOR_PORT: 5000
+      COSIMULATOR_MONGO_URI: mongodb://mongo:27017/
+      COSIMULATOR_MONGO_DATABASE: cozybench
+      COSIMULATOR_CORS_ORIGINS: '["http://localhost:3000"]'
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - cosimulator-workspace:/app/data/workspace
+      - cosimulator-output:/app/data/output
+      - cosimulator-logs:/app/logs
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  backend:
+    build:
+      context: ../cozybench-backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/cozybench
+      COZYBENCH_COSIMULATOR_BASE_URL: http://cosimulator:5000
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env before starting Compose}
+    expose:
+      - "8080"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      cosimulator:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../cozybench-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_BUILDING_DT_API_BASE_URL: ${VITE_BUILDING_DT_API_BASE_URL:-/api/building-dt/components}
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:
+  cosimulator-workspace:
+  cosimulator-output:
+  cosimulator-logs:
+
