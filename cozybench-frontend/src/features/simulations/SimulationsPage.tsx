@@ -558,11 +558,14 @@ function snapshotPropertyEntries(component: ComponentSnapshot) {
   });
 }
 
+type ComparisonPanel = "energy" | "co2" | "temperature" | "humidity" | "ventilation" | "construction";
+
 function ComparisonResults(props: {
   compared: ComparedSimulation[];
   analysis: SimulationComparisonResponse;
 }) {
   const [selectedThermalZone, setSelectedThermalZone] = createSignal("");
+  const [activePanel, setActivePanel] = createSignal<ComparisonPanel | null>(null);
   const thermalZones = createMemo(() => {
     const names = new Set<string>();
     props.analysis.comparisons.forEach((comparison) =>
@@ -595,6 +598,16 @@ function ComparisonResults(props: {
     );
     return [...names].sort((left, right) => left.localeCompare(right));
   });
+  const panelTitle = (panel: ComparisonPanel) => ({
+    energy: "Energy consumption",
+    co2: "CO₂ concentration by thermal zone",
+    temperature: "Temperature by thermal zone",
+    humidity: "Humidity by thermal zone",
+    ventilation: "Ventilation / outdoor-air control",
+    construction: "Compare Construction Sets",
+  })[panel];
+  const panelNeedsZone = (panel: ComparisonPanel) =>
+    panel !== "energy";
 
   return (
     <section class="flex h-full min-h-0 flex-col p-5 sm:p-6">
@@ -623,194 +636,173 @@ function ComparisonResults(props: {
           </div>
         </aside>
 
-        <div class="cozy-scrollbar min-h-0 space-y-3 overflow-y-auto pr-1">
-          <section class="rounded-2xl border border-warm-stone/20 bg-cloud-white p-4">
-            <div class="mb-3">
-              <h2 class="text-sm font-bold text-graphite">Thermal zone</h2>
-              <p class="mt-1 text-xs text-graphite/50">
-                Select one zone for the CO₂, temperature, humidity, and construction comparisons.
-              </p>
-            </div>
-            <div class="flex flex-wrap gap-2" aria-label="Select thermal zone">
-              <For each={thermalZones()}>
-                {(zone) => (
-                  <button
-                    type="button"
-                    aria-pressed={activeThermalZone() === zone}
-                    onClick={() => setSelectedThermalZone(zone)}
-                    class="rounded-full border px-3 py-2 text-xs font-semibold transition"
-                    classList={{
-                      "border-citadel-blue bg-citadel-blue text-cloud-white shadow-sm":
-                        activeThermalZone() === zone,
-                      "border-warm-stone/25 bg-cloud-white text-graphite/65 hover:border-citadel-blue/45 hover:bg-sky-mist/25":
-                        activeThermalZone() !== zone,
-                    }}
-                  >
-                    {zone}
-                  </button>
-                )}
-              </For>
-            </div>
-          </section>
-
-          <ComparisonSection
-            title="Energy consumption"
-            description="Absolute values and heating/cooling consumption across time."
-          >
-            <EnergyTotals compared={props.compared} />
-            <div class="mt-4 space-y-4">
-              <Chart title="Heating consumption">
-                <EChart
-                  option={meterOption(props.compared, "heating_electricity_j")}
-                />
-              </Chart>
-              <Chart title="Cooling consumption">
-                <EChart
-                  option={meterOption(props.compared, "cooling_electricity_j")}
-                />
-              </Chart>
-              <Chart title="Total HVAC consumption">
-                <EChart
-                  option={meterOption(props.compared, "hvac_electricity_j")}
-                />
-              </Chart>
-            </div>
-          </ComparisonSection>
-
-          <ComparisonSection
-            title="CO₂ concentration by thermal zone"
-            description="Select one thermal zone to inspect its CO₂ concentration in ppm."
-          >
-            <Show when={activeThermalZone()} keyed>
-              {(zone) => (
-                <div class="space-y-5">
-                  <Chart title={`${zone} · CO₂ concentration`}>
-                    <EChart
-                      option={zoneCo2Option(props.compared, zone)}
-                      class="h-[26rem] w-full sm:h-[30rem]"
-                    />
-                  </Chart>
-
-                  <section>
-                    <div class="mb-3">
-                      <h3 class="font-bold text-graphite">
-                        ΔCO₂ against the baseline
-                      </h3>
-                      <p class="mt-1 text-xs text-graphite/50">
-                        All compared simulations share one chart. Positive
-                        values mean that the baseline has the higher CO₂
-                        concentration.
-                      </p>
-                    </div>
-                    <Show when={activeZoneComparisons().length > 0}>
-                      <Chart title={`${zone} · ΔCO₂ comparison`}>
-                        <EChart
-                          option={deltaCo2Option(
-                            props.analysis.baseline,
-                            activeZoneComparisons(),
-                            props.analysis.plantConfigurations,
-                          )}
-                          class="h-[26rem] w-full sm:h-[30rem]"
-                        />
-                      </Chart>
-                    </Show>
-                  </section>
-
-                  <section>
-                    <div class="mb-3">
-                      <h3 class="font-bold text-graphite">Summary</h3>
-                      <p class="mt-1 text-xs text-graphite/50">
-                        Compare every plant scenario side by side against the
-                        first selected baseline.
-                      </p>
-                    </div>
-                    <Co2SummaryComparisonView
-                      baseline={props.analysis.baseline}
-                      comparisons={activeZoneComparisons()}
-                      comparedSimulations={props.compared}
-                      plantConfigurations={props.analysis.plantConfigurations}
-                      analysisRange={props.analysis.analysisRange}
-                    />
-                  </section>
-                </div>
-              )}
-            </Show>
-          </ComparisonSection>
-
-          <ComparisonSection
-            title="Temperature by thermal zone"
-            description="Zone air temperature over time, with summary statistics and difference from the baseline."
-          >
-            <Show when={activeThermalZone()} keyed>
-              {(zone) => (
-                <ThermalZoneMetricComparisonView
-                  compared={props.compared}
-                  baseline={props.analysis.baseline}
-                  zone={zone}
-                  metric="temperature"
-                />
-              )}
-            </Show>
-          </ComparisonSection>
-
-          <ComparisonSection
-            title="Humidity by thermal zone"
-            description="Zone relative humidity over time, with summary statistics and difference from the baseline."
-          >
-            <Show when={activeThermalZone()} keyed>
-              {(zone) => (
-                <ThermalZoneMetricComparisonView
-                  compared={props.compared}
-                  baseline={props.analysis.baseline}
-                  zone={zone}
-                  metric="humidity"
-                />
-              )}
-            </Show>
-          </ComparisonSection>
-
-          <ComparisonSection
-            title="Ventilation / outdoor-air control"
-            description="Actual outdoor-air fraction in the HVAC air loop, including the effect of DCV and economizer control."
-          >
-            <VentilationOutdoorAirControl compared={props.compared} baseline={props.analysis.baseline} />
-          </ComparisonSection>
-
-          <Show when={zonesWithWindows().length > 0}>
-            <ComparisonSection
-              title="Window opening by thermal zone"
-              description="Average window opening percentage in each zone at every timestep."
-            >
-              <div class="grid gap-4 xl:grid-cols-2">
-                <For each={zonesWithWindows()}>
-                  {(zone) => (
-                    <Chart title={zone}>
-                      <EChart option={zoneWindowOption(props.compared, zone)} />
-                    </Chart>
-                  )}
-                </For>
-              </div>
-            </ComparisonSection>
-          </Show>
-
-          <ComparisonSection
-            title="Compare Construction Sets"
-            description="Review construction differences and their effect on operative temperature against the baseline."
-          >
-            <ConstructionSetComparison
-              simulations={props.compared.map((item) => item.simulation)}
+        <div class="cozy-scrollbar min-h-0 overflow-y-auto pr-1">
+          <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <AnalysisCard
+              icon={<Gauge />}
+              title="Energy consumption"
+              description="Heating, cooling and total HVAC use across time."
+              onClick={() => setActivePanel("energy")}
             />
-            <div class="mt-6 border-t border-warm-stone/15 pt-6">
-              <OperativeTemperatureComparisonView
-                baseline={props.analysis.baseline}
-                comparedSimulations={props.compared}
-                comparisons={activeZoneComparisons()}
-                zoneName={activeThermalZone()}
-              />
-            </div>
-          </ComparisonSection>
+            <AnalysisCard
+              icon={<Wind />}
+              title="CO₂ concentration"
+              description="Inspect zone CO₂ levels and differences from the baseline."
+              onClick={() => setActivePanel("co2")}
+            />
+            <AnalysisCard
+              icon={<PanelsTopLeft />}
+              title="Temperature"
+              description="Explore zone air temperature and its change from baseline."
+              onClick={() => setActivePanel("temperature")}
+            />
+            <AnalysisCard
+              icon={<Leaf />}
+              title="Humidity"
+              description="Explore zone relative humidity and its change from baseline."
+              onClick={() => setActivePanel("humidity")}
+            />
+            <AnalysisCard
+              icon={<Wind />}
+              title="Ventilation / outdoor-air control"
+              description="Review outdoor-air fraction, window opening and control."
+              onClick={() => setActivePanel("ventilation")}
+            />
+            <AnalysisCard
+              icon={<BrickWall />}
+              title="Compare Construction Sets"
+              description="Review construction differences and operative temperature."
+              onClick={() => setActivePanel("construction")}
+            />
+          </div>
         </div>
       </div>
+
+      <Show when={activePanel()} keyed>
+        {(panel) => (
+          <ComparisonAnalysisDialog
+            title={panelTitle(panel)}
+            onClose={() => setActivePanel(null)}
+          >
+            <div class="space-y-5">
+              <Show when={panelNeedsZone(panel)}>
+                <ThermalZoneSelector
+                  zones={thermalZones()}
+                  selected={activeThermalZone()}
+                  onSelect={setSelectedThermalZone}
+                />
+              </Show>
+
+              <Switch>
+                <Match when={panel === "energy"}>
+                  <EnergyTotals compared={props.compared} />
+                  <div class="mt-4 space-y-4">
+                    <Chart title="Heating consumption">
+                      <EChart option={meterOption(props.compared, "heating_electricity_j")} />
+                    </Chart>
+                    <Chart title="Cooling consumption">
+                      <EChart option={meterOption(props.compared, "cooling_electricity_j")} />
+                    </Chart>
+                    <Chart title="Total HVAC consumption">
+                      <EChart option={meterOption(props.compared, "hvac_electricity_j")} />
+                    </Chart>
+                  </div>
+                </Match>
+
+                <Match when={panel === "co2"}>
+                  <Show when={activeThermalZone()} keyed>
+                    {(zone) => (
+                      <div class="space-y-5">
+                        <Chart title={`${zone} · CO₂ concentration`}>
+                          <EChart option={zoneCo2Option(props.compared, zone)} class="h-[26rem] w-full sm:h-[30rem]" />
+                        </Chart>
+                        <section>
+                          <div class="mb-3">
+                            <h3 class="font-bold text-graphite">ΔCO₂ against the baseline</h3>
+                            <p class="mt-1 text-xs text-graphite/50">
+                              Positive values mean that the baseline has the higher CO₂ concentration.
+                            </p>
+                          </div>
+                          <Show when={activeZoneComparisons().length > 0}>
+                            <Chart title={`${zone} · ΔCO₂ comparison`}>
+                              <EChart
+                                option={deltaCo2Option(props.analysis.baseline, activeZoneComparisons(), props.analysis.plantConfigurations)}
+                                class="h-[26rem] w-full sm:h-[30rem]"
+                              />
+                            </Chart>
+                          </Show>
+                        </section>
+                        <section>
+                          <div class="mb-3">
+                            <h3 class="font-bold text-graphite">Summary</h3>
+                            <p class="mt-1 text-xs text-graphite/50">
+                              Compare every plant scenario side by side against the first selected baseline.
+                            </p>
+                          </div>
+                          <Co2SummaryComparisonView
+                            baseline={props.analysis.baseline}
+                            comparisons={activeZoneComparisons()}
+                            comparedSimulations={props.compared}
+                            plantConfigurations={props.analysis.plantConfigurations}
+                            analysisRange={props.analysis.analysisRange}
+                          />
+                        </section>
+                      </div>
+                    )}
+                  </Show>
+                </Match>
+
+                <Match when={panel === "temperature"}>
+                  <Show when={activeThermalZone()} keyed>
+                    {(zone) => (
+                      <ThermalZoneMetricComparisonView
+                        compared={props.compared}
+                        baseline={props.analysis.baseline}
+                        zone={zone}
+                        metric="temperature"
+                      />
+                    )}
+                  </Show>
+                </Match>
+
+                <Match when={panel === "humidity"}>
+                  <Show when={activeThermalZone()} keyed>
+                    {(zone) => (
+                      <ThermalZoneMetricComparisonView
+                        compared={props.compared}
+                        baseline={props.analysis.baseline}
+                        zone={zone}
+                        metric="humidity"
+                      />
+                    )}
+                  </Show>
+                </Match>
+
+                <Match when={panel === "ventilation"}>
+                  <VentilationOutdoorAirControl compared={props.compared} baseline={props.analysis.baseline} />
+                  <Show when={zonesWithWindows().includes(activeThermalZone())}>
+                    <Chart title={`${activeThermalZone()} · window opening`}>
+                      <EChart option={zoneWindowOption(props.compared, activeThermalZone())} />
+                    </Chart>
+                  </Show>
+                </Match>
+
+                <Match when={panel === "construction"}>
+                  <ConstructionSetComparison simulations={props.compared.map((item) => item.simulation)} />
+                  <div class="border-t border-warm-stone/15 pt-5">
+                    <OperativeTemperatureComparisonView
+                      baseline={props.analysis.baseline}
+                      comparedSimulations={props.compared}
+                      comparisons={activeZoneComparisons()}
+                      zoneName={activeThermalZone()}
+                    />
+                  </div>
+                </Match>
+              </Switch>
+            </div>
+          </ComparisonAnalysisDialog>
+        )}
+      </Show>
     </section>
   );
 }
@@ -882,37 +874,99 @@ function ParameterRow(props: { label: string; value: string }) {
   );
 }
 
-function ComparisonSection(props: {
+function AnalysisCard(props: {
+  icon: unknown;
   title: string;
   description: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={props.onClick}
+      class="flex min-h-28 w-full items-center gap-3 rounded-2xl border border-warm-stone/20 bg-cloud-white p-4 text-left shadow-sm transition hover:border-citadel-blue/35 hover:bg-sky-mist/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-citadel-blue/50"
+    >
+      <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-sky-mist/50 text-citadel-blue">
+        {props.icon as any}
+      </span>
+      <span class="min-w-0 flex-1">
+        <strong class="block text-sm text-graphite">{props.title}</strong>
+        <span class="mt-1 block text-xs leading-relaxed text-graphite/50">{props.description}</span>
+      </span>
+      <span class="grid size-8 shrink-0 place-items-center rounded-full border border-citadel-blue/25 text-citadel-blue">
+        <ChevronDown class="size-4 -rotate-90" />
+      </span>
+    </button>
+  );
+}
+
+function ThermalZoneSelector(props: {
+  zones: string[];
+  selected: string;
+  onSelect: (zone: string) => void;
+}) {
+  return (
+    <section class="rounded-2xl border border-warm-stone/20 bg-sky-mist/15 p-4">
+      <h3 class="mb-3 text-sm font-bold text-graphite">Thermal zone</h3>
+      <div class="flex flex-wrap gap-2" aria-label="Select thermal zone">
+        <For each={props.zones}>
+          {(zone) => (
+            <button
+              type="button"
+              aria-pressed={props.selected === zone}
+              onClick={() => props.onSelect(zone)}
+              class="rounded-full border px-3 py-2 text-xs font-semibold transition"
+              classList={{
+                "border-citadel-blue bg-citadel-blue text-cloud-white shadow-sm": props.selected === zone,
+                "border-warm-stone/25 bg-cloud-white text-graphite/65 hover:border-citadel-blue/45 hover:bg-sky-mist/25": props.selected !== zone,
+              }}
+            >
+              {zone}
+            </button>
+          )}
+        </For>
+      </div>
+    </section>
+  );
+}
+
+function ComparisonAnalysisDialog(props: {
+  title: string;
+  onClose: () => void;
   children: unknown;
 }) {
-  const [open, setOpen] = createSignal(false);
+  let dialog!: HTMLDialogElement;
+  onMount(() => dialog.showModal());
+  const close = () => {
+    if (dialog.open) dialog.close();
+    else props.onClose();
+  };
   return (
-    <section class="overflow-hidden rounded-2xl border border-warm-stone/20 bg-cloud-white">
-      <button
-        type="button"
-        aria-expanded={open()}
-        onClick={() => setOpen((value) => !value)}
-        class="flex w-full items-center gap-4 px-5 py-4 text-left transition hover:bg-sky-mist/15"
+    <Portal>
+      <dialog
+        ref={dialog}
+        aria-label={props.title}
+        onClose={props.onClose}
+        onClick={(event) => { if (event.target === dialog) close(); }}
+        class="m-auto flex h-[min(56rem,92dvh)] w-[min(88rem,96vw)] max-w-none flex-col overflow-hidden rounded-3xl border border-warm-stone/20 bg-cloud-white p-0 shadow-2xl backdrop:bg-black/50"
       >
-        <span class="min-w-0 flex-1">
-          <strong class="block text-sm text-graphite">{props.title}</strong>
-          <span class="mt-1 block text-xs text-graphite/50">
-            {props.description}
-          </span>
-        </span>
-        <ChevronDown
-          class="size-5 shrink-0 text-citadel-blue transition-transform"
-          classList={{ "rotate-180": open() }}
-        />
-      </button>
-      <Show when={open()}>
-        <div class="border-t border-warm-stone/15 p-4 sm:p-5">
+        <header class="relative shrink-0 border-b border-citadel-blue/10 bg-sky-mist/30 px-6 py-4 pr-14">
+          <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-citadel-blue">Simulation analysis</p>
+          <h2 class="mt-1 text-lg font-bold text-graphite">{props.title}</h2>
+          <button
+            type="button"
+            aria-label="Close analysis"
+            onClick={close}
+            class="absolute right-4 top-4 rounded-lg p-1 text-graphite/55 hover:bg-sky-mist/40"
+          >
+            <X class="size-5" />
+          </button>
+        </header>
+        <div class="cozy-scrollbar min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
           {props.children as any}
         </div>
-      </Show>
-    </section>
+      </dialog>
+    </Portal>
   );
 }
 
