@@ -9,68 +9,33 @@ This branch contains the Docker deployment for the three projects. The Compose f
 - An SSH account on the server.
 - A Git remote that contains the docker-deployment branch.
 
-## 1. Set up SSH from Windows
+## 1. Push the Docker branch
 
-Open PowerShell on your computer. If you do not already have an SSH key, create one:
-
-~~~powershell
-ssh-keygen -t ed25519 -C "cozybench-deploy"
-~~~
-
-Press Enter to accept the default key path. Add a passphrase if you want the private key protected. Display the public key:
-
-~~~powershell
-Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub"
-~~~
-
-Add that one-line public key to the server account's ~/.ssh/authorized_keys. Never copy the private id_ed25519 file to the server or repository.
-
-Test the connection, replacing the placeholders with the account and host provided by your server administrator:
-
-~~~powershell
-ssh -i "$env:USERPROFILE\.ssh\id_ed25519" SERVER_USER@SERVER_HOST
-~~~
-
-To copy a file over SSH, use scp:
-
-~~~powershell
-scp .\file.txt SERVER_USER@SERVER_HOST:~/file.txt
-~~~
-
-## 2. Push the deployment branch to your Git remote
-
-From the top-level repository folder on your computer, check or configure the remote:
+From the project folder on your computer, push the deployment branch to the configured Git remote:
 
 ~~~cmd
-git remote -v
-git remote add origin YOUR_GIT_REMOTE_URL
-~~~
-
-Run the second command only if origin is not already configured. Then push both branches:
-
-~~~cmd
-git push -u origin master
 git push -u origin docker-deployment
 ~~~
 
-Do not put a password or access token in the remote URL.
+## 2. Connect to the server
 
-## 3. Connect to the server and get the deployment files
-
-Connect over SSH:
+Open PowerShell on Windows and connect with the username and IP address provided for your server:
 
 ~~~powershell
-ssh SERVER_USER@SERVER_HOST
+ssh SERVER_USER@SERVER_IP
 ~~~
 
-On the server, clone only the deployment branch:
+Replace SERVER_USER and SERVER_IP with your actual username and server IP. When prompted, type your server password and press Enter. The password does not appear while you type.
+## 3. Get the project on the server
+
+After you connect, run these commands on the server:
 
 ~~~bash
 git clone --branch docker-deployment --single-branch YOUR_GIT_REMOTE_URL cozybench
 cd cozybench/cosimulator
 ~~~
 
-If you transfer files with scp instead, keep cozybench-backend, cozybench-frontend and cosimulator together under one parent folder, then enter its cosimulator directory.
+Replace YOUR_GIT_REMOTE_URL with the repository address. Then continue to the next step to create the Compose environment file.
 
 ## 4. Create the Compose environment file
 
@@ -132,3 +97,4 @@ Do not run docker compose down -v unless you intend to delete persistent MongoDB
 - A service is unhealthy: inspect docker compose ps and docker compose logs SERVICE_NAME.
 - The browser cannot connect: check the server firewall and that CORS_ALLOWED_ORIGINS matches the browser origin.
 - JWT secret is missing: confirm cosimulator/.env exists and JWT_SECRET is not the example placeholder.
+
