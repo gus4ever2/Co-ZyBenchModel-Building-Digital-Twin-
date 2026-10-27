@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cosimulator"
+version = "0.1.0"
+description = "FastAPI server for EnergyPlus co-simulations"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "eppy",
+    "energyplus-api-helpers==0.4",
+    "fastapi[standard]",
+    "pydantic-settings",
+    "pymongo",
+    "polars>=1.0,<2",
+    "rpy2==3.6.9",
+    "openalea.caribu",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cosimulator"]
+
+[tool.fastapi]
+entrypoint = "cosimulator.main:app"
+
+[project.optional-dependencies]
+test = ["pytest"]

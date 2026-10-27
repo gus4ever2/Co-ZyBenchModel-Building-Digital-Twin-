@@ -1,0 +1,425 @@
+[{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtRoof IEAD ClimateZone 1",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtRoof IEAD ClimateZone 1",
+    "Outside_Layer": "Roof Membrane",
+    "Layer_2": "Roof Insulation [18]",
+    "Layer_3": "Metal Decking",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtRoof IEAD ClimateZone 2-5",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtRoof IEAD ClimateZone 2-5",
+    "Outside_Layer": "Roof Membrane",
+    "Layer_2": "Roof Insulation [21]",
+    "Layer_3": "Metal Decking",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtRoof IEAD ClimateZone 7-8",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtRoof IEAD ClimateZone 7-8",
+    "Outside_Layer": "Roof Membrane",
+    "Layer_2": "Roof Insulation [26]",
+    "Layer_3": "Metal Decking",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtRoof Metal ClimateZone 6",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtRoof Metal ClimateZone 6",
+    "Outside_Layer": "Metal Roofing",
+    "Layer_2": "Roof Insulation [25]",
+    "Layer_3": "Metal Decking",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 1",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 1",
+    "Outside_Layer": "1IN Stucco",
+    "Layer_2": "8IN Concrete HW",
+    "Layer_3": "Wall Insulation [31]",
+    "Layer_4": "1/2IN Gypsum",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 2",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 2",
+    "Outside_Layer": "1IN Stucco",
+    "Layer_2": "8IN Concrete HW",
+    "Layer_3": "Wall Insulation [35]",
+    "Layer_4": "1/2IN Gypsum",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 3",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 3",
+    "Outside_Layer": "1IN Stucco",
+    "Layer_2": "8IN Concrete HW",
+    "Layer_3": "Wall Insulation [36]",
+    "Layer_4": "1/2IN Gypsum",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 4",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 4",
+    "Outside_Layer": "1IN Stucco",
+    "Layer_2": "8IN Concrete HW",
+    "Layer_3": "Wall Insulation [37]",
+    "Layer_4": "1/2IN Gypsum",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 5",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 5",
+    "Outside_Layer": "1IN Stucco",
+    "Layer_2": "8IN Concrete HW",
+    "Layer_3": "Wall Insulation [40]",
+    "Layer_4": "1/2IN Gypsum",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 6",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 6",
+    "Outside_Layer": "1IN Stucco",
+    "Layer_2": "8IN Concrete HW",
+    "Layer_3": "Wall Insulation [42]",
+    "Layer_4": "1/2IN Gypsum",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 7-8",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWall Mass ClimateZone 7-8",
+    "Outside_Layer": "1IN Stucco",
+    "Layer_2": "8IN Concrete HW",
+    "Layer_3": "Wall Insulation [44]",
+    "Layer_4": "1/2IN Gypsum",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 1",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 1",
+    "Outside_Layer": "Theoretical Glass [167]",
+    "Layer_2": "",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 2",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 2",
+    "Outside_Layer": "Theoretical Glass [197]",
+    "Layer_2": "",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 3",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 3",
+    "Outside_Layer": "Theoretical Glass [202]",
+    "Layer_2": "",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 4-5",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 4-5",
+    "Outside_Layer": "Theoretical Glass [207]",
+    "Layer_2": "",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 6",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 6",
+    "Outside_Layer": "Theoretical Glass [216]",
+    "Layer_2": "",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 7-8",
+  "properties": {
+    "Name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 7-8",
+    "Outside_Layer": "Theoretical Glass [221]",
+    "Layer_2": "",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "ExtSlabCarpet 4in ClimateZone 1-8",
+  "properties": {
+    "Name": "ExtSlabCarpet 4in ClimateZone 1-8",
+    "Outside_Layer": "MAT-CC05 4 HW CONCRETE",
+    "Layer_2": "CP02 CARPET PAD",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "Exterior Door",
+  "properties": {
+    "Name": "Exterior Door",
+    "Outside_Layer": "F08 Metal surface",
+    "Layer_2": "I01 25mm insulation board",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "Interior Ceiling",
+  "properties": {
+    "Name": "Interior Ceiling",
+    "Outside_Layer": "M11 100mm lightweight concrete",
+    "Layer_2": "F05 Ceiling air space resistance",
+    "Layer_3": "F16 Acoustic tile",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "Interior Door",
+  "properties": {
+    "Name": "Interior Door",
+    "Outside_Layer": "G05 25mm wood",
+    "Layer_2": "",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "Interior Floor",
+  "properties": {
+    "Name": "Interior Floor",
+    "Outside_Layer": "F16 Acoustic tile",
+    "Layer_2": "F05 Ceiling air space resistance",
+    "Layer_3": "M11 100mm lightweight concrete",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "Interior Partition",
+  "properties": {
+    "Name": "Interior Partition",
+    "Outside_Layer": "G05 25mm wood",
+    "Layer_2": "",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "Interior Wall",
+  "properties": {
+    "Name": "Interior Wall",
+    "Outside_Layer": "G01a 19mm gypsum board",
+    "Layer_2": "F04 Wall air space resistance",
+    "Layer_3": "G01a 19mm gypsum board",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+},
+{
+  "type": "CONSTRUCTION",
+  "name": "Interior Window",
+  "properties": {
+    "Name": "Interior Window",
+    "Outside_Layer": "Clear 3mm",
+    "Layer_2": "",
+    "Layer_3": "",
+    "Layer_4": "",
+    "Layer_5": "",
+    "Layer_6": "",
+    "Layer_7": "",
+    "Layer_8": "",
+    "Layer_9": "",
+    "Layer_10": ""
+  }
+}]

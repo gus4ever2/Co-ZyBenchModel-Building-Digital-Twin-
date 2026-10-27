@@ -1,0 +1,1 @@
+"""Schedule type limit definitions."""

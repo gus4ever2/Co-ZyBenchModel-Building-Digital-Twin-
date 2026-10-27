@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+@theme {
+  --color-citadel-blue: #3c6f8f;
+  --color-sky-mist: #b7cada;
+  --color-graphite: #1e201d;
+  --color-olive-moss: #4d4936;
+  --color-warm-stone: #8b7d73;
+  --color-cloud-white: #f1f3f2;
+  --color-red-wine: #641d16;
+
+  /* Semantic aliases */
+  --color-primary: #3c6f8f;
+  --color-secondary: #4d4936;
+  --color-selected: #b7cada;
+  --color-surface: #f1f3f2;
+  --color-foreground: #1e201d;
+  --color-border-natural: #8b7d73;
+  --color-error: #641d16;
+}
+
+@layer components {
+  .cozy-map-marker {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 3px solid var(--color-cloud-white);
+    border-radius: 999px;
+    background: var(--marker-color);
+    box-shadow: 0 6px 18px rgb(30 32 29 / 30%);
+  }
+
+  .cozy-map-marker > span {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--color-cloud-white);
+  }
+
+  .cozy-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-citadel-blue) transparent;
+  }
+
+  .cozy-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .cozy-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .cozy-scrollbar::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-citadel-blue) 78%, transparent);
+    background-clip: padding-box;
+  }
+
+  .cozy-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-citadel-blue);
+    background-clip: padding-box;
+  }
+
+  /* Common styling for text-like form controls */
+  .form-input {
+    @apply w-full
+        rounded-xl
+        border
+        border-warm-stone/40
+        bg-sky-mist/20
+        px-4
+        py-3
+        text-graphite
+        outline-none
+        transition;
+  }
+
+  .form-input::placeholder {
+    @apply text-graphite/35;
+  }
+
+  .form-input:focus {
+    @apply border-citadel-blue
+        ring-4
+        ring-citadel-blue/15;
+  }
+
+  .form-input[aria-invalid="true"] {
+    @apply border-error;
+  }
+
+  /* Prevent Chrome and Edge autofill from changing the input colour */
+  .form-input:-webkit-autofill,
+  .form-input:-webkit-autofill:hover,
+  .form-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-graphite);
+    caret-color: var(--color-graphite);
+
+    -webkit-box-shadow: 0 0 0 1000px
+      color-mix(in srgb, var(--color-sky-mist) 20%, var(--color-cloud-white))
+      inset;
+  }
+
+  /* Autofill styling for browsers supporting the standard selector */
+  .form-input:autofill {
+    color: var(--color-graphite);
+
+    box-shadow: 0 0 0 1000px
+      color-mix(in srgb, var(--color-sky-mist) 20%, var(--color-cloud-white))
+      inset;
+  }
+
+  /* Common form submit button */
+  .form-submit-button {
+    @apply w-full
+        rounded-xl
+        bg-citadel-blue
+        px-5
+        py-3
+        font-semibold
+        text-cloud-white
+        shadow-lg
+        shadow-citadel-blue/20
+        transition;
+  }
+
+  .form-submit-button:hover:not(:disabled) {
+    @apply -translate-y-0.5
+        bg-citadel-blue/90;
+  }
+
+  .form-submit-button:focus-visible {
+    @apply outline-none
+        ring-4
+        ring-citadel-blue/25;
+  }
+
+  .form-submit-button:disabled {
+    @apply cursor-not-allowed
+        opacity-50;
+  }
+}

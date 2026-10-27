@@ -1,0 +1,535 @@
+[{
+  "type": "WINDOWMATERIAL:GLAZING",
+  "name": "Clear 3mm",
+  "properties": {
+    "Name": "Clear 3mm",
+    "Optical_Data_Type": "SpectralAverage",
+    "Thickness": "0.00299999999999999",
+    "Solar_Transmittance_at_Normal_Incidence": "0.837",
+    "Front_Side_Solar_Reflectance_at_Normal_Incidence": "0.075",
+    "Back_Side_Solar_Reflectance_at_Normal_Incidence": "0",
+    "Visible_Transmittance_at_Normal_Incidence": "0.898",
+    "Front_Side_Visible_Reflectance_at_Normal_Incidence": "0.081",
+    "Back_Side_Visible_Reflectance_at_Normal_Incidence": "0",
+    "Infrared_Transmittance_at_Normal_Incidence": "0",
+    "Front_Side_Infrared_Hemispherical_Emissivity": "0.84",
+    "Back_Side_Infrared_Hemispherical_Emissivity": "0.84",
+    "Conductivity": "0.9",
+    "Dirt_Correction_Factor_for_Solar_and_Visible_Transmittance": "1",
+    "Solar_Diffusing": "No"
+  }
+},
+{
+  "type": "WINDOWMATERIAL:GLAZING",
+  "name": "Theoretical Glass [167]",
+  "properties": {
+    "Name": "Theoretical Glass [167]",
+    "Optical_Data_Type": "SpectralAverage",
+    "Thickness": "0.00299999999999999",
+    "Solar_Transmittance_at_Normal_Incidence": "0.2374",
+    "Front_Side_Solar_Reflectance_at_Normal_Incidence": "0.7126",
+    "Back_Side_Solar_Reflectance_at_Normal_Incidence": "0",
+    "Visible_Transmittance_at_Normal_Incidence": "0.2512",
+    "Front_Side_Visible_Reflectance_at_Normal_Incidence": "0.6988",
+    "Back_Side_Visible_Reflectance_at_Normal_Incidence": "0",
+    "Infrared_Transmittance_at_Normal_Incidence": "0",
+    "Front_Side_Infrared_Hemispherical_Emissivity": "0.985",
+    "Back_Side_Infrared_Hemispherical_Emissivity": "0.985",
+    "Conductivity": "2.1073",
+    "Dirt_Correction_Factor_for_Solar_and_Visible_Transmittance": "1",
+    "Solar_Diffusing": "No"
+  }
+},
+{
+  "type": "WINDOWMATERIAL:GLAZING",
+  "name": "Theoretical Glass [197]",
+  "properties": {
+    "Name": "Theoretical Glass [197]",
+    "Optical_Data_Type": "SpectralAverage",
+    "Thickness": "0.00299999999999999",
+    "Solar_Transmittance_at_Normal_Incidence": "0.2349",
+    "Front_Side_Solar_Reflectance_at_Normal_Incidence": "0.7151",
+    "Back_Side_Solar_Reflectance_at_Normal_Incidence": "0",
+    "Visible_Transmittance_at_Normal_Incidence": "0.2512",
+    "Front_Side_Visible_Reflectance_at_Normal_Incidence": "0.6988",
+    "Back_Side_Visible_Reflectance_at_Normal_Incidence": "0",
+    "Infrared_Transmittance_at_Normal_Incidence": "0",
+    "Front_Side_Infrared_Hemispherical_Emissivity": "0.9",
+    "Back_Side_Infrared_Hemispherical_Emissivity": "0.9",
+    "Conductivity": "0.0415",
+    "Dirt_Correction_Factor_for_Solar_and_Visible_Transmittance": "1",
+    "Solar_Diffusing": "No"
+  }
+},
+{
+  "type": "WINDOWMATERIAL:GLAZING",
+  "name": "Theoretical Glass [202]",
+  "properties": {
+    "Name": "Theoretical Glass [202]",
+    "Optical_Data_Type": "SpectralAverage",
+    "Thickness": "0.00299999999999999",
+    "Solar_Transmittance_at_Normal_Incidence": "0.2325",
+    "Front_Side_Solar_Reflectance_at_Normal_Incidence": "0.7175",
+    "Back_Side_Solar_Reflectance_at_Normal_Incidence": "0",
+    "Visible_Transmittance_at_Normal_Incidence": "0.3192",
+    "Front_Side_Visible_Reflectance_at_Normal_Incidence": "0.6308",
+    "Back_Side_Visible_Reflectance_at_Normal_Incidence": "0",
+    "Infrared_Transmittance_at_Normal_Incidence": "0",
+    "Front_Side_Infrared_Hemispherical_Emissivity": "0.9",
+    "Back_Side_Infrared_Hemispherical_Emissivity": "0.9",
+    "Conductivity": "0.0192",
+    "Dirt_Correction_Factor_for_Solar_and_Visible_Transmittance": "1",
+    "Solar_Diffusing": "No"
+  }
+},
+{
+  "type": "WINDOWMATERIAL:GLAZING",
+  "name": "Theoretical Glass [207]",
+  "properties": {
+    "Name": "Theoretical Glass [207]",
+    "Optical_Data_Type": "SpectralAverage",
+    "Thickness": "0.00299999999999999",
+    "Solar_Transmittance_at_Normal_Incidence": "0.3311",
+    "Front_Side_Solar_Reflectance_at_Normal_Incidence": "0.6189",
+    "Back_Side_Solar_Reflectance_at_Normal_Incidence": "0",
+    "Visible_Transmittance_at_Normal_Incidence": "0.44",
+    "Front_Side_Visible_Reflectance_at_Normal_Incidence": "0.51",
+    "Back_Side_Visible_Reflectance_at_Normal_Incidence": "0",
+    "Infrared_Transmittance_at_Normal_Incidence": "0",
+    "Front_Side_Infrared_Hemispherical_Emissivity": "0.9",
+    "Back_Side_Infrared_Hemispherical_Emissivity": "0.9",
+    "Conductivity": "0.0133",
+    "Dirt_Correction_Factor_for_Solar_and_Visible_Transmittance": "1",
+    "Solar_Diffusing": "No"
+  }
+},
+{
+  "type": "WINDOWMATERIAL:GLAZING",
+  "name": "Theoretical Glass [216]",
+  "properties": {
+    "Name": "Theoretical Glass [216]",
+    "Optical_Data_Type": "SpectralAverage",
+    "Thickness": "0.00299999999999999",
+    "Solar_Transmittance_at_Normal_Incidence": "0.3801",
+    "Front_Side_Solar_Reflectance_at_Normal_Incidence": "0.5699",
+    "Back_Side_Solar_Reflectance_at_Normal_Incidence": "0",
+    "Visible_Transmittance_at_Normal_Incidence": "0.5079",
+    "Front_Side_Visible_Reflectance_at_Normal_Incidence": "0.4421",
+    "Back_Side_Visible_Reflectance_at_Normal_Incidence": "0",
+    "Infrared_Transmittance_at_Normal_Incidence": "0",
+    "Front_Side_Infrared_Hemispherical_Emissivity": "0.9",
+    "Back_Side_Infrared_Hemispherical_Emissivity": "0.9",
+    "Conductivity": "0.0133",
+    "Dirt_Correction_Factor_for_Solar_and_Visible_Transmittance": "1",
+    "Solar_Diffusing": "No"
+  }
+},
+{
+  "type": "WINDOWMATERIAL:GLAZING",
+  "name": "Theoretical Glass [221]",
+  "properties": {
+    "Name": "Theoretical Glass [221]",
+    "Optical_Data_Type": "SpectralAverage",
+    "Thickness": "0.00299999999999999",
+    "Solar_Transmittance_at_Normal_Incidence": "0.4296",
+    "Front_Side_Solar_Reflectance_at_Normal_Incidence": "0.5204",
+    "Back_Side_Solar_Reflectance_at_Normal_Incidence": "0",
+    "Visible_Transmittance_at_Normal_Incidence": "0.4503",
+    "Front_Side_Visible_Reflectance_at_Normal_Incidence": "0.4997",
+    "Back_Side_Visible_Reflectance_at_Normal_Incidence": "0",
+    "Infrared_Transmittance_at_Normal_Incidence": "0",
+    "Front_Side_Infrared_Hemispherical_Emissivity": "0.9",
+    "Back_Side_Infrared_Hemispherical_Emissivity": "0.9",
+    "Conductivity": "0.0089",
+    "Dirt_Correction_Factor_for_Solar_and_Visible_Transmittance": "1",
+    "Solar_Diffusing": "No"
+  }
+},
+  {
+  "type": "MATERIAL",
+  "name": "1/2IN Gypsum",
+  "properties": {
+    "Name": "1/2IN Gypsum",
+    "Roughness": "Smooth",
+    "Thickness": "0.0127",
+    "Conductivity": "0.16",
+    "Density": "784.9",
+    "Specific_Heat": "830.000000000001",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.4",
+    "Visible_Absorptance": "0.4"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "1IN Stucco",
+  "properties": {
+    "Name": "1IN Stucco",
+    "Roughness": "Smooth",
+    "Thickness": "0.0253",
+    "Conductivity": "0.691799999999999",
+    "Density": "1858",
+    "Specific_Heat": "836.999999999999",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.92",
+    "Visible_Absorptance": "0.92"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "8IN Concrete HW",
+  "properties": {
+    "Name": "8IN Concrete HW",
+    "Roughness": "MediumRough",
+    "Thickness": "0.2033",
+    "Conductivity": "1.72959999999999",
+    "Density": "2242.99999999999",
+    "Specific_Heat": "836.999999999999",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.65",
+    "Visible_Absorptance": "0.65"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "F08 Metal surface",
+  "properties": {
+    "Name": "F08 Metal surface",
+    "Roughness": "Smooth",
+    "Thickness": "0.0008",
+    "Conductivity": "45.2800000000001",
+    "Density": "7823.99999999999",
+    "Specific_Heat": "500",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.7",
+    "Visible_Absorptance": "0.7"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "F16 Acoustic tile",
+  "properties": {
+    "Name": "F16 Acoustic tile",
+    "Roughness": "MediumSmooth",
+    "Thickness": "0.0191",
+    "Conductivity": "0.06",
+    "Density": "368",
+    "Specific_Heat": "590.000000000002",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.3",
+    "Visible_Absorptance": "0.3"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "G01a 19mm gypsum board",
+  "properties": {
+    "Name": "G01a 19mm gypsum board",
+    "Roughness": "MediumSmooth",
+    "Thickness": "0.019",
+    "Conductivity": "0.16",
+    "Density": "800",
+    "Specific_Heat": "1090",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.4",
+    "Visible_Absorptance": "0.4"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "G05 25mm wood",
+  "properties": {
+    "Name": "G05 25mm wood",
+    "Roughness": "MediumSmooth",
+    "Thickness": "0.0254",
+    "Conductivity": "0.15",
+    "Density": "608",
+    "Specific_Heat": "1630",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.5",
+    "Visible_Absorptance": "0.5"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "I01 25mm insulation board",
+  "properties": {
+    "Name": "I01 25mm insulation board",
+    "Roughness": "MediumRough",
+    "Thickness": "0.0254",
+    "Conductivity": "0.03",
+    "Density": "43",
+    "Specific_Heat": "1210",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.6",
+    "Visible_Absorptance": "0.6"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "M11 100mm lightweight concrete",
+  "properties": {
+    "Name": "M11 100mm lightweight concrete",
+    "Roughness": "MediumRough",
+    "Thickness": "0.1016",
+    "Conductivity": "0.53",
+    "Density": "1280",
+    "Specific_Heat": "840.000000000002",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.5",
+    "Visible_Absorptance": "0.5"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "MAT-CC05 4 HW CONCRETE",
+  "properties": {
+    "Name": "MAT-CC05 4 HW CONCRETE",
+    "Roughness": "Rough",
+    "Thickness": "0.1016",
+    "Conductivity": "1.311",
+    "Density": "2240",
+    "Specific_Heat": "836.800000000001",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.85",
+    "Visible_Absorptance": "0.85"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Metal Decking",
+  "properties": {
+    "Name": "Metal Decking",
+    "Roughness": "MediumSmooth",
+    "Thickness": "0.0015",
+    "Conductivity": "45.006",
+    "Density": "7680",
+    "Specific_Heat": "418.4",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.6",
+    "Visible_Absorptance": "0.6"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Metal Roofing",
+  "properties": {
+    "Name": "Metal Roofing",
+    "Roughness": "MediumSmooth",
+    "Thickness": "0.0015",
+    "Conductivity": "45.006",
+    "Density": "7680",
+    "Specific_Heat": "418.4",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.6",
+    "Visible_Absorptance": "0.6"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Roof Insulation [18]",
+  "properties": {
+    "Name": "Roof Insulation [18]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.1693",
+    "Conductivity": "0.049",
+    "Density": "265",
+    "Specific_Heat": "836.800000000001",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.7",
+    "Visible_Absorptance": "0.7"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Roof Insulation [21]",
+  "properties": {
+    "Name": "Roof Insulation [21]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.2105",
+    "Conductivity": "0.049",
+    "Density": "265",
+    "Specific_Heat": "836.800000000001",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.7",
+    "Visible_Absorptance": "0.7"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Roof Insulation [25]",
+  "properties": {
+    "Name": "Roof Insulation [25]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.263",
+    "Conductivity": "0.049",
+    "Density": "265",
+    "Specific_Heat": "836.800000000001",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.7",
+    "Visible_Absorptance": "0.7"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Roof Insulation [26]",
+  "properties": {
+    "Name": "Roof Insulation [26]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.2941",
+    "Conductivity": "0.049",
+    "Density": "265",
+    "Specific_Heat": "836.800000000001",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.7",
+    "Visible_Absorptance": "0.7"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Roof Membrane",
+  "properties": {
+    "Name": "Roof Membrane",
+    "Roughness": "VeryRough",
+    "Thickness": "0.0095",
+    "Conductivity": "0.16",
+    "Density": "1121.29",
+    "Specific_Heat": "1460",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.7",
+    "Visible_Absorptance": "0.7"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Wall Insulation [31]",
+  "properties": {
+    "Name": "Wall Insulation [31]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.0337000000000001",
+    "Conductivity": "0.0432",
+    "Density": "91",
+    "Specific_Heat": "836.999999999999",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.5",
+    "Visible_Absorptance": "0.5"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Wall Insulation [35]",
+  "properties": {
+    "Name": "Wall Insulation [35]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.0452",
+    "Conductivity": "0.0432",
+    "Density": "91",
+    "Specific_Heat": "836.999999999999",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.5",
+    "Visible_Absorptance": "0.5"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Wall Insulation [36]",
+  "properties": {
+    "Name": "Wall Insulation [36]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.0565999999999999",
+    "Conductivity": "0.0432",
+    "Density": "91",
+    "Specific_Heat": "836.999999999999",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.5",
+    "Visible_Absorptance": "0.5"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Wall Insulation [37]",
+  "properties": {
+    "Name": "Wall Insulation [37]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.0680999999999999",
+    "Conductivity": "0.0432",
+    "Density": "91",
+    "Specific_Heat": "836.999999999999",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.5",
+    "Visible_Absorptance": "0.5"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Wall Insulation [40]",
+  "properties": {
+    "Name": "Wall Insulation [40]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.0793999999999999",
+    "Conductivity": "0.0432",
+    "Density": "91",
+    "Specific_Heat": "836.999999999999",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.5",
+    "Visible_Absorptance": "0.5"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Wall Insulation [42]",
+  "properties": {
+    "Name": "Wall Insulation [42]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.0913999999999999",
+    "Conductivity": "0.0432",
+    "Density": "91",
+    "Specific_Heat": "836.999999999999",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.5",
+    "Visible_Absorptance": "0.5"
+  }
+},
+{
+  "type": "MATERIAL",
+  "name": "Wall Insulation [44]",
+  "properties": {
+    "Name": "Wall Insulation [44]",
+    "Roughness": "MediumRough",
+    "Thickness": "0.1104",
+    "Conductivity": "0.0432",
+    "Density": "91",
+    "Specific_Heat": "836.999999999999",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.5",
+    "Visible_Absorptance": "0.5"
+  }
+},
+{
+  "type": "MATERIAL:AIRGAP",
+  "name": "F04 Wall air space resistance",
+  "properties": {
+    "Name": "F04 Wall air space resistance",
+    "Thermal_Resistance": "0.15"
+  }
+},
+{
+  "type": "MATERIAL:AIRGAP",
+  "name": "F05 Ceiling air space resistance",
+  "properties": {
+    "Name": "F05 Ceiling air space resistance",
+    "Thermal_Resistance": "0.18"
+  }
+},
+{
+  "type": "MATERIAL:NOMASS",
+  "name": "CP02 CARPET PAD",
+  "properties": {
+    "Name": "CP02 CARPET PAD",
+    "Roughness": "Smooth",
+    "Thermal_Resistance": "0.1",
+    "Thermal_Absorptance": "0.9",
+    "Solar_Absorptance": "0.8",
+    "Visible_Absorptance": "0.8"
+  }
+}]
