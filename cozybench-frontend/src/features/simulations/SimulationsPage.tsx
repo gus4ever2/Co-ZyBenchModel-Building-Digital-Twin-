@@ -624,6 +624,35 @@ function ComparisonResults(props: {
         </aside>
 
         <div class="cozy-scrollbar min-h-0 space-y-3 overflow-y-auto pr-1">
+          <section class="rounded-2xl border border-warm-stone/20 bg-cloud-white p-4">
+            <div class="mb-3">
+              <h2 class="text-sm font-bold text-graphite">Thermal zone</h2>
+              <p class="mt-1 text-xs text-graphite/50">
+                Select one zone for the CO₂, temperature, humidity, and construction comparisons.
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-2" aria-label="Select thermal zone">
+              <For each={thermalZones()}>
+                {(zone) => (
+                  <button
+                    type="button"
+                    aria-pressed={activeThermalZone() === zone}
+                    onClick={() => setSelectedThermalZone(zone)}
+                    class="rounded-full border px-3 py-2 text-xs font-semibold transition"
+                    classList={{
+                      "border-citadel-blue bg-citadel-blue text-cloud-white shadow-sm":
+                        activeThermalZone() === zone,
+                      "border-warm-stone/25 bg-cloud-white text-graphite/65 hover:border-citadel-blue/45 hover:bg-sky-mist/25":
+                        activeThermalZone() !== zone,
+                    }}
+                  >
+                    {zone}
+                  </button>
+                )}
+              </For>
+            </div>
+          </section>
+
           <ComparisonSection
             title="Energy consumption"
             description="Absolute values and heating/cooling consumption across time."
@@ -652,29 +681,6 @@ function ComparisonResults(props: {
             title="CO₂ concentration by thermal zone"
             description="Select one thermal zone to inspect its CO₂ concentration in ppm."
           >
-            <div
-              class="mb-4 flex flex-wrap gap-2"
-              aria-label="Select thermal zone"
-            >
-              <For each={thermalZones()}>
-                {(zone) => (
-                  <button
-                    type="button"
-                    aria-pressed={activeThermalZone() === zone}
-                    onClick={() => setSelectedThermalZone(zone)}
-                    class="rounded-full border px-3 py-2 text-xs font-semibold transition"
-                    classList={{
-                      "border-citadel-blue bg-citadel-blue text-cloud-white shadow-sm":
-                        activeThermalZone() === zone,
-                      "border-warm-stone/25 bg-cloud-white text-graphite/65 hover:border-citadel-blue/45 hover:bg-sky-mist/25":
-                        activeThermalZone() !== zone,
-                    }}
-                  >
-                    {zone}
-                  </button>
-                )}
-              </For>
-            </div>
             <Show when={activeThermalZone()} keyed>
               {(zone) => (
                 <div class="space-y-5">
@@ -727,6 +733,38 @@ function ComparisonResults(props: {
                     />
                   </section>
                 </div>
+              )}
+            </Show>
+          </ComparisonSection>
+
+          <ComparisonSection
+            title="Temperature by thermal zone"
+            description="Zone air temperature over time, with summary statistics and difference from the baseline."
+          >
+            <Show when={activeThermalZone()} keyed>
+              {(zone) => (
+                <ThermalZoneMetricComparisonView
+                  compared={props.compared}
+                  baseline={props.analysis.baseline}
+                  zone={zone}
+                  metric="temperature"
+                />
+              )}
+            </Show>
+          </ComparisonSection>
+
+          <ComparisonSection
+            title="Humidity by thermal zone"
+            description="Zone relative humidity over time, with summary statistics and difference from the baseline."
+          >
+            <Show when={activeThermalZone()} keyed>
+              {(zone) => (
+                <ThermalZoneMetricComparisonView
+                  compared={props.compared}
+                  baseline={props.analysis.baseline}
+                  zone={zone}
+                  metric="humidity"
+                />
               )}
             </Show>
           </ComparisonSection>
@@ -1069,6 +1107,191 @@ function deltaOutdoorAirFractionOption(
   };
 }
 
+type ThermalZoneMetric = "temperature" | "humidity";
+type ThermalZoneMetricField = "zone_air_temp_c" | "relative_humidity_percent";
+
+function thermalZoneMetricConfig(metric: ThermalZoneMetric) {
+  return metric === "temperature"
+    ? {
+        field: "zone_air_temp_c" as const,
+        label: "Zone air temperature",
+        unit: "°C",
+        deltaUnit: "°C",
+        deltaAxis: "Δ zone air temperature [°C]",
+      }
+    : {
+        field: "relative_humidity_percent" as const,
+        label: "Relative humidity",
+        unit: "%",
+        deltaUnit: "percentage points",
+        deltaAxis: "Δ relative humidity [percentage points]",
+      };
+}
+
+function zoneMetricValue(
+  timestep: SimulationTimestep | undefined,
+  zone: string,
+  field: ThermalZoneMetricField,
+): number | null {
+  const value = timestep?.results?.zone_results?.[zone]?.[field];
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function zoneMetricOption(
+  compared: ComparedSimulation[],
+  zone: string,
+  field: ThermalZoneMetricField,
+  unit: string,
+): EChartsOption {
+  return lineOption(compared, unit, (item, index) =>
+    zoneMetricValue(item.timesteps[index], zone, field),
+  );
+}
+
+function deltaZoneMetricOption(
+  compared: ComparedSimulation[],
+  baselineId: string,
+  zone: string,
+  field: ThermalZoneMetricField,
+  deltaAxis: string,
+): EChartsOption {
+  const baseline = compared.find((item) => item.simulation.id === baselineId);
+  const alternatives = compared.filter((item) => item.simulation.id !== baselineId);
+  const baselineByTime = new Map<number, number>();
+  baseline?.timesteps.forEach((timestep) => {
+    const timestamp = timestep.simulation_timestamp
+      ? Date.parse(timestep.simulation_timestamp)
+      : NaN;
+    const value = zoneMetricValue(timestep, zone, field);
+    if (Number.isFinite(timestamp) && value !== null) baselineByTime.set(timestamp, value);
+  });
+  const names = alternatives.map((item) => `${baseline?.simulation.name ?? "Baseline"} − ${item.simulation.name}`);
+  return {
+    color: alternatives.map((_, index) => colors[(index + 1) % colors.length]),
+    tooltip: { trigger: "axis" },
+    legend: { data: names, bottom: 0, type: "scroll" },
+    grid: { left: 70, right: 18, top: 24, bottom: 108 },
+    xAxis: { type: "time", axisLabel: { hideOverlap: true } },
+    yAxis: { type: "value", name: deltaAxis },
+    dataZoom: [{ type: "inside" }, { type: "slider", height: 18, bottom: 38 }],
+    series: alternatives.map((item, index) => ({
+      name: names[index],
+      type: "line",
+      showSymbol: false,
+      data: item.timesteps.flatMap((timestep) => {
+        const timestamp = timestep.simulation_timestamp
+          ? Date.parse(timestep.simulation_timestamp)
+          : NaN;
+        const value = zoneMetricValue(timestep, zone, field);
+        const baselineValue = baselineByTime.get(timestamp);
+        return Number.isFinite(timestamp) && value !== null && baselineValue !== undefined
+          ? [[timestamp, baselineValue - value]]
+          : [];
+      }),
+      markLine: index === 0
+        ? { symbol: "none", silent: true, lineStyle: { color: "#8B7D73", type: "dashed" }, data: [{ yAxis: 0 }] }
+        : undefined,
+    })),
+  };
+}
+
+function summarize(values: Array<number | null>) {
+  const finite = values.filter((value): value is number => value !== null && Number.isFinite(value));
+  if (finite.length === 0) return null;
+  return {
+    mean: finite.reduce((sum, value) => sum + value, 0) / finite.length,
+    min: Math.min(...finite),
+    max: Math.max(...finite),
+  };
+}
+
+function pairedZoneMetricDeltas(
+  baseline: ComparedSimulation | undefined,
+  compared: ComparedSimulation,
+  zone: string,
+  field: ThermalZoneMetricField,
+) {
+  if (!baseline || baseline.simulation.id === compared.simulation.id) return [];
+  const baselineByTime = new Map<number, number>();
+  baseline.timesteps.forEach((timestep) => {
+    const timestamp = timestep.simulation_timestamp ? Date.parse(timestep.simulation_timestamp) : NaN;
+    const value = zoneMetricValue(timestep, zone, field);
+    if (Number.isFinite(timestamp) && value !== null) baselineByTime.set(timestamp, value);
+  });
+  return compared.timesteps.flatMap((timestep) => {
+    const timestamp = timestep.simulation_timestamp ? Date.parse(timestep.simulation_timestamp) : NaN;
+    const value = zoneMetricValue(timestep, zone, field);
+    const baselineValue = baselineByTime.get(timestamp);
+    return Number.isFinite(timestamp) && value !== null && baselineValue !== undefined
+      ? [baselineValue - value]
+      : [];
+  });
+}
+
+function ThermalZoneMetricComparisonView(props: {
+  compared: ComparedSimulation[];
+  baseline: SimulationReference;
+  zone: string;
+  metric: ThermalZoneMetric;
+}) {
+  const config = () => thermalZoneMetricConfig(props.metric);
+  const baseline = () => props.compared.find((item) => item.simulation.id === props.baseline.id);
+  const summaries = () => props.compared.map((item) => ({
+    item,
+    values: summarize(item.timesteps.map((timestep) => zoneMetricValue(timestep, props.zone, config().field))),
+    deltas: summarize(pairedZoneMetricDeltas(baseline(), item, props.zone, config().field)),
+  }));
+  const display = (value: number | null | undefined, unit = config().unit) =>
+    typeof value === "number" && Number.isFinite(value) ? `${number(value)} ${unit}` : "—";
+
+  return (
+    <div class="space-y-5">
+      <Chart title={`${props.zone} · ${config().label}`}>
+        <EChart option={zoneMetricOption(props.compared, props.zone, config().field, config().unit)} class="h-[26rem] w-full sm:h-[30rem]" />
+      </Chart>
+      <Show when={props.compared.length > 1}>
+        <section>
+          <div class="mb-3">
+            <h3 class="font-bold text-graphite">Difference against baseline</h3>
+            <p class="mt-1 text-xs text-graphite/50">
+              Values are baseline minus the compared simulation, matched by timestamp. Relative-humidity differences are percentage points.
+            </p>
+          </div>
+          <Chart title={`${props.zone} · difference from baseline`}>
+            <EChart option={deltaZoneMetricOption(props.compared, props.baseline.id, props.zone, config().field, config().deltaAxis)} class="h-[26rem] w-full sm:h-[30rem]" />
+          </Chart>
+        </section>
+      </Show>
+      <section>
+        <h3 class="mb-3 font-bold text-graphite">Summary metrics</h3>
+        <div class="cozy-scrollbar overflow-x-auto rounded-2xl border border-warm-stone/20">
+          <table class="min-w-full text-sm">
+            <thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50">
+              <tr>
+                <th class="p-3">Simulation</th><th class="p-3">Mean</th><th class="p-3">Maximum</th><th class="p-3">Minimum</th>
+                <th class="p-3">Mean Δ vs baseline</th><th class="p-3">Maximum Δ vs baseline</th><th class="p-3">Minimum Δ vs baseline</th>
+              </tr>
+            </thead>
+            <tbody>
+              <For each={summaries()}>
+                {(summary) => (
+                  <tr class="border-t border-warm-stone/10">
+                    <td class="p-3 font-semibold text-graphite">{summary.item.simulation.name}{summary.item.simulation.id === props.baseline.id ? " · baseline" : ""}</td>
+                    <td class="p-3">{display(summary.values?.mean)}</td><td class="p-3">{display(summary.values?.max)}</td><td class="p-3">{display(summary.values?.min)}</td>
+                    <td class="p-3">{summary.item.simulation.id === props.baseline.id ? display(0, config().deltaUnit) : display(summary.deltas?.mean, config().deltaUnit)}</td>
+                    <td class="p-3">{summary.item.simulation.id === props.baseline.id ? display(0, config().deltaUnit) : display(summary.deltas?.max, config().deltaUnit)}</td>
+                    <td class="p-3">{summary.item.simulation.id === props.baseline.id ? display(0, config().deltaUnit) : display(summary.deltas?.min, config().deltaUnit)}</td>
+                  </tr>
+                )}
+              </For>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function zoneCo2Option(
   compared: ComparedSimulation[],
   zone: string,
@@ -1214,11 +1437,11 @@ function Co2SummaryComparisonView(props: {
     props.plantConfigurations.find(
       (configuration) => configuration.simulationId === simulationId,
     );
-  const meanGreenWallAreaInSelectedZone = (simulationId: string) => {
+  const totalLeafAreaInSelectedZone = (simulationId: string) => {
     const simulation = props.comparedSimulations.find(
       (candidate) => candidate.simulation.id === simulationId,
     );
-    return simulation?.analytics.zones[zoneName()]?.meanGreenWallAreaM2 ?? null;
+    return simulation?.analytics.zones[zoneName()]?.totalLeafAreaM2 ?? null;
   };
   const zoneMetric = (
     simulationId: string,
@@ -1287,6 +1510,13 @@ function Co2SummaryComparisonView(props: {
         `${number(zone.summary.minDeltaCo2Ppm)} ppm`,
     },
     {
+      label: "Mean ΔCO₂",
+      description:
+        "Average of baseline CO₂ minus compared CO₂ across the full effective range.",
+      value: ({ zone }: (typeof props.comparisons)[number]) =>
+        `${number(zone.summary.meanDeltaCo2Ppm)} ppm`,
+    },
+    {
       label: "Mean ΔCO₂ · 08:00–10:00, weekdays",
       description:
         "Average baseline-minus-compared CO₂ difference from Monday to Friday between 08:00 and 10:00.",
@@ -1318,8 +1548,7 @@ function Co2SummaryComparisonView(props: {
       description:
         "Average timestep-to-timestep change in baseline-minus-compared CO₂ from Monday to Friday between 08:00 and 10:00.",
       value: ({ zone }: (typeof props.comparisons)[number]) =>
-        typeof zone.summary.meanMorningWeekdayDeltaCo2RatePpmPerHour ===
-        "number"
+        typeof zone.summary.meanMorningWeekdayDeltaCo2RatePpmPerHour === "number"
           ? `${number(zone.summary.meanMorningWeekdayDeltaCo2RatePpmPerHour)} ppm/h`
           : "—",
     },
@@ -1349,22 +1578,13 @@ function Co2SummaryComparisonView(props: {
     {
       label: "Mean ΔCO₂ · lights off (22:00–08:00, weekdays)",
       description:
-        "Average baseline-minus-compared CO₂ difference from Monday to Friday while the plant lighting is off.",
+        "Average baseline-minus-compared CO₂ difference from Monday to Friday while the selected plant lighting is off.",
       value: ({ comparison, zone }: (typeof props.comparisons)[number]) => {
         const configuration = configurationFor(comparison.simulation.id);
         return configuration?.enabled &&
           typeof zone.summary.meanLightsOffDeltaCo2Ppm === "number"
           ? `${number(zone.summary.meanLightsOffDeltaCo2Ppm)} ppm`
           : "—";
-      },
-    },
-    {
-      label: "Mean green wall area · selected zone",
-      description:
-        "Average green-wall surface assigned to the selected thermal zone across its stored timesteps.",
-      value: ({ comparison }: (typeof props.comparisons)[number]) => {
-        const value = meanGreenWallAreaInSelectedZone(comparison.simulation.id);
-        return typeof value === "number" ? `${number(value)} m²` : "—";
       },
     },
     {
@@ -1378,12 +1598,12 @@ function Co2SummaryComparisonView(props: {
         ),
     },
     {
-      label: "Total leaf area",
+      label: "Total leaf area · selected zone",
       description:
-        "Total modelled leaf area stored in the generated plant profile.",
+        "Total modelled leaf area scaled to the green-wall area installed in the selected thermal zone.",
       value: ({ comparison }: (typeof props.comparisons)[number]) =>
         scientificValue(
-          configurationFor(comparison.simulation.id)?.totalLeafAreaM2,
+          totalLeafAreaInSelectedZone(comparison.simulation.id),
           "m²",
         ),
     },
@@ -1484,7 +1704,7 @@ function Co2SummaryComparisonView(props: {
               )}
             </For>
             <SummarySubsectionRow
-              title="Green wall parameters"
+              title="Green Wall Analytics"
               columns={props.comparisons.length + 1}
             />
             <For each={plantRows()}>
