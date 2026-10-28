@@ -706,6 +706,12 @@ function ComparisonResults(props: {
                     <Chart title="Total HVAC consumption">
                       <EChart option={meterOption(props.compared, "hvac_electricity_j")} />
                     </Chart>
+                    <Chart title="Total HVAC consumption difference (Compared − Baseline)">
+                      <EChart
+                        option={deltaHvacConsumptionOption(props.compared, props.analysis.baseline)}
+                        class="h-[26rem] w-full sm:h-[30rem]"
+                      />
+                    </Chart>
                   </div>
                 </Match>
 
@@ -1107,6 +1113,74 @@ function meterOption(
   );
 }
 
+function deltaHvacConsumptionOption(
+  compared: ComparedSimulation[],
+  baseline: SimulationReference,
+): EChartsOption {
+  const baselineSimulation = compared.find(
+    (item) => item.simulation.id === baseline.id,
+  );
+  const baselineValues = new Map<number, number>();
+  for (const timestep of baselineSimulation?.timesteps ?? []) {
+    const timestamp = timestep.simulation_timestamp
+      ? Date.parse(timestep.simulation_timestamp)
+      : NaN;
+    const value = timestep.results?.meter_results?.hvac_electricity_kwh;
+    if (
+      Number.isFinite(timestamp) &&
+      typeof value === "number" &&
+      Number.isFinite(value)
+    ) {
+      baselineValues.set(timestamp, value);
+    }
+  }
+
+  const alternatives = compared.filter(
+    (item) => item.simulation.id !== baseline.id,
+  );
+  const names = alternatives.map(
+    (item) => `${item.simulation.name} − ${baseline.name}`,
+  );
+  return {
+    color: alternatives.map((_, index) => colors[(index + 1) % colors.length]),
+    tooltip: { trigger: "axis" },
+    legend: { data: names, bottom: 0, type: "scroll", selectedMode: true },
+    grid: { left: 72, right: 18, top: 24, bottom: 108 },
+    xAxis: { type: "time", axisLabel: { hideOverlap: true } },
+    yAxis: { type: "value", name: "Compared − baseline [kWh / timestep]" },
+    dataZoom: [{ type: "inside" }, { type: "slider", height: 18, bottom: 38 }],
+    series: alternatives.map((item, index) => ({
+      id: item.simulation.id,
+      name: names[index],
+      type: "line",
+      showSymbol: false,
+      data: item.timesteps.flatMap((timestep) => {
+        const timestamp = timestep.simulation_timestamp
+          ? Date.parse(timestep.simulation_timestamp)
+          : NaN;
+        const comparedValue = timestep.results?.meter_results?.hvac_electricity_kwh;
+        const baselineValue = baselineValues.get(timestamp);
+        if (
+          !Number.isFinite(timestamp) ||
+          typeof comparedValue !== "number" ||
+          !Number.isFinite(comparedValue) ||
+          baselineValue === undefined
+        ) {
+          return [];
+        }
+        return [[timestamp, comparedValue - baselineValue]];
+      }),
+      markLine: index === 0
+        ? {
+            symbol: "none",
+            silent: true,
+            lineStyle: { color: "#8B7D73", type: "dashed" },
+            data: [{ yAxis: 0 }],
+          }
+        : undefined,
+    })),
+  };
+}
 function outdoorAirFractionOption(
   compared: ComparedSimulation[],
 ): EChartsOption {
