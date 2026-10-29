@@ -1,8 +1,30 @@
 import type { EChartsOption } from "echarts";
 import { createQuery } from "@tanstack/solid-query";
 import { loadSimulationAnalytics } from "./simulationsService";
-import { ChevronDown, Gauge, Thermometer, Users, Zap } from "lucide-solid";
-import { For, Show, createEffect, createMemo, createSignal } from "solid-js";
+import {
+  AirVent,
+  Atom,
+  BrickWall,
+  Droplets,
+  Leaf,
+  MapPin,
+  Thermometer,
+  Wind,
+  X,
+  Zap,
+} from "lucide-solid";
+import {
+  For,
+  Match,
+  Show,
+  Switch,
+  createEffect,
+  createMemo,
+  createSignal,
+  onMount,
+} from "solid-js";
+import { Portal } from "solid-js/web";
+import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavigationCard";
 import EChart from "../../components/charts/EChart";
 import SimulationSetupCard from "./SimulationSetupCard";
 import {
@@ -17,12 +39,24 @@ import type {
 
 const COLORS = ["#3C6F8F", "#641D16", "#4D4936"];
 
+type AnalysisPanel =
+  | "energy"
+  | "co2"
+  | "temperature"
+  | "humidity"
+  | "ventilation"
+  | "greenWall"
+  | "windowOpening"
+  | "thermalZones"
+  | "construction";
+
 export default function SimulationDataView(props: {
   simulation: SimulationListItem;
   timesteps: SimulationTimestep[];
 }) {
   const [selectedZone, setSelectedZone] = createSignal("");
   const [energyRange, setEnergyRange] = createSignal({ start: 0, end: 100 });
+  const [activePanel, setActivePanel] = createSignal<AnalysisPanel | null>(null);
   const zones = createMemo(() => zoneNames(props.timesteps));
   const timestamps = () => props.timesteps.map(timestampLabel);
   const zoneSteps = () =>
@@ -78,21 +112,52 @@ export default function SimulationDataView(props: {
       ),
     ]),
   );
-  const occupantsOption = createMemo<EChartsOption>(() =>
-    chartOption(
-      timestamps(),
-      "people",
-      [
-        line(
-          "Occupants",
-          zoneSteps().map((value) => value?.occupant_count),
-          "step",
-        ),
-      ],
-      0,
-    ),
+  const humidityOption = createMemo<EChartsOption>(() =>
+    chartOption(timestamps(), "%", [
+      line(
+        "Relative humidity",
+        zoneSteps().map((value) => value?.relative_humidity_percent),
+      ),
+    ]),
   );
-
+  const ventilationOption = createMemo<EChartsOption>(() =>
+    chartOption(timestamps(), "%", [
+      line(
+        "Outdoor-air flow",
+        props.timesteps.map((step) => {
+          const results = step.results;
+          return (
+            results?.outdoor_air_flow_percent ??
+            (typeof results?.outdoor_air_flow_fraction === "number"
+              ? results.outdoor_air_flow_fraction * 100
+              : null)
+          );
+        }),
+      ),
+    ]),
+  );
+  const windowOpeningOption = createMemo<EChartsOption>(() =>
+    chartOption(timestamps(), "%", [
+      line(
+        "Mean window opening",
+        props.timesteps.map((step) =>
+          windowOpeningPercent(step, selectedZone()),
+        ),
+      ),
+    ]),
+  );
+  const panelTitle = (panel: AnalysisPanel) =>
+    ({
+      energy: "Energy consumption",
+      co2: "CO₂ concentration",
+      temperature: "Temperature",
+      humidity: "Humidity",
+      ventilation: "Ventilation / outdoor-air control",
+      greenWall: "Green wall analysis",
+      windowOpening: "Open windows analysis",
+      thermalZones: "Thermal zones",
+      construction: "Compare Construction Sets",
+    })[panel];
   return (
     <Show when={props.timesteps.length > 0} fallback={<EmptyState />}>
       <div class="relative flex h-full min-h-0 flex-col">
@@ -101,101 +166,52 @@ export default function SimulationDataView(props: {
         </div>
 
         <div class="cozy-scrollbar relative z-0 min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-5 sm:pb-5">
-          <div class="space-y-4">
-            <ChartPanel
-              title="HVAC energy"
-              description="Cards follow the range selected directly in this chart."
-              icon={<Zap />}
-              open
-            >
-              <Show when={energyAnalytics.isError}>
-                <p class="mb-3 text-sm text-red-700" role="alert">
-                  Analytics could not be loaded from the simulation service.
-                  <button type="button" class="ml-2 underline" onClick={() => energyAnalytics.refetch()}>Retry</button>
-                </p>
-              </Show>
-              <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <EnergyCard
-                  label="Heating"
-                  value={format(energyMetrics().totalHeatingKwh, "kWh")}
-                />
-                <EnergyCard
-                  label="Cooling"
-                  value={format(energyMetrics().totalCoolingKwh, "kWh")}
-                />
-                <EnergyCard
-                  label="Total HVAC"
-                  value={format(energyMetrics().totalHvacKwh, "kWh")}
-                />
-                <EnergyCard
-                  label="Total HVAC / floor area"
-                  value={format(energyMetrics().hvacKwhPerM2, "kWh/m²")}
-                />
-              </div>
-              <div class="mt-4">
-                <FullChart title="Energy consumption">
-                  <EChart option={energyOption()} onDataZoom={setEnergyRange} />
-                </FullChart>
-              </div>
-            </ChartPanel>
-
-            <section class="rounded-2xl border border-warm-stone/20 bg-cloud-white p-4 shadow-sm">
-              <p class="text-xs font-bold uppercase tracking-widest text-citadel-blue">
-                Thermal zones
-              </p>
-              <p class="mt-1 text-sm text-graphite/55">
-                Choose a zone to inspect its basic charts.
-              </p>
-              <div class="mt-4 flex flex-wrap gap-2">
-                <For each={zones()}>
-                  {(name) => (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedZone(name)}
-                      class="rounded-full border px-4 py-2 text-sm transition"
-                      classList={{
-                        "border-citadel-blue bg-citadel-blue font-semibold text-cloud-white shadow-sm":
-                          selectedZone() === name,
-                        "border-warm-stone/25 bg-cloud-white text-graphite/70 hover:border-citadel-blue/35":
-                          selectedZone() !== name,
-                      }}
-                    >
-                      {name}
-                    </button>
-                  )}
-                </For>
-              </div>
-            </section>
-
-            <ChartPanel
-              title="Temperature"
-              description={`Air temperature for ${selectedZone() || "the selected zone"}.`}
-              icon={<Thermometer />}
-            >
-              <FullChart title="Air temperature">
-                <EChart option={temperatureOption()} />
-              </FullChart>
-            </ChartPanel>
-            <ChartPanel
-              title="CO₂"
-              description={`CO₂ concentration for ${selectedZone() || "the selected zone"}.`}
-              icon={<Gauge />}
-            >
-              <FullChart title="Zone CO₂ concentration">
-                <EChart option={co2Option()} />
-              </FullChart>
-            </ChartPanel>
-            <ChartPanel
-              title="Occupants"
-              description={`Occupant count for ${selectedZone() || "the selected zone"}.`}
-              icon={<Users />}
-            >
-              <FullChart title="Occupants">
-                <EChart option={occupantsOption()} />
-              </FullChart>
-            </ChartPanel>
+          <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <WorkspaceNavigationCard icon={Zap} title="Energy consumption" description="Heating, cooling and total HVAC use across time." onClick={() => setActivePanel("energy")} />
+            <WorkspaceNavigationCard icon={Atom} title="CO₂ concentration" description="Inspect zone CO₂ levels and trends across time." onClick={() => setActivePanel("co2")} />
+            <WorkspaceNavigationCard icon={Thermometer} title="Temperature" description="Explore zone air temperature throughout the simulation." onClick={() => setActivePanel("temperature")} />
+            <WorkspaceNavigationCard icon={Droplets} title="Humidity" description="Explore zone relative humidity throughout the simulation." onClick={() => setActivePanel("humidity")} />
+            <WorkspaceNavigationCard icon={AirVent} title="Ventilation / outdoor-air control" description="Review the simulated outdoor-air fraction and ventilation control." onClick={() => setActivePanel("ventilation")} />
+            <WorkspaceNavigationCard icon={Leaf} title="Green wall analysis" description="Inspect the green-wall configuration and plant CO₂ exchange." onClick={() => setActivePanel("greenWall")} />
+            <WorkspaceNavigationCard icon={Wind} title="Open windows analysis" description="Review zone window-opening results across the simulation." onClick={() => setActivePanel("windowOpening")} />
+            <WorkspaceNavigationCard icon={MapPin} title="Thermal zones" description="Review the thermal zones included in this simulation." onClick={() => setActivePanel("thermalZones")} />
+            <WorkspaceNavigationCard icon={BrickWall} title="Compare Construction Sets" description="Review the construction set used by this simulation." onClick={() => setActivePanel("construction")} />
           </div>
         </div>
+
+        <Show when={activePanel()} keyed>
+          {(panel) => (
+            <AnalysisDialog title={panelTitle(panel)} onClose={() => setActivePanel(null)}>
+              <Show when={["co2", "temperature", "humidity", "windowOpening"].includes(panel)}>
+                <ZoneSelector zones={zones()} selected={selectedZone()} onSelect={setSelectedZone} />
+              </Show>
+              <Switch>
+                <Match when={panel === "energy"}>
+                  <Show when={energyAnalytics.isError}>
+                    <p class="mb-4 text-sm text-red-700" role="alert">
+                      Analytics could not be loaded. <button type="button" class="underline" onClick={() => energyAnalytics.refetch()}>Retry</button>
+                    </p>
+                  </Show>
+                  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <EnergyCard label="Heating" value={format(energyMetrics().totalHeatingKwh, "kWh")} />
+                    <EnergyCard label="Cooling" value={format(energyMetrics().totalCoolingKwh, "kWh")} />
+                    <EnergyCard label="Total HVAC" value={format(energyMetrics().totalHvacKwh, "kWh")} />
+                    <EnergyCard label="Total HVAC / floor area" value={format(energyMetrics().hvacKwhPerM2, "kWh/m²")} />
+                  </div>
+                  <div class="mt-4"><FullChart title="Energy consumption"><EChart option={energyOption()} onDataZoom={setEnergyRange} /></FullChart></div>
+                </Match>
+                <Match when={panel === "temperature"}><FullChart title={`Air temperature · ${selectedZone() || "selected zone"}`}><EChart option={temperatureOption()} /></FullChart></Match>
+                <Match when={panel === "co2"}><FullChart title={`Zone CO₂ concentration · ${selectedZone() || "selected zone"}`}><EChart option={co2Option()} /></FullChart></Match>
+                <Match when={panel === "humidity"}><FullChart title={`Relative humidity · ${selectedZone() || "selected zone"}`}><EChart option={humidityOption()} /></FullChart></Match>
+                <Match when={panel === "ventilation"}><FullChart title="Outdoor-air flow"><EChart option={ventilationOption()} /></FullChart></Match>
+                <Match when={panel === "windowOpening"}><FullChart title={`Mean window opening · ${selectedZone() || "selected zone"}`}><EChart option={windowOpeningOption()} /></FullChart></Match>
+                <Match when={panel === "greenWall"}><AnalysisSummary rows={[["Status", props.simulation.plantSimulation ? "Enabled" : "Not enabled for this simulation"], ["Plant", props.simulation.plantSimulation?.plantName ?? "—"], ["Green wall size", props.simulation.plantSimulation?.greenWallSize ?? "—"], ["Lighting", props.simulation.plantSimulation?.lightingLevel ?? "—"]]} /></Match>
+                <Match when={panel === "thermalZones"}><AnalysisSummary rows={zones().map((zone, index) => [`Zone ${index + 1}`, zone])} empty="No thermal-zone results are available." /></Match>
+                <Match when={panel === "construction"}><AnalysisSummary rows={[["Construction set", props.simulation.constructionSetName ?? "Not available"], ["Simulation", props.simulation.name]]} /></Match>
+              </Switch>
+            </AnalysisDialog>
+          )}
+        </Show>
       </div>
     </Show>
   );
@@ -247,40 +263,6 @@ function line(
     emphasis: { focus: "series" },
   };
 }
-function ChartPanel(props: {
-  title: string;
-  description: string;
-  icon: unknown;
-  open?: boolean;
-  children: unknown;
-}) {
-  const [open, setOpen] = createSignal(Boolean(props.open));
-  return (
-    <details
-      open={open()}
-      onToggle={(event) => setOpen(event.currentTarget.open)}
-      class="group rounded-2xl border border-warm-stone/20 bg-cloud-white shadow-sm"
-    >
-      <summary class="flex cursor-pointer list-none items-center gap-3 p-4">
-        <span class="grid size-9 place-items-center rounded-xl bg-sky-mist/30 text-citadel-blue">
-          {props.icon as any}
-        </span>
-        <span class="min-w-0 flex-1">
-          <span class="block font-bold text-graphite">{props.title}</span>
-          <span class="mt-0.5 block text-xs font-normal text-graphite/50">
-            {props.description}
-          </span>
-        </span>
-        <ChevronDown class="size-5 text-citadel-blue transition group-open:rotate-180" />
-      </summary>
-      <Show when={open()}>
-        <div class="border-t border-warm-stone/15 p-4">
-          {props.children as any}
-        </div>
-      </Show>
-    </details>
-  );
-}
 function FullChart(props: { title: string; children: unknown }) {
   return (
     <section class="rounded-xl border border-warm-stone/15 bg-sky-mist/5 p-4">
@@ -308,4 +290,102 @@ function format(value: number | null | undefined, unit: string) {
   return typeof value === "number" && Number.isFinite(value)
     ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value)}${unit ? ` ${unit}` : ""}`
     : "—";
+}
+
+function windowOpeningPercent(step: SimulationTimestep, zone: string) {
+  const result = Object.entries(step.results?.window_opening_results ?? {}).find(
+    ([key, value]) => key === zone || value.zone_name === zone,
+  )?.[1];
+  return result?.mean_opening_percent ?? null;
+}
+
+function ZoneSelector(props: {
+  zones: string[];
+  selected: string;
+  onSelect: (zone: string) => void;
+}) {
+  return (
+    <section class="mb-4 rounded-2xl border border-warm-stone/20 bg-sky-mist/15 p-4">
+      <h3 class="mb-3 text-sm font-bold text-graphite">Thermal zone</h3>
+      <div class="flex flex-wrap gap-2">
+        <For each={props.zones}>
+          {(zone) => (
+            <button
+              type="button"
+              onClick={() => props.onSelect(zone)}
+              class="rounded-full border px-3 py-2 text-xs font-semibold transition"
+              classList={{
+                "border-citadel-blue bg-citadel-blue text-cloud-white shadow-sm":
+                  props.selected === zone,
+                "border-warm-stone/25 bg-cloud-white text-graphite/65 hover:border-citadel-blue/45":
+                  props.selected !== zone,
+              }}
+            >
+              {zone}
+            </button>
+          )}
+        </For>
+      </div>
+    </section>
+  );
+}
+
+function AnalysisSummary(props: {
+  rows: Array<[string, string]>;
+  empty?: string;
+}) {
+  return (
+    <section class="rounded-2xl border border-warm-stone/20 bg-cloud-white p-4 shadow-sm">
+      <Show
+        when={props.rows.length > 0}
+        fallback={<p class="text-sm text-graphite/55">{props.empty ?? "No data is available."}</p>}
+      >
+        <For each={props.rows}>
+          {([label, value]) => (
+            <div class="grid grid-cols-[minmax(8rem,1fr)_minmax(0,2fr)] gap-3 border-b border-warm-stone/10 py-3 text-sm last:border-0">
+              <span class="text-graphite/50">{label}</span>
+              <span class="break-words text-right font-semibold text-graphite">{value}</span>
+            </div>
+          )}
+        </For>
+      </Show>
+    </section>
+  );
+}
+
+function AnalysisDialog(props: {
+  title: string;
+  onClose: () => void;
+  children: unknown;
+}) {
+  let dialog!: HTMLDialogElement;
+  onMount(() => dialog.showModal());
+  const close = () => {
+    if (dialog.open) dialog.close();
+    else props.onClose();
+  };
+  return (
+    <Portal>
+      <dialog
+        ref={dialog}
+        aria-label={props.title}
+        onClose={props.onClose}
+        onClick={(event) => {
+          if (event.target === dialog) close();
+        }}
+        class="m-auto flex h-[min(56rem,92dvh)] w-[min(88rem,96vw)] max-w-none flex-col overflow-hidden rounded-3xl border border-warm-stone/20 bg-cloud-white p-0 shadow-2xl backdrop:bg-black/50"
+      >
+        <header class="relative shrink-0 border-b border-citadel-blue/10 bg-sky-mist/30 px-6 py-4 pr-14">
+          <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-citadel-blue">Simulation analysis</p>
+          <h2 class="mt-1 text-lg font-bold text-graphite">{props.title}</h2>
+          <button type="button" aria-label="Close analysis" onClick={close} class="absolute right-4 top-4 rounded-lg p-1 text-graphite/55 hover:bg-sky-mist/40">
+            <X class="size-5" />
+          </button>
+        </header>
+        <div class="cozy-scrollbar min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+          {props.children as any}
+        </div>
+      </dialog>
+    </Portal>
+  );
 }
