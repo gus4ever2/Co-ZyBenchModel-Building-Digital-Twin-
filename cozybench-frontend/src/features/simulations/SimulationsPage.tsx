@@ -27,7 +27,7 @@ import EChart from "../../components/charts/EChart";
 import ConstructionSetComparison from "./ConstructionSetComparison";
 import SeasonalEnergyAnalysis from "./SeasonalEnergyAnalysis";
 import GreenWallParameters from "./GreenWallParameters";
-import TemperatureComparisonChart from "./TemperatureComparisonChart";
+import TemperatureComparisonChart, { TemperatureSetpointsTable } from "./TemperatureComparisonChart";
 import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavigationCard";
 import EditorIdentityHeader from "../../components/form/EditorIdentityHeader";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
@@ -1594,6 +1594,9 @@ function ThermalZoneMetricComparisonView(props: {
             <EChart option={deltaZoneMetricOption(props.compared, props.baseline.id, props.zone, config().field, config().deltaAxis)} class="h-[26rem] w-full sm:h-[30rem]" />
           </Chart>
         </section>
+      </Show>
+      <Show when={props.metric === "temperature"}>
+        <TemperatureSetpointsTable compared={props.compared} baseline={props.baseline} />
       </Show>
     </div>
     </Show>

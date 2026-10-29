@@ -27,15 +27,6 @@ export default function TemperatureComparisonChart(props: {
   baseline: SimulationReference;
   zone: string;
 }) {
-  const setpoint = (item: ComparedSimulation, mode: "heating" | "cooling") => {
-    const saved =
-      item.simulation.thermostatSetpoints?.[
-        mode === "heating" ? "heatingSetpointC" : "coolingSetpointC"
-      ];
-    if (typeof saved === "number" && Number.isFinite(saved))
-      return format(saved) + " °C";
-    return "—";
-  };
   const option = (): EChartsOption => ({
     color: colors,
     tooltip: {
@@ -76,7 +67,26 @@ export default function TemperatureComparisonChart(props: {
         range.
       </p>
       <EChart option={option()} class="mt-3 h-[26rem] w-full sm:h-[30rem]" />
-      <h4 class="mb-3 mt-5 font-bold text-graphite">
+    </section>
+  );
+}
+
+export function TemperatureSetpointsTable(props: {
+  compared: ComparedSimulation[];
+  baseline: SimulationReference;
+}) {
+  const setpoint = (item: ComparedSimulation, mode: "heating" | "cooling") => {
+    const saved =
+      item.simulation.thermostatSetpoints?.[
+        mode === "heating" ? "heatingSetpointC" : "coolingSetpointC"
+      ];
+    if (typeof saved === "number" && Number.isFinite(saved))
+      return format(saved) + " °C";
+    return "—";
+  };
+  return (
+    <section class="rounded-2xl border border-warm-stone/20 bg-cloud-white p-4">
+      <h4 class="mb-3 font-bold text-graphite">
         Heating and cooling setpoints
       </h4>
       <div class="cozy-scrollbar overflow-x-auto rounded-2xl border border-warm-stone/20">
