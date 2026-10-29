@@ -20,7 +20,7 @@ export type NewSimulationPayload = {
   plantsEnabled: boolean;
   plantId?: string;
   plantName?: string;
-  greenWallSize?: "SMALL" | "MEDIUM" | "LARGE" | "VERY_LARGE";
+  greenWallSize?: "VERY_SMALL" | "SMALL" | "MEDIUM" | "LARGE" | "VERY_LARGE";
   lightingLevel?: "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH";
   exchangeMode?: "FULL_EXCHANGE" | "UPTAKE_ONLY";
   openWindowsEnabled: boolean;

@@ -84,7 +84,7 @@ const schemas = {
   plants: z.object({
     plantId: z.string().min(1),
     plantName: z.string().min(1),
-    greenWallSize: z.enum(["SMALL", "MEDIUM", "LARGE", "VERY_LARGE"]),
+    greenWallSize: z.enum(["VERY_SMALL", "SMALL", "MEDIUM", "LARGE", "VERY_LARGE"]),
     lightingLevel: z.enum(["LOW", "MEDIUM", "HIGH", "VERY_HIGH"]),
     exchangeMode: z.enum(["FULL_EXCHANGE", "UPTAKE_ONLY"]),
   }),
@@ -561,6 +561,11 @@ export default function NewSimulationWizard() {
                         <ChoiceGrid
                             items={[
                               {
+                                value: "VERY_SMALL",
+                                label: "5%",
+                                description: "5% of each zone's available wall area.",
+                              },
+                              {
                                 value: "SMALL",
                                 label: "10%",
                                 description: "10% of each zone's available wall area.",
@@ -584,7 +589,7 @@ export default function NewSimulationWizard() {
                             value={form().greenWallSize ?? "MEDIUM"}
                             onChange={(value) => update(
                                 "greenWallSize",
-                                value as "SMALL" | "MEDIUM" | "LARGE" | "VERY_LARGE"
+                                value as "VERY_SMALL" | "SMALL" | "MEDIUM" | "LARGE" | "VERY_LARGE"
                             )}
                             icon={<Leaf size={20}/>}/>
                         <p class="mt-2 text-xs text-graphite/50">

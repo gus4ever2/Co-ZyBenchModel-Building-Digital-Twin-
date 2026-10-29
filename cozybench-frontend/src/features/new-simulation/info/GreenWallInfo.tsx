@@ -35,6 +35,15 @@ export default function GreenWallInfo() {
 
             <div>
                 <p class="text-sm font-semibold text-graphite">
+                    Very small — 5%
+                </p>
+                <p class="mt-1 text-xs leading-relaxed text-graphite/55">
+                    The green wall occupies 5% of each thermal zone's available wall area.
+                </p>
+            </div>
+
+            <div>
+                <p class="text-sm font-semibold text-graphite">
                     Small — 10%
                 </p>
 

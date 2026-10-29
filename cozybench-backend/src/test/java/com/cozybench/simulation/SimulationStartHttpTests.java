@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class SimulationStartHttpTests {
     @ParameterizedTest
@@ -33,11 +34,18 @@ class SimulationStartHttpTests {
         });
         server.start();
         try {
-            var client = new CosimulatorSimulationClient("http://127.0.0.1:" + server.getAddress().getPort(), null);
+            var library = mock(com.cozybench.plant.service.DefaultPlantLibrary.class);
+            when(library.prepare("user@example.com", "plant-id")).thenReturn("prepared-plant-id");
+            var client = new CosimulatorSimulationClient("http://127.0.0.1:" + server.getAddress().getPort(), library);
             var set = new ComponentSnapshot("set-id", "Set", "construction_set", Map.of("Name", "Set"));
             var snapshot = new ConstructionSetSnapshot(set, List.of(), List.of());
             var request = new StartSimulationRequest("Test", ScenarioType.REFERENCE, "paris", "set-id",
-                    null, null, null,
+                    thermostatEnabled ? new com.cozybench.simulation.dto.PlantSimulationRequest(
+                            "plant-id", "Spathiphyllum",
+                            com.cozybench.simulation.model.GreenWallSize.VERY_SMALL,
+                            com.cozybench.simulation.model.PlantLightingLevel.HIGH,
+                            com.cozybench.simulation.model.PlantCo2ExchangeMode.FULL_EXCHANGE) : null,
+                    null, null,
                     thermostatEnabled ? new ThermostatSetpointsRequest(20.0, 26.0) : null,
                     Map.of());
             assertEquals("example-id", client.start("user@example.com", "Set", request, snapshot));
@@ -47,6 +55,8 @@ class SimulationStartHttpTests {
             assertEquals(thermostatEnabled, requestBody.get().contains("thermostat_setpoints"));
             if (thermostatEnabled) {
                 char quote = 34;
+                assertTrue(requestBody.get().contains(quote + "green_wall_size" + quote + ":" + quote + "very_small" + quote));
+                assertTrue(requestBody.get().contains(quote + "plant_id" + quote + ":" + quote + "prepared-plant-id" + quote));
                 assertTrue(requestBody.get().contains(quote + "heating_setpoint_c" + quote + ":20.0"));
                 assertTrue(requestBody.get().contains(quote + "cooling_setpoint_c" + quote + ":26.0"));
             }

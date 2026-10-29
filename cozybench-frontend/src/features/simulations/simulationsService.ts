@@ -19,7 +19,7 @@ export async function downloadSimulationJson(simulationId: string) {
 export type PlantSimulation = {
   plantId?: string;
   plantName: string;
-  greenWallSize?: "SMALL" | "MEDIUM" | "LARGE" | "VERY_LARGE" | null;
+  greenWallSize?: "VERY_SMALL" | "SMALL" | "MEDIUM" | "LARGE" | "VERY_LARGE" | null;
   lightingLevel: "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH";
   exchangeMode?: "FULL_EXCHANGE" | "UPTAKE_ONLY";
 };

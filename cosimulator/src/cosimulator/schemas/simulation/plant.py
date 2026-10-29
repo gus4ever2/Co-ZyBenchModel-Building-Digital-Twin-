@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 class GreenWallSize(str, Enum):
     """Coverage preset applied independently to every thermal zone."""
 
+    VERY_SMALL = "very_small"
     SMALL = "small"
     MEDIUM = "medium"
     LARGE = "large"
@@ -18,6 +19,7 @@ class GreenWallSize(str, Enum):
     def coverage_ratio(self) -> float:
         """Return the wall-coverage ratio represented by this UI preset."""
         return {
+            GreenWallSize.VERY_SMALL: 0.05,
             GreenWallSize.SMALL: 0.10,
             GreenWallSize.MEDIUM: 0.30,
             GreenWallSize.LARGE: 0.50,

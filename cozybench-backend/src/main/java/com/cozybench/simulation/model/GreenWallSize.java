@@ -1,6 +1,7 @@
 package com.cozybench.simulation.model;
 
 public enum GreenWallSize {
+    VERY_SMALL(0.05),
     SMALL(0.10),
     MEDIUM(0.30),
     LARGE(0.50),
