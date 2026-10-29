@@ -60,11 +60,23 @@ const columns = [
     unit: "kWh",
     delta: true,
   },
+  {
+    label: "Δ Heating (%)",
+    field: "totalHeatingKwhDeltaPercent",
+    unit: "%",
+    delta: true,
+  },
   { label: "Cooling", field: "totalCoolingKwh", unit: "kWh" },
   {
     label: "Δ Cooling",
     field: "totalCoolingKwhDelta",
     unit: "kWh",
+    delta: true,
+  },
+  {
+    label: "Δ Cooling (%)",
+    field: "totalCoolingKwhDeltaPercent",
+    unit: "%",
     delta: true,
   },
   { label: "Total HVAC", field: "totalHvacKwh", unit: "kWh" },
@@ -86,7 +98,17 @@ const columns = [
 export default function SeasonalEnergyAnalysis(props: {
   compared: Simulation[];
   baseline: SimulationReference;
+  showHeatingCoolingPercent?: boolean;
 }) {
+  const tableColumns = () =>
+    columns.filter(
+      (column) =>
+        props.showHeatingCoolingPercent ||
+        ![
+          "totalHeatingKwhDeltaPercent",
+          "totalCoolingKwhDeltaPercent",
+        ].includes(column.field),
+    );
   const option = (
     period: string,
     field: keyof Omit<Point, "timestamp">,
@@ -159,7 +181,7 @@ export default function SeasonalEnergyAnalysis(props: {
                 <thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50">
                   <tr>
                     <th class="p-3">Simulation</th>
-                    <For each={columns}>
+                    <For each={tableColumns()}>
                       {(column) => <th class="p-3">{column.label}</th>}
                     </For>
                   </tr>
@@ -176,7 +198,7 @@ export default function SeasonalEnergyAnalysis(props: {
                             </span>
                           )}
                         </td>
-                        <For each={columns}>
+                        <For each={tableColumns()}>
                           {(column) => {
                             const value = () =>
                               periodFor(item, period.id)?.metrics[column.field];
