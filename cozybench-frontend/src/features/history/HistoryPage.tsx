@@ -7,11 +7,9 @@ import {
   CalendarDays,
   Clock3,
   Download,
-  Eye,
   Gauge,
   LoaderCircle,
   MapPin,
-  PanelsTopLeft,
   Trash2,
   Wind,
 } from "lucide-solid";
@@ -207,36 +205,6 @@ export default function HistoryPage() {
                             <Show when={exportSimulation.isError && exportSimulation.variables === simulation.id}>
                               <p role="alert" class="text-xs text-red-wine">JSON download failed. Please try again.</p>
                             </Show>
-                            <button
-                              type="button"
-                              aria-label={`Inspect construction snapshot for ${simulation.name}`}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setSelectedId(simulation.id);
-                                setSnapshotId(simulation.id);
-                              }}
-                              title={`Construction snapshot: ${simulation.constructionSetName || "Not specified"}`}
-                              class="group w-full rounded-xl border border-warm-stone/15 bg-warm-stone/5 p-3 text-left transition hover:border-citadel-blue/35 hover:bg-sky-mist/25"
-                            >
-                              <div class="flex min-w-0 items-start gap-2.5">
-                                <PanelsTopLeft class="mt-0.5 size-4 shrink-0 text-citadel-blue" />
-                                <div class="min-w-0 flex-1">
-                                  <p class="text-[0.62rem] font-bold uppercase tracking-[0.14em] text-graphite/45">
-                                    Construction snapshot
-                                  </p>
-                                  <p class="mt-1 truncate font-semibold text-graphite/75">
-                                    {simulation.constructionSetName ||
-                                      "Not specified"}
-                                  </p>
-                                  <p class="mt-0.5 text-[0.65rem] leading-relaxed text-graphite/45">
-                                    Configuration stored with this simulation
-                                  </p>
-                                </div>
-                                <span class="ml-auto grid size-8 shrink-0 place-items-center self-center rounded-full bg-sky-mist/55 text-citadel-blue transition group-hover:bg-citadel-blue group-hover:text-cloud-white">
-                                  <Eye class="size-4" />
-                                </span>
-                              </div>
-                            </button>
                             <HistoryCardRow
                               icon={<Wind />}
                               label={windowsLabel(simulation)}
@@ -301,6 +269,7 @@ export default function HistoryPage() {
                         <SimulationDataView
                           simulation={simulation()}
                           timesteps={results.data?.timesteps ?? []}
+                          onOpenConstructionSnapshot={() => setSnapshotId(simulation().id)}
                         />
                       </Show>
                     </Show>
