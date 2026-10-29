@@ -114,3 +114,9 @@ def _add_energy_intensity(results: dict[str, dict], metrics: dict[str, float | i
     }
     results["energy_intensity"] = intensity
     metrics.update(intensity)
+    for period in results.get("seasonal_energy", {}).get("periods", {}).values():
+        period_energy = period["metrics"].get("totalHvacKwh")
+        period["metrics"].update({
+            "hvacKwhPerM2": period_energy / area if period_energy is not None and area else None,
+            "hvacKwhPerM3": period_energy / volume if period_energy is not None and volume else None,
+        })

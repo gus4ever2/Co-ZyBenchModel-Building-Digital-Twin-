@@ -110,7 +110,7 @@ def _calculate_delta(
         return
 
     baseline_ppm = data.baseline_values.get(key)
-    delta_ppm = baseline_ppm - ppm if baseline_ppm is not None and ppm is not None else None
+    delta_ppm = ppm - baseline_ppm if baseline_ppm is not None and ppm is not None else None
     data.delta_points.setdefault(input.simulation_id, {}).setdefault(zone_name, []).append(
         {
             "timestamp": timestamp.replace("+00:00", "Z"),
@@ -206,6 +206,7 @@ def _comparison_result(data: Co2Data) -> dict[str, Any]:
 
     return {
         "comparisons": comparisons,
+        "differenceConvention": "comparedMinusBaseline",
         "analysisRange": {
             "start": min(timestamps) if timestamps else None,
             "end": max(timestamps) if timestamps else None,
