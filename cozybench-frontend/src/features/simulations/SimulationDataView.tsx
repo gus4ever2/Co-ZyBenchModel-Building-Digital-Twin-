@@ -63,7 +63,7 @@ export default function SimulationDataView(props: {
     queryKey: ["simulation-analytics", props.simulation.id, props.timesteps.length],
     queryFn: () =>
       loadSimulationAnalytics(props.simulation.id, 0, props.timesteps.length),
-    enabled: props.timesteps.length > 0,
+    enabled: activePanel() === "energy" && props.timesteps.length > 0,
   }));
   const energyMetrics = () => energyAnalytics.data?.metrics ?? {};
 
@@ -72,61 +72,61 @@ export default function SimulationDataView(props: {
   });
 
   const heatingOption = createMemo<EChartsOption>(() =>
-    chartOption(timestamps(), "kWh / timestep", [
+    activePanel() === "energy" ? chartOption(timestamps(), "kWh / timestep", [
       line(
         "Heating",
         props.timesteps.map((step) =>
           step.results?.meter_results?.heating_electricity_kwh ?? null,
         ),
       ),
-    ]),
+    ]) : {},
   );
   const coolingOption = createMemo<EChartsOption>(() =>
-    chartOption(timestamps(), "kWh / timestep", [
+    activePanel() === "energy" ? chartOption(timestamps(), "kWh / timestep", [
       line(
         "Cooling",
         props.timesteps.map((step) =>
           step.results?.meter_results?.cooling_electricity_kwh ?? null,
         ),
       ),
-    ]),
+    ]) : {},
   );
   const totalHvacOption = createMemo<EChartsOption>(() =>
-    chartOption(timestamps(), "kWh / timestep", [
+    activePanel() === "energy" ? chartOption(timestamps(), "kWh / timestep", [
       line(
         "Total HVAC",
         props.timesteps.map((step) =>
           step.results?.meter_results?.hvac_electricity_kwh ?? null,
         ),
       ),
-    ]),
+    ]) : {},
   );
   const temperatureOption = createMemo<EChartsOption>(() =>
-    chartOption(timestamps(), "°C", [
+    activePanel() === "temperature" ? chartOption(timestamps(), "°C", [
       line(
         "Air temperature",
         zoneSteps().map((value) => value?.zone_air_temp_c),
       ),
-    ]),
+    ]) : {},
   );
   const co2Option = createMemo<EChartsOption>(() =>
-    chartOption(timestamps(), "ppm", [
+    activePanel() === "co2" ? chartOption(timestamps(), "ppm", [
       line(
         "Zone CO₂ concentration",
         zoneSteps().map((value) => value?.co2_concentration_ppm),
       ),
-    ]),
+    ]) : {},
   );
   const humidityOption = createMemo<EChartsOption>(() =>
-    chartOption(timestamps(), "%", [
+    activePanel() === "humidity" ? chartOption(timestamps(), "%", [
       line(
         "Relative humidity",
         zoneSteps().map((value) => value?.relative_humidity_percent),
       ),
-    ]),
+    ]) : {},
   );
   const ventilationOption = createMemo<EChartsOption>(() =>
-    chartOption(timestamps(), "%", [
+    activePanel() === "ventilation" ? chartOption(timestamps(), "%", [
       line(
         "Outdoor-air flow",
         props.timesteps.map((step) => {
@@ -139,17 +139,17 @@ export default function SimulationDataView(props: {
           );
         }),
       ),
-    ]),
+    ]) : {},
   );
   const windowOpeningOption = createMemo<EChartsOption>(() =>
-    chartOption(timestamps(), "%", [
+    activePanel() === "windowOpening" ? chartOption(timestamps(), "%", [
       line(
         "Mean window opening",
         props.timesteps.map((step) =>
           windowOpeningPercent(step, selectedZone()),
         ),
       ),
-    ]),
+    ]) : {},
   );
   const panelTitle = (panel: AnalysisPanel) =>
     ({
