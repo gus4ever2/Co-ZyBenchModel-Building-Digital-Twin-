@@ -44,6 +44,16 @@ export default function OpenWindowsInfo() {
                 </p>
             </div>
 
+            <div>
+                <p class="text-sm font-semibold text-graphite">Fixed percentage</p>
+                <p class="mt-1 text-xs leading-relaxed text-graphite/55">
+                    Opens every controlled window to the entered percentage only when the CO₂
+                    threshold and both indoor and outdoor temperature conditions are satisfied.
+                    Otherwise, windows close. Enter a value from 0 to 100: 10 means 10% open,
+                    while 0.1 means 0.1% open.
+                </p>
+            </div>
+
             <div class="border-t border-warm-stone/15 pt-4">
                 <p class="text-sm font-semibold text-graphite">
                     CO₂ concentration threshold
@@ -146,8 +156,8 @@ export default function OpenWindowsInfo() {
                     The CO₂ threshold determines when additional ventilation is requested,
                     while the temperature condition determines whether opening the
                     windows is thermally appropriate. The opening strategy then determines
-                    whether the windows open progressively or switch directly between
-                    closed and fully open.
+                    whether the windows open progressively, switch between closed and fully open,
+                    or use your fixed percentage.
                 </p>
             </div>
         </div>

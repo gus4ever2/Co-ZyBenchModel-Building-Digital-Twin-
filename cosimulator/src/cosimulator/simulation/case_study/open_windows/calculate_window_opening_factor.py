@@ -82,7 +82,7 @@ def calculate_temperature_suitability_factor(
     ):
         return 0.0
 
-    if opening_strategy is WindowOpeningStrategy.ON_OFF:
+    if opening_strategy in (WindowOpeningStrategy.ON_OFF, WindowOpeningStrategy.FIXED_PERCENTAGE):
         return calculate_on_off_temperature_factor(
             temperature_c=temperature_c,
             heating_setpoint_c=heating_setpoint_c,

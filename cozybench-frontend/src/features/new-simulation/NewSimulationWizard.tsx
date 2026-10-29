@@ -89,7 +89,8 @@ const schemas = {
     exchangeMode: z.enum(["FULL_EXCHANGE", "UPTAKE_ONLY"]),
   }),
   windows: z.object({
-    openingStrategy: z.enum(["LINEAR", "ON_OFF"]),
+    openingStrategy: z.enum(["LINEAR", "ON_OFF", "FIXED_PERCENTAGE"]),
+    openingPercentage: z.unknown().optional(),
     minCo2Level: z.union([
       z.literal(500),
       z.literal(600),
@@ -99,7 +100,10 @@ const schemas = {
       z.literal(1000),
     ]),
     temperatureMargin: z.number().min(0.1).max(10),
-  }),
+  }).refine(value => value.openingStrategy !== "FIXED_PERCENTAGE" || (
+    typeof value.openingPercentage === "number" && Number.isFinite(value.openingPercentage)
+    && value.openingPercentage >= 0 && value.openingPercentage <= 100
+  )),
   co2Control: z.object({
     co2SetpointPpm: z.union([
       z.literal(500),
@@ -150,6 +154,7 @@ export default function NewSimulationWizard() {
     lightingLevel: "MEDIUM",
     exchangeMode: "FULL_EXCHANGE",
     openingStrategy: "LINEAR",
+    openingPercentage: 10,
     minCo2Level: 800,
     temperatureMargin: 2,
     co2SetpointPpm: 800,
@@ -682,11 +687,23 @@ export default function NewSimulationWizard() {
                               label: "On–Off",
                               description: "Fully opens the windows as soon as all conditions are satisfied.",
                             },
+                            {
+                              value: "FIXED_PERCENTAGE",
+                              label: "Fixed percentage",
+                              description: "Opens to your chosen percentage when CO₂ and temperature conditions allow; otherwise closes.",
+                            },
                           ]}
                           value={form().openingStrategy ?? "LINEAR"}
-                          onChange={(value) => update("openingStrategy", value as "LINEAR" | "ON_OFF")}
+                          onChange={(value) => update("openingStrategy", value as "LINEAR" | "ON_OFF" | "FIXED_PERCENTAGE")}
                           icon={<Wind size={20}/>}/>
                     </div>
+                    <Show when={form().openingStrategy === "FIXED_PERCENTAGE"}>
+                      <Field label="Window opening (%)" hint="Enter 0–100%. For example, 10 means 10% open; 0.1 means 0.1% open. Windows close when the CO₂ or temperature conditions fail.">
+                        <input class="form-input max-w-md" type="number" min="0" max="100" step="any"
+                          value={form().openingPercentage}
+                          onInput={event => update("openingPercentage", event.currentTarget.valueAsNumber)} />
+                      </Field>
+                    </Show>
                     <div>
                       <p class="mb-2 text-sm font-semibold">
                         CO₂ concentration threshold
@@ -950,7 +967,7 @@ export function LegacyReview(props: {
       {row(
         "Open windows",
         props.payload.openWindowsEnabled
-          ? `${props.payload.minCo2Level} ppm · ±${props.payload.temperatureMargin} °C`
+          ? `${props.payload.openingStrategy === "FIXED_PERCENTAGE" ? "Fixed " + props.payload.openingPercentage + "% · " : (props.payload.openingStrategy === "ON_OFF" ? "On–Off · " : "Linear · ")}${props.payload.minCo2Level} ppm · ±${props.payload.temperatureMargin} °C`
           : "Disabled",
       )}
       {row(

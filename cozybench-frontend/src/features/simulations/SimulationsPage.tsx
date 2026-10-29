@@ -1047,7 +1047,7 @@ function WindowOpeningSummary(props: {
       <div class="border-b border-citadel-blue/10 bg-sky-mist/30 px-4 py-3 sm:px-5">
         <h3 class="font-bold text-graphite">Window opening</h3>
         <p class="mt-1 text-xs text-graphite/50">
-          Mean opening across the selected zone’s windows and timesteps. Δ is the relative change from baseline; positive values mean more open.
+          Average opening factor across the selected zone’s windows and timesteps, including closed windows. This is not the percentage of time windows were open. Total openable area is the full area available in this zone. Δ is the relative change from baseline; a missing or zero baseline has no defined percentage.
         </p>
       </div>
       <div class="cozy-scrollbar overflow-x-auto">
@@ -1055,7 +1055,8 @@ function WindowOpeningSummary(props: {
           <thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50">
             <tr>
               <th class="p-3">Simulation</th>
-              <th class="p-3">Mean window opening</th>
+              <th class="p-3">Total openable window area (m²)</th>
+              <th class="p-3">Mean window opening (%)</th>
               <th class="p-3">Δ vs baseline (%)</th>
             </tr>
           </thead>
@@ -1070,6 +1071,9 @@ function WindowOpeningSummary(props: {
                   <tr class="border-t border-warm-stone/10">
                     <td class="p-3 font-bold text-graphite">
                       {item.simulation.name}
+                    </td>
+                    <td class="whitespace-nowrap p-3">
+                      {metric(item.analytics.zones[props.zone]?.openable_window_area_m2, "m²")}
                     </td>
                     <td class="p-3">
                       {typeof value === "number" && Number.isFinite(value)
@@ -1917,7 +1921,9 @@ function plantLabel(simulation: SimulationListItem) {
 function windowsLabel(simulation: SimulationListItem) {
   const windows = simulation.openWindows;
   if (!windows) return "Open windows disabled";
-  const strategy = windows.openingStrategy === "ON_OFF" ? "On–Off" : "Linear";
+  const strategy = windows.openingStrategy === "FIXED_PERCENTAGE"
+    ? "Fixed " + (windows.openingPercentage ?? "—") + "%"
+    : windows.openingStrategy === "ON_OFF" ? "On–Off" : "Linear";
   return `${strategy} · ${windows.co2ThresholdPpm} ppm · ±${windows.temperatureMarginC} °C`;
 }
 

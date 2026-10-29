@@ -57,6 +57,8 @@ function plantSetupLabel(simulation: SimulationListItem) {
 function windowSetupLabel(simulation: SimulationListItem) {
   const windows = simulation.openWindows;
   if (!windows) return "Open windows disabled";
-  const strategy = windows.openingStrategy === "ON_OFF" ? "On–Off" : "Linear";
+  const strategy = windows.openingStrategy === "FIXED_PERCENTAGE"
+    ? "Fixed " + (windows.openingPercentage ?? "—") + "%"
+    : windows.openingStrategy === "ON_OFF" ? "On–Off" : "Linear";
   return `Open windows · ${strategy} · ${windows.co2ThresholdPpm} ppm`;
 }
