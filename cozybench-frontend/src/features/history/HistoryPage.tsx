@@ -8,8 +8,10 @@ import {
   Clock3,
   Download,
   Gauge,
+  Leaf,
   LoaderCircle,
   MapPin,
+  PanelsTopLeft,
   Trash2,
   Wind,
 } from "lucide-solid";
@@ -187,6 +189,16 @@ export default function HistoryPage() {
                               icon={<MapPin />}
                               label={cityLabel(simulation.city)}
                             />
+                            <HistoryCardRow
+                              icon={<PanelsTopLeft />}
+                              label={constructionSetLabel(simulation)}
+                              muted={!simulation.constructionSetName}
+                            />
+                            <HistoryCardRow
+                              icon={<Leaf />}
+                              label={plantLabel(simulation)}
+                              muted={!simulation.plantSimulation}
+                            />
                             <button
                               type="button"
                               disabled={exportSimulation.isPending}
@@ -319,6 +331,18 @@ function cityLabel(city?: string) {
 
 function statusLabel(status: string) {
   return status.charAt(0) + status.slice(1).toLowerCase();
+}
+
+function constructionSetLabel(simulation: SimulationListItem) {
+  return simulation.constructionSetName
+    ? `Construction set · ${simulation.constructionSetName}`
+    : "Construction set unavailable";
+}
+
+function plantLabel(simulation: SimulationListItem) {
+  const plant = simulation.plantSimulation;
+  if (!plant) return "Plant disabled";
+  return `Plant · ${plant.plantName} · ${plant.lightingLevel.toLowerCase().replace("_", " ")} light`;
 }
 
 function windowsLabel(simulation: SimulationListItem) {
