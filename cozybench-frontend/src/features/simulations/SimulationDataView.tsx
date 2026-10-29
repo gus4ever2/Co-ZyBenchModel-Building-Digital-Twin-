@@ -371,10 +371,15 @@ function SingleCo2Summary(props: {
         <table class="w-full min-w-[42rem] border-separate border-spacing-0 text-left text-xs">
           <thead class="bg-sky-mist/25 text-graphite/55">
             <tr>
-              <th class="border-b border-warm-stone/20 p-3 font-bold">Simulation</th>
-              <th class="border-b border-warm-stone/20 p-3 text-center font-bold">All hours · Mean CO₂</th>
-              <th class="border-b border-warm-stone/20 p-3 text-center font-bold">Weekdays · 08:00–22:00 · Mean CO₂</th>
-              <th class="border-b border-warm-stone/20 p-3 text-center font-bold">Weekdays · 22:00–08:00 · Mean CO₂</th>
+              <th rowSpan={2} class="border-b border-warm-stone/20 p-3 font-bold">Simulation</th>
+              <th colSpan={1} class="border-b border-warm-stone/20 p-3 text-center font-bold">All hours</th>
+              <th colSpan={1} class="border-b border-warm-stone/20 p-3 text-center font-bold">Weekdays · 08:00–22:00</th>
+              <th colSpan={1} class="border-b border-warm-stone/20 p-3 text-center font-bold">Weekdays · 22:00–08:00</th>
+            </tr>
+            <tr>
+              <th class="border-b border-warm-stone/20 p-3 font-semibold">Mean CO₂</th>
+              <th class="border-b border-warm-stone/20 p-3 font-semibold">Mean CO₂</th>
+              <th class="border-b border-warm-stone/20 p-3 font-semibold">Mean CO₂</th>
             </tr>
           </thead>
           <tbody>
