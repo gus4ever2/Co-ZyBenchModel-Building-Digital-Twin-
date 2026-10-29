@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from eppy.modeleditor import IDF
+import pytest
 
 from cosimulator.idf.idf_file_operations import load_input_idf, set_energyplus_idd
 from cosimulator.idf.living_wall.configurator import LivingWallConfigurator
@@ -16,13 +17,14 @@ from cosimulator.idf.utils.find_every_thermal_zone_name import find_every_therma
 from cosimulator.schemas.simulation_context import PlantSimulation
 
 
-def test_package_builds_native_walls_and_independent_co2_on_real_idf():
+@pytest.mark.parametrize("size", ["medium", "very_small"])
+def test_package_builds_native_walls_and_independent_co2_on_real_idf(size):
     set_energyplus_idd()
     idf = load_input_idf()
     schedule_definitions(idf)
     zones = find_every_thermal_zone_name(idf=idf)
     settings = PlantSimulation(plant_id="test", plant_name="Spathiphyllum",
-                               green_wall_size="medium", lighting_level="high")
+                               green_wall_size=size, lighting_level="high")
     context = SimpleNamespace(plant_simulation=settings)
     profile = {"schema_version": 5, "total_leaf_area_m2": 0.9322176869513541,
                "panel_area_m2": 1.0}
