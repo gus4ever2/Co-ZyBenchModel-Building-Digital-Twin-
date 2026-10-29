@@ -64,6 +64,17 @@ export default function SimulationDataView(props: {
   const [activePanel, setActivePanel] = createSignal<AnalysisPanel | null>(null);
   const [previewPlantId, setPreviewPlantId] = createSignal("");
   const zones = createMemo(() => zoneNames(props.timesteps));
+  const windowZones = createMemo(() => {
+    const names = new Set<string>();
+    props.timesteps.forEach((timestep) => {
+      Object.entries(timestep.results?.window_opening_results ?? {}).forEach(
+        ([key, result]) => names.add(result.zone_name || key),
+      );
+    });
+    return [...names].sort((left, right) => left.localeCompare(right));
+  });
+  const selectableZones = () =>
+    activePanel() === "windowOpening" ? windowZones() : zones();
   const timestamps = () => props.timesteps.map(timestampLabel);
   const zoneSteps = () =>
     props.timesteps.map((step) => zoneAt(step, selectedZone()));
@@ -76,7 +87,9 @@ export default function SimulationDataView(props: {
   const energyMetrics = () => energyAnalytics.data?.metrics ?? {};
 
   createEffect(() => {
-    if (!zones().includes(selectedZone())) setSelectedZone(zones()[0] ?? "");
+    if (!selectableZones().includes(selectedZone())) {
+      setSelectedZone(selectableZones()[0] ?? "");
+    }
   });
 
   const heatingOption = createMemo<EChartsOption>(() =>
@@ -202,7 +215,11 @@ export default function SimulationDataView(props: {
           {(panel) => (
             <AnalysisDialog title={panelTitle(panel)} onClose={() => setActivePanel(null)}>
               <Show when={["co2", "temperature", "humidity", "windowOpening"].includes(panel)}>
-                <ZoneSelector zones={zones()} selected={selectedZone()} onSelect={setSelectedZone} />
+                <ZoneSelector
+                  zones={panel === "windowOpening" ? windowZones() : zones()}
+                  selected={selectedZone()}
+                  onSelect={setSelectedZone}
+                />
               </Show>
               <Switch>
                 <Match when={panel === "energy"}>
