@@ -27,7 +27,7 @@ import EChart from "../../components/charts/EChart";
 import ConstructionSetComparison from "./ConstructionSetComparison";
 import SeasonalEnergyAnalysis from "./SeasonalEnergyAnalysis";
 import GreenWallParameters from "./GreenWallParameters";
-import GreenWallTemperatureChart from "./GreenWallTemperatureChart";
+import TemperatureComparisonChart from "./TemperatureComparisonChart";
 import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavigationCard";
 import EditorIdentityHeader from "../../components/form/EditorIdentityHeader";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
@@ -711,7 +711,6 @@ function ComparisonResults(props: {
                           zone={zone}
                           onPreview={setAnalysisPlantId}
                         />
-                        <GreenWallTemperatureChart compared={props.compared} zone={zone} baseline={props.analysis.baseline} />
                       </>}
                     </Show>
                   </section>
@@ -1576,9 +1575,13 @@ function ThermalZoneMetricComparisonView(props: {
     >
     <div class="space-y-5">
       {summaryTable()}
-      <Chart title={`${props.zone} · ${config().label}`}>
-        <EChart option={zoneMetricOption(props.compared, props.zone, config().field, config().unit)} class="h-[26rem] w-full sm:h-[30rem]" />
-      </Chart>
+      <Show when={props.metric === "temperature"} fallback={
+        <Chart title={`${props.zone} · ${config().label}`}>
+          <EChart option={zoneMetricOption(props.compared, props.zone, config().field, config().unit)} class="h-[26rem] w-full sm:h-[30rem]" />
+        </Chart>
+      }>
+        <TemperatureComparisonChart compared={props.compared} zone={props.zone} baseline={props.baseline} />
+      </Show>
       <Show when={props.compared.length > 1}>
         <section>
           <div class="mb-3">

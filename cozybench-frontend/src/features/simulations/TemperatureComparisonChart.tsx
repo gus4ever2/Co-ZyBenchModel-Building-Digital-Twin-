@@ -22,7 +22,7 @@ const colors = [
 const format = (value: number) =>
   new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value);
 
-export default function GreenWallTemperatureChart(props: {
+export default function TemperatureComparisonChart(props: {
   compared: ComparedSimulation[];
   baseline: SimulationReference;
   zone: string;
