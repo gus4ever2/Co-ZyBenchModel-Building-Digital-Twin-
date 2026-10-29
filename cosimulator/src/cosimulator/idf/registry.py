@@ -21,6 +21,6 @@ IDF_CONFIGURATORS: tuple[IdfConfigurator, ...] = (
     AirflowNetworkConfigurator(),  # Create network control, cracks, openings and eligible zones.
     OutputVariablesConfigurator(),  # Request the variables consumed by the simulation.
     ConstructionSetConfigurator(),  # Insert the snapshot objects and assign the selected constructions.
-    EquipmentConfigurator(),  # Add plant sensible and latent loads when a plant is selected.
+    EquipmentConfigurator(),  # Add native per-zone IndoorLivingWall objects when a plant is selected.
     ConstructionSetCleanupConfigurator(),  # Remove unreferenced definitions after all references are in place.
 )

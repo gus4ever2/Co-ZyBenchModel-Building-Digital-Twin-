@@ -75,10 +75,10 @@ def apply_plant_control(
     settings: PlantSimulation,
     green_wall_area_by_zone: dict[str, float],
 ) -> dict[str, ZonePlantCO2ExchangeResult]:
-    """Calculate and apply PhotosynEB CO2 and thermal exchange per timestep.
+    """Apply PhotosynEB CO2 sink/source flow; EnergyPlus models wall heat/moisture.
 
-    Green-wall areas are fixed before EnergyPlus starts. This callback only
-    evaluates each zone's configured wall area under the current conditions.
+    Green-wall areas are fixed before EnergyPlus starts. PhotosynEB flux fields
+    are retained as diagnostics only; they are not injected into zone loads.
     """
     if not actuator_handles_by_zone:
         return {}
@@ -183,20 +183,10 @@ def apply_plant_control(
             handles.source_handle,
             source_flow_m3_s,
         )
-        # Each OtherEquipment uses Design Level = 1 W.  Its actuated schedule
-        # therefore accepts the signed physical W value directly.  Latent is
-        # positive (water released to the room); sensible may be positive or
-        # negative according to the PhotosynEB leaf-to-air heat flux.
-        ep.exchange.set_actuator_value(
-            state, handles.latent_load_handle, latent_heat_gain_w
-        )
-        ep.exchange.set_actuator_value(
-            state, handles.sensible_load_handle, sensible_heat_gain_w
-        )
-
         results[zone_name] = ZonePlantCO2ExchangeResult(
             zone_name=zone_name,
             green_wall_area_m2=green_wall_area_m2,
+            total_leaf_area_m2=total_leaf_area_m2,
             net_co2_exchange_g_per_hour=total_exchange_g_h,
             sink_volume_flow_rate_m3_s=sink_flow_m3_s,
             source_volume_flow_rate_m3_s=source_flow_m3_s,

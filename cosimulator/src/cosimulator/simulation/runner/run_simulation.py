@@ -1,5 +1,7 @@
 """Prepare and execute one EnergyPlus simulation."""
 
+import os
+
 from energyplus_api_helpers.import_helper import EPlusAPIHelper
 from eppy.modeleditor import IDF
 
@@ -7,6 +9,10 @@ from cosimulator.core.logger.logging import logger
 from cosimulator.core.paths.project_paths import ENERGYPLUS_HOME, WEATHER_DIR, WORKSPACE_DIR
 from cosimulator.idf.idf_file_operations import get_energyplus_idd_file
 from cosimulator.idf.utils.find_every_thermal_zone_name import find_every_thermal_zone_name
+from cosimulator.idf.utils.wall_area import available_wall_area_by_zone
+from cosimulator.idf.utils.openable_window_geometry import (
+    openable_window_geometry_by_zone,
+)
 from cosimulator.schemas.simulation_context import SimulationContext
 from cosimulator.simulation.prepare_simulation import prepare_simulation
 from cosimulator.simulation.runner.callbacks import SimulationCallbacks
@@ -56,6 +62,11 @@ def run_simulation(
         air_loop_names=air_loop_names,
         zone_air_nodes=zone_air_nodes,
         registry=registry,
+        net_wall_area_by_zone=available_wall_area_by_zone(idf=idf),
+        openable_window_geometry_by_zone=openable_window_geometry_by_zone(
+            idf=idf,
+            zone_names=zone_names,
+        ),
     )
 
     # The opaque state belongs exclusively to this EnergyPlus execution.
@@ -80,13 +91,21 @@ def run_simulation(
 
     # The selected city identifies the matching EnergyPlus weather file.
     weather_path = WEATHER_DIR / simulation_context.city / f"{simulation_context.city}.epw"
-    exit_code = ep.runtime.run_energyplus(
-        state,
-        [
-            "-x", "-a", "-w", str(weather_path), "-d",
-            str(output_directory), str(idf_path),
-        ],
-    )
+    # EnergyPlus creates an ``in.idf`` symlink in its current directory.
+    # Run from this simulation's writable workspace rather than /app, which
+    # is intentionally root-owned in the container.
+    previous_cwd = os.getcwd()
+    try:
+        os.chdir(workspace)
+        exit_code = ep.runtime.run_energyplus(
+            state,
+            [
+                "-x", "-a", "-w", str(weather_path), "-d",
+                str(output_directory), str(idf_path),
+            ],
+        )
+    finally:
+        os.chdir(previous_cwd)
     if exit_code != 0:  # Never report a failed native run as completed.
         raise RuntimeError(f"EnergyPlus failed with exit code {exit_code}")
     if callbacks.timestep_count == 0:  # Detect malformed runs with no output.

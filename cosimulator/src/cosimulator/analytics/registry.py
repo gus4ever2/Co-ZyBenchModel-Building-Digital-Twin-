@@ -64,7 +64,7 @@ ANALYTICS = [
         VentilationData,
         calculate_ventilation,
         create_ventilation_result,
-        False,
+        True,
     ),
     (
         "people_co2",

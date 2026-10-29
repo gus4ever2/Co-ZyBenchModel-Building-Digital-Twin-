@@ -10,8 +10,9 @@ outputs are configured first. The construction snapshot is then inserted and
 assigned to surfaces, followed by the plant equipment. Construction cleanup
 is last, after every package has had a chance to add references.
 
-`co2_control` owns CO2 sources, sinks and ventilation control. `equipment` owns
-the plant's sensible and latent loads.
+`co2_control` owns CO2 sources, sinks and ventilation control. `equipment` creates a per-zone `InternalMass` and native `IndoorLivingWall`;
+PhotosynEB thermal fluxes are diagnostic only, while its CO2 sink/source
+schedules remain actuated at each timestep.
 The wall-area utility is shared with the simulation callbacks. The plant grid
 and runtime simulation remain outside this IDF package.
 

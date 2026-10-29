@@ -21,6 +21,9 @@ class ZoneInternalVariableValues:
     zone_name: str = ""
     floor_area_m2: float = 0.0
     air_volume_m3: float = 0.0
+    net_wall_area_m2: float = 0.0
+    openable_window_count: float = 0.0
+    openable_window_area_m2: float = 0.0
 
 
 
@@ -75,6 +78,8 @@ def get_zone_internal_variable_values(
         str,
         ZoneInternalVariableHandles,
     ],
+    net_wall_area_by_zone: dict[str, float] | None = None,
+    openable_window_geometry_by_zone: dict[str, dict[str, float]] | None = None,
 ) -> dict[str, ZoneInternalVariableValues]:
 
     zone_internal_values: dict[
@@ -89,6 +94,13 @@ def get_zone_internal_variable_values(
 
         zone_values = ZoneInternalVariableValues(
             zone_name=zone_name,
+            net_wall_area_m2=(net_wall_area_by_zone or {}).get(zone_name, 0.0),
+            openable_window_count=(openable_window_geometry_by_zone or {}).get(
+                zone_name, {}
+            ).get("openable_window_count", 0.0),
+            openable_window_area_m2=(openable_window_geometry_by_zone or {}).get(
+                zone_name, {}
+            ).get("openable_window_area_m2", 0.0),
         )
 
         for (

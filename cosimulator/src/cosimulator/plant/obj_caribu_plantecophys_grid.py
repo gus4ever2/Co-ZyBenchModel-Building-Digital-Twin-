@@ -538,7 +538,18 @@ def _configure_r_environment() -> None:
     if not executable.is_file():
         raise FileNotFoundError(f"Could not find R executable for R_HOME: {r_home}")
     os.environ["R_HOME"] = str(r_home)
-    os.environ["R_LIBS_USER"] = str(PROJECT_R_LIBRARY)
+    # In Docker the application is installed into site-packages, so deriving
+    # the R library from this module's location points inside the Python
+    # environment instead of the configured /app/data/r-library volume.
+    # Respect an explicit runtime setting; use the project-relative library
+    # only for local runs where no R_LIBS_USER was configured.
+    configured_library = os.environ.get("R_LIBS_USER")
+    r_library = (
+        Path(configured_library).expanduser().resolve()
+        if configured_library
+        else PROJECT_R_LIBRARY
+    )
+    os.environ["R_LIBS_USER"] = str(r_library)
     if str(executable.parent) not in os.environ.get("PATH", "").split(os.pathsep):
         os.environ["PATH"] = str(executable.parent) + os.pathsep + os.environ.get(
             "PATH", ""

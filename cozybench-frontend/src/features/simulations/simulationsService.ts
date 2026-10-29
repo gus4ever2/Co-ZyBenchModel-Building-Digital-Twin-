@@ -78,6 +78,7 @@ export type ZoneResult = {
   co2_setpoint_ppm?: number;
   co2_predicted_load_kg_s?: number;
   relative_humidity_percent?: number;
+  humidity_ratio_kg_water_per_kg_dry_air?: number;
   cooling_setpoint_c?: number;
   heating_setpoint_c?: number;
   occupant_count?: number;
@@ -114,6 +115,7 @@ export type SimulationTimestepResults = {
     string,
     {
       floor_area_m2?: number;
+      net_wall_area_m2?: number;
       air_volume_m3?: number;
     }
   >;
@@ -133,17 +135,19 @@ export type SimulationTimestepResults = {
       mean_opening_percent?: number | null;
     }
   >;
-  plant_co2_exchange_results?: Record<
-    string,
-    {
-      zone_name?: string;
-      green_wall_area_m2?: number;
-      net_co2_exchange_g_per_hour?: number;
-      sink_volume_flow_rate_m3_s?: number;
-      source_volume_flow_rate_m3_s?: number;
-      ppfd_umol_m2_s?: number;
-    }
-  >;
+  plant_co2_exchange_results?:
+    | Record<string, PlantCo2ExchangeResult>
+    | { plant_co2_exchange_results: Record<string, PlantCo2ExchangeResult> };
+};
+
+type PlantCo2ExchangeResult = {
+  zone_name?: string;
+  green_wall_area_m2?: number;
+  total_leaf_area_m2?: number;
+  net_co2_exchange_g_per_hour?: number;
+  sink_volume_flow_rate_m3_s?: number;
+  source_volume_flow_rate_m3_s?: number;
+  ppfd_umol_m2_s?: number;
 };
 
 export type SimulationTimestep = {
@@ -182,13 +186,13 @@ export type ThermalZoneComparison = {
     meanDeltaCo2Ppm: number;
     maxDeltaCo2Ppm: number;
     minDeltaCo2Ppm: number;
-    meanMorningWeekdayDeltaCo2Ppm?: number | null;
-    maxMorningWeekdayDeltaCo2Ppm?: number | null;
-    minMorningWeekdayDeltaCo2Ppm?: number | null;
-    meanMorningWeekdayDeltaCo2RatePpmPerHour?: number | null;
-    meanNightWeekdayDeltaCo2RatePpmPerHour?: number | null;
-    meanLightsOnDeltaCo2Ppm?: number | null;
-    meanLightsOffDeltaCo2Ppm?: number | null;
+    meanDaytimeWeekdayDeltaCo2Ppm?: number | null;
+    maxDaytimeWeekdayDeltaCo2Ppm?: number | null;
+    minDaytimeWeekdayDeltaCo2Ppm?: number | null;
+    meanNightWeekdayDeltaCo2Ppm?: number | null;
+    averageCo2?: Co2AverageComparison | null;
+    daytimeWeekdayAverageCo2?: Co2AverageComparison | null;
+    nightWeekdayAverageCo2?: Co2AverageComparison | null;
   };
   operativeTemperatureSummary?: {
     meanDeltaOperativeTemperatureC: number;
@@ -198,6 +202,12 @@ export type ThermalZoneComparison = {
     maxMorningWeekdayDeltaOperativeTemperatureC?: number | null;
     minMorningWeekdayDeltaOperativeTemperatureC?: number | null;
   } | null;
+};
+
+export type Co2AverageComparison = {
+  baselinePpm: number | null;
+  comparedPpm: number | null;
+  differencePercent: number | null;
 };
 
 export type ComparisonPlantConfiguration = {

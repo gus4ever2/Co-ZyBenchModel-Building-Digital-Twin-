@@ -15,6 +15,7 @@ class ZoneHandles:
     co2_setpoint_ppm: int = -1
     co2_predicted_load_kg_s: int = -1
     relative_humidity_percent: int = -1
+    humidity_ratio_kg_water_per_kg_dry_air: int = -1
     cooling_setpoint_c: int = -1
     heating_setpoint_c: int = -1
     occupant_count: int = -1

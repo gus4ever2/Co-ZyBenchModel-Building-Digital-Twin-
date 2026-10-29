@@ -34,6 +34,8 @@ class SimulationCallbacks:
         air_loop_names: set[str],
         zone_air_nodes: dict[str, str],
         registry: SimulationRegistry,
+        net_wall_area_by_zone: dict[str, float] | None = None,
+        openable_window_geometry_by_zone: dict[str, dict[str, float]] | None = None,
     ) -> None:
         self._ep = ep  # EnergyPlus API instance used by both callbacks.
         self._user_email = user_email  # MongoDB ownership key.
@@ -42,6 +44,10 @@ class SimulationCallbacks:
         self._air_loop_names = air_loop_names  # Requested HVAC output scope.
         self._zone_air_nodes = zone_air_nodes  # Required for supply/return outputs.
         self._registry = registry  # Enabled plant/window behavior for this run.
+        self._net_wall_area_by_zone = net_wall_area_by_zone or {}
+        self._openable_window_geometry_by_zone = (
+            openable_window_geometry_by_zone or {}
+        )
         self._handles: SimulationHandles | None = None  # Set when E+ is ready.
         self._timestep_result: SimulationTimestepResult | None = None  # Shared snapshot.
         self._timestep_count = 0  # Persisted non-warmup timestep sequence.
@@ -65,6 +71,8 @@ class SimulationCallbacks:
             state=state,
             zone_names=self._zone_names,
             simulation_handles=self._handles,
+            net_wall_area_by_zone=self._net_wall_area_by_zone,
+            openable_window_geometry_by_zone=self._openable_window_geometry_by_zone,
         )
         for callback in self._registry.start_timestep_callbacks:
             callback(

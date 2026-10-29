@@ -6,7 +6,7 @@ from eppy.modeleditor import IDF
 from cosimulator.schemas.simulation_context import GreenWallSize
 
 
-def _polygon_area_m2(surface) -> float:
+def polygon_area_m2(surface) -> float:
     """Return a planar IDF polygon area without invoking ``eppy.area``.
 
     ``eppy.area`` delegates to NumPy's determinant implementation.  On this
@@ -56,7 +56,7 @@ def available_wall_area_by_zone(*, idf: IDF) -> dict[str, float]:
         zone_name = str(surface.Zone_Name).strip()  # Thermal zone receiving this wall's area.
         surface_name = str(surface.Name).strip().lower()  # Normalized wall name used when matching child openings.
         gross_area_by_zone[zone_name] = (
-            gross_area_by_zone.get(zone_name, 0.0) + _polygon_area_m2(surface)
+            gross_area_by_zone.get(zone_name, 0.0) + polygon_area_m2(surface)
         )
         wall_zone_by_name[surface_name] = zone_name
 
@@ -67,7 +67,7 @@ def available_wall_area_by_zone(*, idf: IDF) -> dict[str, float]:
         if zone_name is None:
             continue
         opening_area_by_zone[zone_name] = (
-            opening_area_by_zone.get(zone_name, 0.0) + _polygon_area_m2(opening)
+            opening_area_by_zone.get(zone_name, 0.0) + polygon_area_m2(opening)
         )
 
     return {
