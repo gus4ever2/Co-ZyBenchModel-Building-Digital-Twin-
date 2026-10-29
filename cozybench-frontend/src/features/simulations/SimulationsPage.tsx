@@ -698,7 +698,7 @@ function ComparisonResults(props: {
                 </Match>
 
                 <Match when={panel === "greenWall"}>
-                  <SeasonalEnergyAnalysis compared={props.compared} baseline={props.analysis.baseline} />
+                  <SeasonalEnergyAnalysis compared={props.compared} baseline={props.analysis.baseline} showHeatingCoolingPercent />
                   <section class="mt-6 space-y-4">
                     <ThermalZoneSelector zones={thermalZones()} selected={activeThermalZone()} onSelect={setSelectedThermalZone} />
                     <Show when={activeThermalZone()} keyed>
