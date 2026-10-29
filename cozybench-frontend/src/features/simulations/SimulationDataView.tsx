@@ -4,7 +4,9 @@ import { loadSimulationAnalytics } from "./simulationsService";
 import {
   AirVent,
   Atom,
+  BrickWall,
   Droplets,
+  Eye,
   Leaf,
   MapPin,
   Thermometer,
@@ -20,11 +22,14 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  lazy,
   onMount,
 } from "solid-js";
 import { Portal } from "solid-js/web";
 import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavigationCard";
 import EChart from "../../components/charts/EChart";
+import ConstructionSetComparison from "./ConstructionSetComparison";
+import SeasonalEnergyAnalysis from "./SeasonalEnergyAnalysis";
 import SimulationSetupCard from "./SimulationSetupCard";
 import {
   timestampLabel,
@@ -38,6 +43,7 @@ import type {
 } from "./simulationsService";
 
 const COLORS = ["#3C6F8F", "#641D16", "#4D4936"];
+const PlantModelDialog = lazy(() => import("../plant-dt/PlantModelDialog"));
 
 type AnalysisPanel =
   | "energy"
@@ -47,7 +53,8 @@ type AnalysisPanel =
   | "ventilation"
   | "greenWall"
   | "windowOpening"
-  | "thermalZones";
+  | "thermalZones"
+  | "construction";
 
 export default function SimulationDataView(props: {
   simulation: SimulationListItem;
@@ -55,6 +62,7 @@ export default function SimulationDataView(props: {
 }) {
   const [selectedZone, setSelectedZone] = createSignal("");
   const [activePanel, setActivePanel] = createSignal<AnalysisPanel | null>(null);
+  const [previewPlantId, setPreviewPlantId] = createSignal("");
   const zones = createMemo(() => zoneNames(props.timesteps));
   const timestamps = () => props.timesteps.map(timestampLabel);
   const zoneSteps = () =>
@@ -161,6 +169,7 @@ export default function SimulationDataView(props: {
       greenWall: "Green wall analysis",
       windowOpening: "Open windows analysis",
       thermalZones: "Thermal zones",
+      construction: "Compare Construction Sets",
     })[panel];
   return (
     <Show when={props.timesteps.length > 0} fallback={<EmptyState />}>
@@ -185,6 +194,7 @@ export default function SimulationDataView(props: {
               <WorkspaceNavigationCard icon={Wind} title="Open windows analysis" description="Review zone window-opening results across the simulation." onClick={() => setActivePanel("windowOpening")} />
             </Show>
             <WorkspaceNavigationCard icon={MapPin} title="Thermal zones" description="Review the thermal zones included in this simulation." onClick={() => setActivePanel("thermalZones")} />
+            <WorkspaceNavigationCard icon={BrickWall} title="Compare Construction Sets" description="Review construction-set and material differences." onClick={() => setActivePanel("construction")} />
           </div>
         </div>
 
@@ -248,14 +258,29 @@ export default function SimulationDataView(props: {
                   <div class="mt-4"><FullChart title={`Mean window opening · ${selectedZone() || "selected zone"}`}><EChart option={windowOpeningOption()} /></FullChart></div>
                 </Match>
                 <Match when={panel === "greenWall"}>
-                  <SinglePlantSummary simulationName={props.simulation.name} plant={props.simulation.plantSimulation} />
+                  <Show when={energyAnalytics.data} fallback={<p class="text-sm text-graphite/55">Loading Green Wall analysis…</p>}>
+                    {analytics => <>
+                      <SeasonalEnergyAnalysis
+                        compared={[{ simulation: props.simulation, analytics: analytics() }]}
+                        baseline={{ id: props.simulation.id, name: props.simulation.name }}
+                        singleSimulation
+                      />
+                      <div class="mt-6"><SinglePlantSummary simulationName={props.simulation.name} plant={props.simulation.plantSimulation} onPreview={() => setPreviewPlantId(props.simulation.plantSimulation?.plantId ?? "")} /></div>
+                    </>}
+                  </Show>
                 </Match>
                 <Match when={panel === "thermalZones"}>
                   <SingleThermalZoneOverview zones={zones()} timesteps={props.timesteps} analyticsZones={energyAnalytics.data?.zones ?? {}} />
                 </Match>
+                <Match when={panel === "construction"}>
+                  <ConstructionSetComparison simulations={[props.simulation]} scrollCardsOnly />
+                </Match>
               </Switch>
             </AnalysisDialog>
           )}
+        </Show>
+        <Show when={previewPlantId()}>
+          {id => <PlantModelDialog plantId={id()} onClose={() => setPreviewPlantId("")} />}
         </Show>
       </div>
     </Show>
@@ -439,8 +464,17 @@ function SingleWindowSummary(props: {
   return <SingleRowTable title="Window opening" simulationName={props.simulationName} headers={["Total openable window area (m²)", "Mean window opening (%)"]} values={[format(props.openableArea, "m²"), format(average(props.values), "%")]} />;
 }
 
-function SinglePlantSummary(props: { simulationName: string; plant?: PlantSimulation | null }) {
-  return <SingleRowTable title="Green wall parameters" simulationName={props.simulationName} headers={["Plant", "Green wall size", "Lighting", "Exchange mode"]} values={[props.plant?.plantName ?? "—", props.plant?.greenWallSize ?? "—", props.plant?.lightingLevel ?? "—", props.plant?.exchangeMode === "UPTAKE_ONLY" ? "Uptake only" : "Full exchange"]} />;
+function SinglePlantSummary(props: {
+  simulationName: string;
+  plant?: PlantSimulation | null;
+  onPreview: () => void;
+}) {
+  return (
+    <section class="overflow-hidden rounded-2xl border border-warm-stone/20 bg-cloud-white">
+      <div class="border-b border-citadel-blue/10 bg-sky-mist/30 px-4 py-3 sm:px-5"><h3 class="font-bold text-graphite">Green wall parameters</h3></div>
+      <div class="cozy-scrollbar overflow-x-auto"><table class="min-w-full text-sm"><thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50"><tr><th class="p-3">Simulation</th><th class="p-3">Plant</th><th class="p-3">Green wall size</th><th class="p-3">Lighting</th><th class="p-3">Exchange mode</th></tr></thead><tbody><tr class="border-t border-warm-stone/10"><td class="p-3 font-bold text-graphite">{props.simulationName}</td><td class="p-3"><div class="flex items-center gap-2"><span>{props.plant?.plantName ?? "—"}</span><Show when={props.plant?.plantId}><button type="button" aria-label="View plant model" title="View plant model and physiology" onClick={props.onPreview} class="rounded-full border border-citadel-blue/20 p-1.5 text-citadel-blue hover:bg-sky-mist/30"><Eye class="size-4" /></button></Show></div></td><td class="p-3">{props.plant?.greenWallSize ?? "—"}</td><td class="p-3">{props.plant?.lightingLevel ?? "—"}</td><td class="p-3">{props.plant?.exchangeMode === "UPTAKE_ONLY" ? "Uptake only" : "Full exchange"}</td></tr></tbody></table></div>
+    </section>
+  );
 }
 
 function SingleThermalZoneOverview(props: {

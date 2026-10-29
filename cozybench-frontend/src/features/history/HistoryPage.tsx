@@ -18,7 +18,6 @@ import {
 import { For, Show, Suspense, createMemo, createSignal } from "solid-js";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
 import SimulationDataView from "../simulations/SimulationDataView";
-import { ConstructionSnapshotDialog } from "../simulations/SimulationsPage";
 import {
   deleteSimulation,
   downloadSimulationJson,
@@ -38,16 +37,12 @@ export default function HistoryPage() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = createSignal<(typeof filters)[number]>("ALL");
   const [selectedId, setSelectedId] = createSignal("");
-  const [snapshotId, setSnapshotId] = createSignal("");
   const history = createQuery(() => ({
     queryKey: ["simulations", "history"],
     queryFn: loadSimulationHistory,
   }));
   const selected = createMemo(() =>
     history.data?.find((simulation) => simulation.id === selectedId()),
-  );
-  const snapshotSimulation = createMemo(() =>
-    history.data?.find((simulation) => simulation.id === snapshotId()),
   );
   const filtered = createMemo(() =>
     (history.data ?? []).filter(
@@ -63,7 +58,6 @@ export default function HistoryPage() {
     mutationFn: deleteSimulation,
     onSuccess: async (_, simulationId) => {
       if (selectedId() === simulationId) setSelectedId("");
-      if (snapshotId() === simulationId) setSnapshotId("");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["simulations", "history"] }),
         queryClient.invalidateQueries({ queryKey: ["simulations", "all"] }),
@@ -193,7 +187,6 @@ export default function HistoryPage() {
                               icon={<PanelsTopLeft />}
                               label={constructionSetLabel(simulation)}
                               muted={!simulation.constructionSetName}
-                              onClick={() => setSnapshotId(simulation.id)}
                             />
                             <HistoryCardRow
                               icon={<Leaf />}
@@ -287,9 +280,6 @@ export default function HistoryPage() {
               </Show>
               </Suspense>
         </section>
-        <Show when={snapshotSimulation()} keyed>
-          {simulation => <ConstructionSnapshotDialog simulation={simulation} onClose={() => setSnapshotId("")} />}
-        </Show>
       </main>
     </section>
   );
