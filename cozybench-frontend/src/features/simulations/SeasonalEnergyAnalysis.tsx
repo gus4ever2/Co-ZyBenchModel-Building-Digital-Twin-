@@ -99,16 +99,19 @@ export default function SeasonalEnergyAnalysis(props: {
   compared: Simulation[];
   baseline: SimulationReference;
   showHeatingCoolingPercent?: boolean;
+  singleSimulation?: boolean;
 }) {
   const tableColumns = () =>
-    columns.filter(
+    props.singleSimulation
+      ? columns.filter((column) => !column.delta)
+      : columns.filter(
       (column) =>
         props.showHeatingCoolingPercent ||
         ![
           "totalHeatingKwhDeltaPercent",
           "totalCoolingKwhDeltaPercent",
         ].includes(column.field),
-    );
+      );
   const option = (
     period: string,
     field: keyof Omit<Point, "timestamp">,
@@ -164,8 +167,7 @@ export default function SeasonalEnergyAnalysis(props: {
   return (
     <div class="space-y-6">
       <p class="text-sm text-graphite/60">
-        Whole-building HVAC electricity for the selected simulations. All
-        differences use the first selected simulation as the baseline.
+        Whole-building HVAC electricity for the selected simulation.
       </p>
       <For each={periods}>
         {(period) => (
@@ -192,7 +194,7 @@ export default function SeasonalEnergyAnalysis(props: {
                       <tr class="border-t border-warm-stone/10">
                         <td class="p-3 font-bold text-graphite">
                           {item.simulation.name}
-                          {item.simulation.id === props.baseline.id && (
+                          {!props.singleSimulation && item.simulation.id === props.baseline.id && (
                             <span class="ml-2 text-[0.65rem] uppercase text-citadel-blue">
                               Baseline
                             </span>
@@ -239,7 +241,7 @@ export default function SeasonalEnergyAnalysis(props: {
                   title: "Total HVAC difference (Compared − Baseline)",
                   field: "hvacDeltaKwh" as const,
                 },
-              ]}
+              ].filter((chart) => !props.singleSimulation || chart.field !== "hvacDeltaKwh")}
             >
               {(chart) => (
                 <section class="rounded-2xl border border-warm-stone/20 bg-cloud-white p-4">
