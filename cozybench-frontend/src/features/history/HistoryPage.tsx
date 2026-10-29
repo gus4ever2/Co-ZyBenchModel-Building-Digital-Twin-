@@ -15,8 +15,10 @@ import {
   PanelsTopLeft,
   Trash2,
   Wind,
+  X,
 } from "lucide-solid";
-import { For, Show, Suspense, createMemo, createSignal, lazy } from "solid-js";
+import { For, Show, Suspense, createMemo, createSignal, lazy, onMount } from "solid-js";
+import { Portal } from "solid-js/web";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
 import SimulationDataView from "../simulations/SimulationDataView";
 import { ConstructionSnapshotDialog } from "../simulations/SimulationsPage";
@@ -98,9 +100,23 @@ export default function HistoryPage() {
         eyebrow="Simulation workspace"
         title="History"
       />
-      <main class="grid min-h-0 flex-1 gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
-        <aside class="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-cloud-white/55 bg-cloud-white/95 p-4 shadow-xl">
-          <div class="cozy-scrollbar mb-3 flex gap-2 overflow-x-auto pb-1">
+      <main class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-cloud-white/55 bg-cloud-white/95 shadow-xl">
+        <section class="cozy-scrollbar min-h-0 flex-1 overflow-y-auto p-5 sm:p-8">
+          <header class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-[0.18em] text-citadel-blue">
+                Simulation history
+              </p>
+              <h2 class="mt-1 text-2xl font-bold text-graphite">Saved simulation results</h2>
+              <p class="mt-2 text-sm text-graphite/55">
+                Select a card to inspect its saved configuration, results and timestep data.
+              </p>
+            </div>
+            <span class="rounded-full bg-sky-mist/35 px-3 py-1.5 text-xs font-bold text-citadel-blue">
+              {filtered().length} saved
+            </span>
+          </header>
+          <div class="cozy-scrollbar mb-5 mt-5 flex gap-2 overflow-x-auto pb-1">
             <For each={filters}>
               {(item) => (
                 <button
@@ -118,7 +134,7 @@ export default function HistoryPage() {
               )}
             </For>
           </div>
-          <div class="cozy-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <Suspense fallback={<Loading label="Loading history" />}>
             <Show
               when={!history.isPending}
@@ -294,51 +310,84 @@ export default function HistoryPage() {
             </Show>
             </Suspense>
           </div>
-        </aside>
-
-        <section class="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-cloud-white/55 bg-cloud-white/92 shadow-xl">
-              <Suspense fallback={<HistoryResultsLoading />}>
-              <Show
-                when={selected()}
-                fallback={
-                  <div class="m-4 grid min-h-96 place-items-center rounded-2xl border border-dashed border-warm-stone/30 text-center text-sm text-graphite/45 sm:m-5">
-                    <div>
-                      <Clock3 class="mx-auto mb-3 size-10 text-citadel-blue/55" />
-                      Select a simulation to inspect every timestamp.
-                    </div>
-                  </div>
-                }
-              >
-                {(simulation) => (
-                  <div class="h-full min-h-0">
-                    <Show
-                      when={!results.isPending}
-                      fallback={<HistoryResultsLoading />}
-                    >
-                      <Show
-                        when={!results.isError}
-                        fallback={
-                          <p class="m-4 rounded-xl bg-red-wine/5 p-4 text-sm text-red-wine sm:m-5">
-                            Results could not be loaded.
-                          </p>
-                        }
-                      >
-                        <SimulationDataView
-                          simulation={simulation()}
-                          timesteps={results.data?.timesteps ?? []}
-                        />
-                      </Show>
-                    </Show>
-                  </div>
-                )}
-              </Show>
-              </Suspense>
         </section>
+
+        <Show when={selected()} keyed>
+          {simulation => (
+            <HistoryResultsDialog
+              simulation={simulation}
+              pending={() => results.isPending}
+              failed={() => results.isError}
+              timesteps={() => results.data?.timesteps ?? []}
+              onClose={() => setSelectedId("")}
+            />
+          )}
+        </Show>
         <Show when={snapshotSimulation()} keyed>
           {simulation => <ConstructionSnapshotDialog simulation={simulation} onClose={() => setSnapshotId("")} />}
         </Show>
       </main>
     </section>
+  );
+}
+
+function HistoryResultsDialog(props: {
+  simulation: SimulationListItem;
+  pending: () => boolean;
+  failed: () => boolean;
+  timesteps: () => unknown[];
+  onClose: () => void;
+}) {
+  let dialog!: HTMLDialogElement;
+  onMount(() => dialog.showModal());
+
+  return (
+    <Portal>
+      <dialog
+        ref={dialog}
+        aria-label={`Simulation results for ${props.simulation.name}`}
+        onClose={props.onClose}
+        onClick={(event) => {
+          if (event.target === dialog) props.onClose();
+        }}
+        class="m-auto h-[min(58rem,92dvh)] w-[min(88rem,96vw)] max-w-none overflow-hidden rounded-3xl border border-warm-stone/20 bg-cloud-white p-0 shadow-2xl backdrop:bg-black/50"
+      >
+        <div class="relative flex h-full min-h-0 flex-col">
+          <button
+            type="button"
+            aria-label="Close simulation results"
+            onClick={props.onClose}
+            class="absolute right-4 top-3 z-10 rounded-lg p-1 text-graphite/55 transition hover:bg-sky-mist/30 hover:text-graphite"
+          >
+            <X class="size-5" />
+          </button>
+          <header class="shrink-0 border-b border-citadel-blue/10 bg-sky-mist/35 px-5 py-4 pr-14">
+            <div class="flex min-w-0 items-center gap-3">
+              <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-citadel-blue text-cloud-white">
+                <Clock3 class="size-5" />
+              </span>
+              <div class="min-w-0">
+                <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-citadel-blue">History results</p>
+                <h2 class="truncate font-bold text-graphite" title={props.simulation.name}>{props.simulation.name}</h2>
+              </div>
+            </div>
+          </header>
+          <div class="min-h-0 flex-1 overflow-hidden">
+            <Show when={!props.pending()} fallback={<HistoryResultsLoading />}>
+              <Show
+                when={!props.failed()}
+                fallback={<p class="m-5 rounded-xl bg-red-wine/5 p-4 text-sm text-red-wine">Results could not be loaded.</p>}
+              >
+                <SimulationDataView
+                  simulation={props.simulation}
+                  timesteps={props.timesteps() as any[]}
+                />
+              </Show>
+            </Show>
+          </div>
+        </div>
+      </dialog>
+    </Portal>
   );
 }
 
