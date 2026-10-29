@@ -3,7 +3,6 @@ import type { SimulationListItem } from "./simulationsService";
 
 export default function SimulationSetupCard(props: {
   simulation: SimulationListItem;
-  onOpenConstructionSnapshot?: () => void;
 }) {
   return (
     <section class="rounded-2xl border border-warm-stone/20 bg-sky-mist/12 p-4">
@@ -38,17 +37,6 @@ export default function SimulationSetupCard(props: {
           }
         />
       </div>
-      <Show when={props.onOpenConstructionSnapshot}>
-        {(openSnapshot) => (
-          <button
-            type="button"
-            onClick={() => openSnapshot()}
-            class="mt-3 rounded-lg border border-citadel-blue/20 bg-cloud-white px-3 py-2 text-xs font-bold text-citadel-blue transition hover:border-citadel-blue/45 hover:bg-sky-mist/25"
-          >
-            View construction snapshot
-          </button>
-        )}
-      </Show>
     </section>
   );
 }
