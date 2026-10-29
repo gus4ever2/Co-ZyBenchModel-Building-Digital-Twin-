@@ -212,13 +212,68 @@ export default function SimulationDataView(props: {
                     <FullChart title="Total HVAC consumption"><EChart option={totalHvacOption()} /></FullChart>
                   </div>
                 </Match>
-                <Match when={panel === "temperature"}><FullChart title={`Air temperature · ${selectedZone() || "selected zone"}`}><EChart option={temperatureOption()} /></FullChart></Match>
-                <Match when={panel === "co2"}><FullChart title={`Zone CO₂ concentration · ${selectedZone() || "selected zone"}`}><EChart option={co2Option()} /></FullChart></Match>
-                <Match when={panel === "humidity"}><FullChart title={`Relative humidity · ${selectedZone() || "selected zone"}`}><EChart option={humidityOption()} /></FullChart></Match>
-                <Match when={panel === "ventilation"}><FullChart title="Outdoor-air flow"><EChart option={ventilationOption()} /></FullChart></Match>
-                <Match when={panel === "windowOpening"}><FullChart title={`Mean window opening · ${selectedZone() || "selected zone"}`}><EChart option={windowOpeningOption()} /></FullChart></Match>
-                <Match when={panel === "greenWall"}><AnalysisSummary rows={[["Status", props.simulation.plantSimulation ? "Enabled" : "Not enabled for this simulation"], ["Plant", props.simulation.plantSimulation?.plantName ?? "—"], ["Green wall size", props.simulation.plantSimulation?.greenWallSize ?? "—"], ["Lighting", props.simulation.plantSimulation?.lightingLevel ?? "—"]]} /></Match>
-                <Match when={panel === "thermalZones"}><AnalysisSummary rows={zones().map((zone, index) => [`Zone ${index + 1}`, zone])} empty="No thermal-zone results are available." /></Match>
+                <Match when={panel === "temperature"}>
+                  <MetricGrid>
+                    <EnergyCard label="Average temperature" value={format(average(zoneSteps().map(value => value?.zone_air_temp_c)), "°C")} />
+                    <EnergyCard label="Minimum temperature" value={format(minimum(zoneSteps().map(value => value?.zone_air_temp_c)), "°C")} />
+                    <EnergyCard label="Maximum temperature" value={format(maximum(zoneSteps().map(value => value?.zone_air_temp_c)), "°C")} />
+                    <EnergyCard label="Heating setpoint" value={format(average(zoneSteps().map(value => value?.heating_setpoint_c)), "°C")} />
+                  </MetricGrid>
+                  <div class="mt-4"><FullChart title={`Air temperature · ${selectedZone() || "selected zone"}`}><EChart option={temperatureOption()} /></FullChart></div>
+                </Match>
+                <Match when={panel === "co2"}>
+                  <MetricGrid>
+                    <EnergyCard label="Average CO₂" value={format(average(zoneSteps().map(value => value?.co2_concentration_ppm)), "ppm")} />
+                    <EnergyCard label="Peak CO₂" value={format(maximum(zoneSteps().map(value => value?.co2_concentration_ppm)), "ppm")} />
+                    <EnergyCard label="CO₂ setpoint" value={format(average(zoneSteps().map(value => value?.co2_setpoint_ppm)), "ppm")} />
+                    <EnergyCard label="Timesteps" value={format(countValues(zoneSteps().map(value => value?.co2_concentration_ppm)), "")} />
+                  </MetricGrid>
+                  <div class="mt-4"><FullChart title={`Zone CO₂ concentration · ${selectedZone() || "selected zone"}`}><EChart option={co2Option()} /></FullChart></div>
+                </Match>
+                <Match when={panel === "humidity"}>
+                  <MetricGrid>
+                    <EnergyCard label="Average humidity" value={format(average(zoneSteps().map(value => value?.relative_humidity_percent)), "%")} />
+                    <EnergyCard label="Minimum humidity" value={format(minimum(zoneSteps().map(value => value?.relative_humidity_percent)), "%")} />
+                    <EnergyCard label="Maximum humidity" value={format(maximum(zoneSteps().map(value => value?.relative_humidity_percent)), "%")} />
+                    <EnergyCard label="Timesteps" value={format(countValues(zoneSteps().map(value => value?.relative_humidity_percent)), "")} />
+                  </MetricGrid>
+                  <div class="mt-4"><FullChart title={`Relative humidity · ${selectedZone() || "selected zone"}`}><EChart option={humidityOption()} /></FullChart></div>
+                </Match>
+                <Match when={panel === "ventilation"}>
+                  <MetricGrid>
+                    <EnergyCard label="Average outdoor air" value={format(average(outdoorAirPercentages(props.timesteps)), "%")} />
+                    <EnergyCard label="Minimum outdoor air" value={format(minimum(outdoorAirPercentages(props.timesteps)), "%")} />
+                    <EnergyCard label="Maximum outdoor air" value={format(maximum(outdoorAirPercentages(props.timesteps)), "%")} />
+                    <EnergyCard label="DCV setpoint" value={format(props.simulation.co2Control?.setpointPpm, "ppm")} />
+                  </MetricGrid>
+                  <div class="mt-4"><FullChart title="Outdoor-air flow"><EChart option={ventilationOption()} /></FullChart></div>
+                </Match>
+                <Match when={panel === "windowOpening"}>
+                  <MetricGrid>
+                    <EnergyCard label="Average opening" value={format(average(props.timesteps.map(step => windowOpeningPercent(step, selectedZone()))), "%")} />
+                    <EnergyCard label="Maximum opening" value={format(maximum(props.timesteps.map(step => windowOpeningPercent(step, selectedZone()))), "%")} />
+                    <EnergyCard label="CO₂ threshold" value={format(props.simulation.openWindows?.co2ThresholdPpm, "ppm")} />
+                    <EnergyCard label="Temperature margin" value={format(props.simulation.openWindows?.temperatureMarginC, "°C")} />
+                  </MetricGrid>
+                  <div class="mt-4"><FullChart title={`Mean window opening · ${selectedZone() || "selected zone"}`}><EChart option={windowOpeningOption()} /></FullChart></div>
+                </Match>
+                <Match when={panel === "greenWall"}>
+                  <MetricGrid>
+                    <EnergyCard label="Plant" value={props.simulation.plantSimulation?.plantName ?? "—"} />
+                    <EnergyCard label="Green wall size" value={props.simulation.plantSimulation?.greenWallSize ?? "—"} />
+                    <EnergyCard label="Lighting" value={props.simulation.plantSimulation?.lightingLevel ?? "—"} />
+                    <EnergyCard label="Exchange mode" value={props.simulation.plantSimulation?.exchangeMode === "UPTAKE_ONLY" ? "Uptake only" : "Full exchange"} />
+                  </MetricGrid>
+                </Match>
+                <Match when={panel === "thermalZones"}>
+                  <MetricGrid>
+                    <EnergyCard label="Thermal zones" value={format(zones().length, "")} />
+                    <EnergyCard label="Total floor area" value={format(totalFloorArea(props.timesteps), "m²")} />
+                    <EnergyCard label="Total air volume" value={format(totalAirVolume(props.timesteps), "m³")} />
+                    <EnergyCard label="Simulation timesteps" value={format(props.timesteps.length, "")} />
+                  </MetricGrid>
+                  <div class="mt-4"><AnalysisSummary rows={zones().map((zone, index) => [`Zone ${index + 1}`, zone])} empty="No thermal-zone results are available." /></div>
+                </Match>
               </Switch>
             </AnalysisDialog>
           )}
@@ -290,6 +345,9 @@ function EnergyCard(props: { label: string; value: string }) {
     </article>
   );
 }
+function MetricGrid(props: { children: unknown }) {
+  return <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{props.children as any}</div>;
+}
 function EmptyState() {
   return (
     <div class="rounded-2xl border border-dashed border-warm-stone/30 bg-sky-mist/10 p-8 text-center text-sm text-graphite/55">
@@ -308,6 +366,55 @@ function windowOpeningPercent(step: SimulationTimestep, zone: string) {
     ([key, value]) => key === zone || value.zone_name === zone,
   )?.[1];
   return result?.mean_opening_percent ?? null;
+}
+
+function numericValues(values: Array<number | null | undefined>) {
+  return values.filter(
+    (value): value is number =>
+      typeof value === "number" && Number.isFinite(value),
+  );
+}
+
+function average(values: Array<number | null | undefined>) {
+  const numbers = numericValues(values);
+  if (!numbers.length) return undefined;
+  return numbers.reduce((total, value) => total + value, 0) / numbers.length;
+}
+
+function minimum(values: Array<number | null | undefined>) {
+  const numbers = numericValues(values);
+  return numbers.length ? Math.min(...numbers) : undefined;
+}
+
+function maximum(values: Array<number | null | undefined>) {
+  const numbers = numericValues(values);
+  return numbers.length ? Math.max(...numbers) : undefined;
+}
+
+function countValues(values: Array<number | null | undefined>) {
+  return numericValues(values).length;
+}
+
+function outdoorAirPercentages(timesteps: SimulationTimestep[]) {
+  return timesteps.map((step) => {
+    const results = step.results;
+    return results?.outdoor_air_flow_percent ??
+      (typeof results?.outdoor_air_flow_fraction === "number"
+        ? results.outdoor_air_flow_fraction * 100
+        : null);
+  });
+}
+
+function totalFloorArea(timesteps: SimulationTimestep[]) {
+  return Object.values(
+    timesteps[0]?.results?.zone_internal_variable_values ?? {},
+  ).reduce((total, zone) => total + (zone.floor_area_m2 ?? 0), 0);
+}
+
+function totalAirVolume(timesteps: SimulationTimestep[]) {
+  return Object.values(
+    timesteps[0]?.results?.zone_internal_variable_values ?? {},
+  ).reduce((total, zone) => total + (zone.air_volume_m3 ?? 0), 0);
 }
 
 function ZoneSelector(props: {
