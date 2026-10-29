@@ -27,6 +27,7 @@ import EChart from "../../components/charts/EChart";
 import ConstructionSetComparison from "./ConstructionSetComparison";
 import SeasonalEnergyAnalysis from "./SeasonalEnergyAnalysis";
 import GreenWallParameters from "./GreenWallParameters";
+import GreenWallTemperatureChart from "./GreenWallTemperatureChart";
 import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavigationCard";
 import EditorIdentityHeader from "../../components/form/EditorIdentityHeader";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
@@ -702,13 +703,16 @@ function ComparisonResults(props: {
                   <section class="mt-6 space-y-4">
                     <ThermalZoneSelector zones={thermalZones()} selected={activeThermalZone()} onSelect={setSelectedThermalZone} />
                     <Show when={activeThermalZone()} keyed>
-                      {zone => <GreenWallParameters
-                        compared={props.compared}
-                        configurations={props.analysis.plantConfigurations}
-                        baseline={props.analysis.baseline}
-                        zone={zone}
-                        onPreview={setAnalysisPlantId}
-                      />}
+                      {zone => <>
+                        <GreenWallParameters
+                          compared={props.compared}
+                          configurations={props.analysis.plantConfigurations}
+                          baseline={props.analysis.baseline}
+                          zone={zone}
+                          onPreview={setAnalysisPlantId}
+                        />
+                        <GreenWallTemperatureChart compared={props.compared} zone={zone} baseline={props.analysis.baseline} />
+                      </>}
                     </Show>
                   </section>
                 </Match>
