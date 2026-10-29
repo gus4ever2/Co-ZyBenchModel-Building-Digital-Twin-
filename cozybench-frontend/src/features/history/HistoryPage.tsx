@@ -193,6 +193,7 @@ export default function HistoryPage() {
                               icon={<PanelsTopLeft />}
                               label={constructionSetLabel(simulation)}
                               muted={!simulation.constructionSetName}
+                              onClick={() => setSnapshotId(simulation.id)}
                             />
                             <HistoryCardRow
                               icon={<Leaf />}
@@ -281,7 +282,6 @@ export default function HistoryPage() {
                         <SimulationDataView
                           simulation={simulation()}
                           timesteps={results.data?.timesteps ?? []}
-                          onOpenConstructionSnapshot={() => setSnapshotId(simulation().id)}
                         />
                       </Show>
                     </Show>
@@ -308,18 +308,37 @@ function HistoryCardRow(props: {
   icon: unknown;
   label: string;
   muted?: boolean;
+  onClick?: () => void;
 }) {
-  return (
-    <div
-      class="flex min-w-0 items-center gap-2"
-      classList={{ "opacity-45": props.muted }}
-    >
+  const content = (
+    <>
       <span class="shrink-0 text-citadel-blue [&>svg]:size-3.5">
         {props.icon as any}
       </span>
       <span class="truncate" title={props.label}>
         {props.label}
       </span>
+    </>
+  );
+  if (props.onClick) {
+    return (
+      <button
+        type="button"
+        title="View construction snapshot"
+        onClick={props.onClick}
+        class="flex min-w-0 items-center gap-2 text-left transition hover:text-citadel-blue"
+        classList={{ "opacity-45": props.muted }}
+      >
+        {content}
+      </button>
+    );
+  }
+  return (
+    <div
+      class="flex min-w-0 items-center gap-2"
+      classList={{ "opacity-45": props.muted }}
+    >
+      {content}
     </div>
   );
 }

@@ -51,7 +51,6 @@ type AnalysisPanel =
 export default function SimulationDataView(props: {
   simulation: SimulationListItem;
   timesteps: SimulationTimestep[];
-  onOpenConstructionSnapshot?: () => void;
 }) {
   const [selectedZone, setSelectedZone] = createSignal("");
   const [activePanel, setActivePanel] = createSignal<AnalysisPanel | null>(null);
@@ -166,10 +165,7 @@ export default function SimulationDataView(props: {
     <Show when={props.timesteps.length > 0} fallback={<EmptyState />}>
       <div class="relative flex h-full min-h-0 flex-col">
         <div class="relative z-20 shrink-0 px-4 pt-4 pb-4 sm:px-5 sm:pt-5 sm:pb-4">
-          <SimulationSetupCard
-            simulation={props.simulation}
-            onOpenConstructionSnapshot={props.onOpenConstructionSnapshot}
-          />
+          <SimulationSetupCard simulation={props.simulation} />
         </div>
 
         <div class="cozy-scrollbar relative z-0 min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-5 sm:pb-5">
