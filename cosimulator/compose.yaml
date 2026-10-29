@@ -27,6 +27,7 @@ services:
       COSIMULATOR_PORT: 5000
       COSIMULATOR_MONGO_URI: mongodb://mongo:27017/
       COSIMULATOR_MONGO_DATABASE: cozybench
+      COSIMULATOR_PROJECT_ROOT: /app
       COSIMULATOR_CORS_ORIGINS: '["http://localhost:3000"]'
     ports:
       - "127.0.0.1:5000:5000"

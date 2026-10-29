@@ -23,9 +23,22 @@ ENV ENERGYPLUS_HOME=/opt/${ENERGYPLUS_ARCHIVE} \
 # self-contained micromamba binary used to install CARIBU for Python 3.11.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        bzip2 ca-certificates curl gfortran libcurl4-openssl-dev \
-        libexpat1 libgomp1 libssl-dev libxml2-dev libx11-6 \
-        r-base r-base-dev tar \
+        bzip2 ca-certificates curl gnupg gfortran libcurl4-openssl-dev \
+        libexpat1 libgomp1 libssl-dev libxml2-dev libx11-6 tar \
+    && install -d -m 0755 /etc/apt/keyrings \
+    && curl --fail --location --silent --show-error \
+        https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+        --output /tmp/cran-r-project.asc \
+    && gpg --show-keys --with-colons /tmp/cran-r-project.asc \
+        | grep -q 'E298A3A825C0D65DFD57CBB651716619E084DAB9' \
+    && gpg --dearmor --output /etc/apt/keyrings/cran-r-project.gpg \
+        /tmp/cran-r-project.asc \
+    && chmod 0644 /etc/apt/keyrings/cran-r-project.gpg \
+    && echo 'deb [signed-by=/etc/apt/keyrings/cran-r-project.gpg] https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/' \
+        > /etc/apt/sources.list.d/cran-r-project.list \
+    && rm /tmp/cran-r-project.asc \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends r-base r-base-dev \
     && rm -rf /var/lib/apt/lists/* \
     && curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest \
        | tar -xvj -C /usr/local/bin bin/micromamba \
@@ -61,7 +74,9 @@ COPY src ./src
 COPY data/input ./data/input
 COPY data/weather ./data/weather
 
-RUN python -m pip install --no-cache-dir .
+RUN python -m pip install --no-cache-dir . \
+    && python -c 'import rpy2.robjects as ro; print(ro.r("R.version.string")[0])' \
+    && Rscript -e 'library(plantecophys)'
 
 # The application writes only under these project data directories.
 RUN useradd --create-home --uid 10001 cosimulator \
