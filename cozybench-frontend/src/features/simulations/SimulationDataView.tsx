@@ -4,7 +4,6 @@ import { loadSimulationAnalytics } from "./simulationsService";
 import {
   AirVent,
   Atom,
-  BrickWall,
   Droplets,
   Leaf,
   MapPin,
@@ -47,8 +46,7 @@ type AnalysisPanel =
   | "ventilation"
   | "greenWall"
   | "windowOpening"
-  | "thermalZones"
-  | "construction";
+  | "thermalZones";
 
 export default function SimulationDataView(props: {
   simulation: SimulationListItem;
@@ -156,7 +154,6 @@ export default function SimulationDataView(props: {
       greenWall: "Green wall analysis",
       windowOpening: "Open windows analysis",
       thermalZones: "Thermal zones",
-      construction: "Compare Construction Sets",
     })[panel];
   return (
     <Show when={props.timesteps.length > 0} fallback={<EmptyState />}>
@@ -171,11 +168,16 @@ export default function SimulationDataView(props: {
             <WorkspaceNavigationCard icon={Atom} title="CO₂ concentration" description="Inspect zone CO₂ levels and trends across time." onClick={() => setActivePanel("co2")} />
             <WorkspaceNavigationCard icon={Thermometer} title="Temperature" description="Explore zone air temperature throughout the simulation." onClick={() => setActivePanel("temperature")} />
             <WorkspaceNavigationCard icon={Droplets} title="Humidity" description="Explore zone relative humidity throughout the simulation." onClick={() => setActivePanel("humidity")} />
-            <WorkspaceNavigationCard icon={AirVent} title="Ventilation / outdoor-air control" description="Review the simulated outdoor-air fraction and ventilation control." onClick={() => setActivePanel("ventilation")} />
-            <WorkspaceNavigationCard icon={Leaf} title="Green wall analysis" description="Inspect the green-wall configuration and plant CO₂ exchange." onClick={() => setActivePanel("greenWall")} />
-            <WorkspaceNavigationCard icon={Wind} title="Open windows analysis" description="Review zone window-opening results across the simulation." onClick={() => setActivePanel("windowOpening")} />
+            <Show when={props.simulation.co2Control}>
+              <WorkspaceNavigationCard icon={AirVent} title="Ventilation / outdoor-air control" description="Review the simulated outdoor-air fraction and ventilation control." onClick={() => setActivePanel("ventilation")} />
+            </Show>
+            <Show when={props.simulation.plantSimulation}>
+              <WorkspaceNavigationCard icon={Leaf} title="Green wall analysis" description="Inspect the green-wall configuration and plant CO₂ exchange." onClick={() => setActivePanel("greenWall")} />
+            </Show>
+            <Show when={props.simulation.openWindows}>
+              <WorkspaceNavigationCard icon={Wind} title="Open windows analysis" description="Review zone window-opening results across the simulation." onClick={() => setActivePanel("windowOpening")} />
+            </Show>
             <WorkspaceNavigationCard icon={MapPin} title="Thermal zones" description="Review the thermal zones included in this simulation." onClick={() => setActivePanel("thermalZones")} />
-            <WorkspaceNavigationCard icon={BrickWall} title="Compare Construction Sets" description="Review the construction set used by this simulation." onClick={() => setActivePanel("construction")} />
           </div>
         </div>
 
@@ -207,7 +209,6 @@ export default function SimulationDataView(props: {
                 <Match when={panel === "windowOpening"}><FullChart title={`Mean window opening · ${selectedZone() || "selected zone"}`}><EChart option={windowOpeningOption()} /></FullChart></Match>
                 <Match when={panel === "greenWall"}><AnalysisSummary rows={[["Status", props.simulation.plantSimulation ? "Enabled" : "Not enabled for this simulation"], ["Plant", props.simulation.plantSimulation?.plantName ?? "—"], ["Green wall size", props.simulation.plantSimulation?.greenWallSize ?? "—"], ["Lighting", props.simulation.plantSimulation?.lightingLevel ?? "—"]]} /></Match>
                 <Match when={panel === "thermalZones"}><AnalysisSummary rows={zones().map((zone, index) => [`Zone ${index + 1}`, zone])} empty="No thermal-zone results are available." /></Match>
-                <Match when={panel === "construction"}><AnalysisSummary rows={[["Construction set", props.simulation.constructionSetName ?? "Not available"], ["Simulation", props.simulation.name]]} /></Match>
               </Switch>
             </AnalysisDialog>
           )}
