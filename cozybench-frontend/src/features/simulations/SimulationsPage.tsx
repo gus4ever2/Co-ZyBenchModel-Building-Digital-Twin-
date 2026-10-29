@@ -476,7 +476,7 @@ function ComparisonResults(props: {
     construction: "Compare Construction Sets",
   })[panel];
   const panelNeedsZone = (panel: ComparisonPanel) =>
-    panel !== "energy" && panel !== "construction" && panel !== "thermalZones";
+    ["co2", "temperature", "humidity", "windowOpening"].includes(panel);
 
   return (
     <section class="flex h-full min-h-0 flex-col p-5 sm:p-6">
