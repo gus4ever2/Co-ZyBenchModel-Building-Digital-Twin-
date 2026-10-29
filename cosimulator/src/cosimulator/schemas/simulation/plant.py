@@ -1,6 +1,7 @@
 """Plant-specific choices supplied in a simulation request."""
 
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -59,3 +60,4 @@ class PlantSimulation(BaseModel):
     coverage_percentage: float | None = Field(default=None, ge=0, le=100)
     lighting_level: PlantLightingLevel = PlantLightingLevel.MEDIUM
     exchange_mode: PlantCO2ExchangeMode = PlantCO2ExchangeMode.FULL_EXCHANGE
+    evapotranspiration_method: Literal["Penman-Monteith", "Stanghellini"] = "Penman-Monteith"

@@ -11,6 +11,7 @@ from cosimulator.schemas.simulation import (
     PlantLightingLevel,
     PlantSimulation,
     SimulationContext,
+    ThermostatSetpoints,
     WindowOpeningStrategy,
 )
 
@@ -22,5 +23,6 @@ __all__ = [
     "PlantLightingLevel",
     "PlantSimulation",
     "SimulationContext",
+    "ThermostatSetpoints",
     "WindowOpeningStrategy",
 ]

@@ -18,6 +18,7 @@ public record SimulationSummaryResponse(
         PlantSimulationRequest plantSimulation,
         OpenWindowsRequest openWindows,
         Co2ControlRequest co2Control,
+        ThermostatSetpointsRequest thermostatSetpoints,
         Instant requestedAt,
         Instant startedAt,
         Instant completedAt,

@@ -2,6 +2,7 @@
 
 from cosimulator.schemas.simulation.co2_control import CO2Control
 from cosimulator.schemas.simulation.context import SimulationContext
+from cosimulator.schemas.simulation.thermostat import ThermostatSetpoints
 from cosimulator.schemas.simulation.open_windows import (
     OpenWindows,
     WindowOpeningStrategy,
@@ -21,5 +22,6 @@ __all__ = [
     "PlantLightingLevel",
     "PlantSimulation",
     "SimulationContext",
+    "ThermostatSetpoints",
     "WindowOpeningStrategy",
 ]

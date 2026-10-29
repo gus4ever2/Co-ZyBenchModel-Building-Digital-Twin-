@@ -21,6 +21,23 @@ import static org.mockito.Mockito.*;
 
 class SimulationResultsTests {
     @Test
+    void includesSavedThermostatSettingsInTheSimulationSummary() {
+        var mongo = mock(MongoTemplate.class);
+        var service = new SimulationService(mongo, mock(ConstructionSetSnapshotService.class),
+                mock(CosimulatorSimulationClient.class), mock(ComponentTypeRegistry.class));
+        String id = "507f1f77bcf86cd799439011";
+        when(mongo.findOne(any(Query.class), eq(Document.class), eq("simulations")))
+                .thenReturn(new Document("_id", new ObjectId(id)).append("status", "RUNNING")
+                        .append("parameters", new Document("thermostat_setpoints",
+                                new Document("heating_setpoint_c", 20.0)
+                                        .append("cooling_setpoint_c", 26.0))));
+        var summary = service.current("owner", "user@example.com").orElseThrow().simulation();
+        assertNotNull(summary.thermostatSetpoints());
+        assertEquals(20.0, summary.thermostatSetpoints().heatingSetpointC());
+        assertEquals(26.0, summary.thermostatSetpoints().coolingSetpointC());
+    }
+
+    @Test
     void nameAvailabilityChecksOnlyOwnedSimulationsAndTreatsNamesAsLiteral() {
         var mongo = mock(MongoTemplate.class);
         var service = new SimulationService(mongo, mock(ConstructionSetSnapshotService.class),

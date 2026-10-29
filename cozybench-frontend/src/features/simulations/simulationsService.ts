@@ -58,6 +58,7 @@ export type SimulationListItem = {
   plantSimulation?: PlantSimulation | null;
   openWindows?: OpenWindows | null;
   co2Control?: Co2Control | null;
+  thermostatSetpoints?: { heatingSetpointC: number; coolingSetpointC: number } | null;
   requestedAt?: string;
   startedAt?: string;
   completedAt?: string;

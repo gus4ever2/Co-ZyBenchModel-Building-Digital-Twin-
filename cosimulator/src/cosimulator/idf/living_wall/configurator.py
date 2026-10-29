@@ -1,14 +1,14 @@
-"""Coordinate optional equipment for a simulation."""
+"""Coordinate native living-wall IDF preparation for a simulation."""
 
 from eppy.modeleditor import IDF
 
 from cosimulator.idf.utils.find_every_thermal_zone_name import find_every_thermal_zone_name
 from cosimulator.idf.idf_build_context import IdfBuildContext
 from cosimulator.idf.idf_configurator import IdfConfigurator
-from cosimulator.idf.equipment.plant_loads import add_indoor_living_walls
+from cosimulator.idf.living_wall.living_wall import add_indoor_living_walls
 
 
-def equipment(idf: IDF, context: IdfBuildContext) -> None:
+def living_wall(idf: IDF, context: IdfBuildContext) -> None:
     """Add native indoor living walls when a plant is selected."""
     settings = context.plant_simulation  # Plant selections for this run; None means no plant was requested.
     if settings is None:  # Leave the IDF unchanged when plant simulation is disabled.
@@ -24,8 +24,8 @@ def equipment(idf: IDF, context: IdfBuildContext) -> None:
                            settings=settings, profile=profile)
 
 
-class EquipmentConfigurator(IdfConfigurator):
-    """Add optional equipment after its dependent IDF objects exist."""
+class LivingWallConfigurator(IdfConfigurator):
+    """Add living walls after their backing construction is available."""
 
     def configure(self, *, idf: IDF, context: IdfBuildContext) -> None:
-        equipment(idf=idf, context=context)
+        living_wall(idf=idf, context=context)

@@ -138,6 +138,7 @@ public class SimulationController {
     ) {
         var body = simulationService.exportJson(jwt.getSubject(), jwt.getClaimAsString("email"), simulationId);
         return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .header("Content-Disposition", org.springframework.http.ContentDisposition.attachment()
                         .filename("simulation-" + simulationId + ".json").build().toString())
                 .header("Cache-Control", "no-store")

@@ -15,6 +15,8 @@ export type NewSimulationPayload = {
   name: string;
   location: string;
   constructionSet: string;
+  heatingSetpointC: number;
+  coolingSetpointC: number;
   plantsEnabled: boolean;
   plantId?: string;
   plantName?: string;
@@ -92,6 +94,10 @@ export async function startSimulation(payload: NewSimulationPayload) {
     scenarioType: "REFERENCE",
     city: payload.location,
     constructionSet: payload.constructionSet,
+    thermostatSetpoints: {
+      heatingSetpointC: payload.heatingSetpointC,
+      coolingSetpointC: payload.coolingSetpointC,
+    },
     plantSimulation: payload.plantsEnabled
       ? {
           plantId: payload.plantId,

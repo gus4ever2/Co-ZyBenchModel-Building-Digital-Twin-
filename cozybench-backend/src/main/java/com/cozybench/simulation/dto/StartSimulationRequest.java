@@ -17,6 +17,7 @@ public record StartSimulationRequest(
         @Valid PlantSimulationRequest plantSimulation,
         @Valid OpenWindowsRequest openWindows,
         @Valid Co2ControlRequest co2Control,
+        @Valid ThermostatSetpointsRequest thermostatSetpoints,
         Map<String, Object> customScenario
 ) {
     public StartSimulationRequest {

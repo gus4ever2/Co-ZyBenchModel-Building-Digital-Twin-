@@ -1,3 +1,4 @@
+import { Show } from "solid-js";
 import type { SimulationListItem } from "./simulationsService";
 
 export default function SimulationSetupCard(props: {
@@ -18,6 +19,14 @@ export default function SimulationSetupCard(props: {
             props.simulation.constructionSetName || "Construction unavailable"
           }
         />
+        <Show when={props.simulation.thermostatSetpoints}>
+          {settings => (
+            <>
+              <Tag label={"Heating · " + settings().heatingSetpointC + " °C"} />
+              <Tag label={"Cooling · " + settings().coolingSetpointC + " °C"} />
+            </>
+          )}
+        </Show>
         <Tag label={plantSetupLabel(props.simulation)} />
         <Tag label={windowSetupLabel(props.simulation)} />
         <Tag
