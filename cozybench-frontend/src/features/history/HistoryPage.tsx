@@ -200,24 +200,6 @@ export default function HistoryPage() {
                               label={plantLabel(simulation)}
                               muted={!simulation.plantSimulation}
                             />
-                            <button
-                              type="button"
-                              disabled={exportSimulation.isPending}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                exportSimulation.mutate(simulation.id);
-                              }}
-                              class="flex w-full items-center gap-2 rounded-xl border border-citadel-blue/20 p-3 font-semibold text-citadel-blue transition hover:bg-sky-mist/25 disabled:opacity-50"
-                            >
-                              <Show when={exportSimulation.isPending && exportSimulation.variables === simulation.id}
-                                fallback={<Download class="size-4" />}>
-                                <LoaderCircle class="size-4 animate-spin" />
-                              </Show>
-                              {exportSimulation.isPending && exportSimulation.variables === simulation.id ? "Preparing JSON…" : "Download JSON"}
-                            </button>
-                            <Show when={exportSimulation.isError && exportSimulation.variables === simulation.id}>
-                              <p role="alert" class="text-xs text-red-wine">JSON download failed. Please try again.</p>
-                            </Show>
                             <HistoryCardRow
                               icon={<Wind />}
                               label={windowsLabel(simulation)}
@@ -230,6 +212,21 @@ export default function HistoryPage() {
                             />
                           </div>
                         </div>
+                        <button
+                          type="button"
+                          aria-label={`Download ${simulation.name} as JSON`}
+                          title={exportSimulation.isError && exportSimulation.variables === simulation.id ? "JSON download failed. Try again." : "Download JSON"}
+                          disabled={exportSimulation.isPending}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            exportSimulation.mutate(simulation.id);
+                          }}
+                          class="absolute right-12 top-2.5 grid size-8 place-items-center rounded-lg border border-citadel-blue/15 bg-cloud-white text-citadel-blue transition hover:bg-citadel-blue hover:text-cloud-white disabled:opacity-40"
+                        >
+                          <Show when={exportSimulation.isPending && exportSimulation.variables === simulation.id} fallback={<Download class="size-3.5" />}>
+                            <LoaderCircle class="size-3.5 animate-spin" />
+                          </Show>
+                        </button>
                         <button
                           type="button"
                           aria-label={`Delete ${simulation.name}`}
@@ -315,7 +312,7 @@ function HistoryCardRow(props: {
       <span class="shrink-0 text-citadel-blue [&>svg]:size-3.5">
         {props.icon as any}
       </span>
-      <span class="truncate" title={props.label}>
+      <span class="min-w-0 flex-1 truncate" title={props.label}>
         {props.label}
       </span>
     </>
