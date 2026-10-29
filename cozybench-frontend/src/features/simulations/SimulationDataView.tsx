@@ -169,7 +169,7 @@ export default function SimulationDataView(props: {
       greenWall: "Green wall analysis",
       windowOpening: "Open windows analysis",
       thermalZones: "Thermal zones",
-      construction: "Compare Construction Sets",
+      construction: "Construction Set",
     })[panel];
   return (
     <Show when={props.timesteps.length > 0} fallback={<EmptyState />}>
@@ -194,7 +194,7 @@ export default function SimulationDataView(props: {
               <WorkspaceNavigationCard icon={Wind} title="Open windows analysis" description="Review zone window-opening results across the simulation." onClick={() => setActivePanel("windowOpening")} />
             </Show>
             <WorkspaceNavigationCard icon={MapPin} title="Thermal zones" description="Review the thermal zones included in this simulation." onClick={() => setActivePanel("thermalZones")} />
-            <WorkspaceNavigationCard icon={BrickWall} title="Compare Construction Sets" description="Review construction-set and material differences." onClick={() => setActivePanel("construction")} />
+            <WorkspaceNavigationCard icon={BrickWall} title="Construction Set" description="Review the construction set and material details used by this simulation." onClick={() => setActivePanel("construction")} />
           </div>
         </div>
 
