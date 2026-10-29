@@ -2,7 +2,6 @@ import { For } from "solid-js";
 import type { EChartsOption } from "echarts";
 import EChart from "../../components/charts/EChart";
 import type {
-  AnalyticsResponse,
   SimulationListItem,
   SimulationReference,
   SimulationTimestep,
@@ -10,11 +9,7 @@ import type {
 
 type ComparedSimulation = {
   simulation: SimulationListItem;
-  analytics: AnalyticsResponse;
   timesteps: SimulationTimestep[];
-};
-type RecordedSetpoints = {
-  setpointsByZone?: Record<string, { heatingC: number[]; coolingC: number[] }>;
 };
 const colors = [
   "#3C6F8F",
@@ -39,12 +34,7 @@ export default function GreenWallTemperatureChart(props: {
       ];
     if (typeof saved === "number" && Number.isFinite(saved))
       return format(saved) + " °C";
-    const recorded =
-      (item.analytics.results.temperature as RecordedSetpoints | undefined)
-        ?.setpointsByZone?.[props.zone]?.[
-        mode === "heating" ? "heatingC" : "coolingC"
-      ] ?? [];
-    return recorded.length ? recorded.map(format).join(" / ") + " °C" : "—";
+    return "—";
   };
   const option = (): EChartsOption => ({
     color: colors,
@@ -96,7 +86,6 @@ export default function GreenWallTemperatureChart(props: {
               <th class="p-3">Simulation</th>
               <th class="p-3">Heating setpoint</th>
               <th class="p-3">Cooling setpoint</th>
-              <th class="p-3">Values shown</th>
             </tr>
           </thead>
           <tbody>
@@ -123,11 +112,6 @@ export default function GreenWallTemperatureChart(props: {
                   <td class="whitespace-nowrap p-3">
                     {setpoint(item, "cooling")}
                   </td>
-                  <td class="p-3 text-xs text-graphite/60">
-                    {item.simulation.thermostatSetpoints
-                      ? "Saved occupied setpoints"
-                      : "Recorded zone schedule"}
-                  </td>
                 </tr>
               )}
             </For>
@@ -135,9 +119,9 @@ export default function GreenWallTemperatureChart(props: {
         </table>
       </div>
       <p class="mt-3 text-xs text-graphite/55">
-        Saved values are the occupied heating and cooling settings. For older
-        simulations without saved settings, all distinct recorded values are
-        shown, including setbacks. A dash means no value was recorded.
+        Occupied setpoints saved in each simulation's parameters. Setback
+        schedules are unchanged. A dash means the setting was not saved with
+        that simulation.
       </p>
     </section>
   );
