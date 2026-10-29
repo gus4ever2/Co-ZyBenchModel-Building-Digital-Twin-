@@ -9,14 +9,13 @@ import {
   Download,
   Eye,
   Gauge,
-  Leaf,
   LoaderCircle,
   MapPin,
   PanelsTopLeft,
   Trash2,
   Wind,
 } from "lucide-solid";
-import { For, Show, Suspense, createMemo, createSignal, lazy } from "solid-js";
+import { For, Show, Suspense, createMemo, createSignal } from "solid-js";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
 import SimulationDataView from "../simulations/SimulationDataView";
 import { ConstructionSnapshotDialog } from "../simulations/SimulationsPage";
@@ -35,14 +34,11 @@ const filters = [
   "CANCELED",
   "CUSTOM_READY",
 ] as const;
-const PlantModelDialog = lazy(() => import("../plant-dt/PlantModelDialog"));
-
 export default function HistoryPage() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = createSignal<(typeof filters)[number]>("ALL");
   const [selectedId, setSelectedId] = createSignal("");
   const [snapshotId, setSnapshotId] = createSignal("");
-  const [previewPlantId, setPreviewPlantId] = createSignal("");
   const history = createQuery(() => ({
     queryKey: ["simulations", "history"],
     queryFn: loadSimulationHistory,
@@ -91,9 +87,6 @@ export default function HistoryPage() {
 
   return (
     <section class="mx-auto flex h-[calc(100vh-10rem)] min-h-0 w-full max-w-7xl flex-col gap-4 lg:h-[calc(100vh-4rem)]">
-      <Show when={previewPlantId()}>
-        {id => <PlantModelDialog plantId={id()} onClose={() => setPreviewPlantId("")} />}
-      </Show>
       <WorkspaceHeader
         eyebrow="Simulation workspace"
         title="History"
@@ -244,24 +237,6 @@ export default function HistoryPage() {
                                 </span>
                               </div>
                             </button>
-                            <Show when={simulation.plantSimulation?.plantId}
-                              fallback={<HistoryCardRow icon={<Leaf />} label={plantLabel(simulation)} muted={!simulation.plantSimulation} />}>
-                              {plantId => (
-                                <button type="button"
-                                  aria-label={`View plant model for ${simulation.name}`}
-                                  onClick={event => { event.stopPropagation(); setPreviewPlantId(plantId()); }}
-                                  title={`Plant model: ${plantLabel(simulation)}`}
-                                  class="group flex w-full items-start gap-2.5 rounded-xl border border-warm-stone/15 bg-warm-stone/5 p-3 text-left transition hover:border-citadel-blue/35 hover:bg-sky-mist/25">
-                                  <Leaf class="mt-0.5 size-4 shrink-0 text-citadel-blue" />
-                                  <span class="min-w-0 flex-1">
-                                    <span class="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-graphite/45">Plant model</span>
-                                    <span class="mt-1 block truncate font-semibold text-graphite/75">{plantLabel(simulation)}</span>
-                                    <span class="mt-0.5 block text-[0.65rem] leading-relaxed text-graphite/45">Plant configuration used in this simulation</span>
-                                  </span>
-                                  <span class="grid size-8 shrink-0 place-items-center self-center rounded-full bg-sky-mist/55 text-citadel-blue transition group-hover:bg-citadel-blue group-hover:text-cloud-white"><Eye class="size-4" /></span>
-                                </button>
-                              )}
-                            </Show>
                             <HistoryCardRow
                               icon={<Wind />}
                               label={windowsLabel(simulation)}
@@ -375,17 +350,6 @@ function cityLabel(city?: string) {
 
 function statusLabel(status: string) {
   return status.charAt(0) + status.slice(1).toLowerCase();
-}
-
-function plantLabel(simulation: SimulationListItem) {
-  const plant = simulation.plantSimulation;
-  if (!plant) return "Green wall disabled";
-  const size = plant.greenWallSize
-    ? plant.greenWallSize.toLowerCase().replace("_", " ")
-    : "legacy";
-  const exchange =
-    plant.exchangeMode === "UPTAKE_ONLY" ? "uptake-only" : "full exchange";
-  return `${plant.plantName} · ${size} green wall · ${(plant.lightingLevel ?? "MEDIUM").toLowerCase().replace("_", " ")} light · ${exchange}`;
 }
 
 function windowsLabel(simulation: SimulationListItem) {
