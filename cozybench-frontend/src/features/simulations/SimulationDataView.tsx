@@ -32,6 +32,7 @@ import {
   zoneNames,
 } from "./simulationAnalytics";
 import type {
+  PlantSimulation,
   SimulationListItem,
   SimulationTimestep,
 } from "./simulationsService";
@@ -62,7 +63,7 @@ export default function SimulationDataView(props: {
     queryKey: ["simulation-analytics", props.simulation.id, props.timesteps.length],
     queryFn: () =>
       loadSimulationAnalytics(props.simulation.id, 0, props.timesteps.length),
-    enabled: activePanel() === "energy" && props.timesteps.length > 0,
+    enabled: activePanel() !== null && props.timesteps.length > 0,
   }));
   const energyMetrics = () => energyAnalytics.data?.metrics ?? {};
 
@@ -213,66 +214,44 @@ export default function SimulationDataView(props: {
                   </div>
                 </Match>
                 <Match when={panel === "temperature"}>
-                  <MetricGrid>
-                    <EnergyCard label="Average temperature" value={format(average(zoneSteps().map(value => value?.zone_air_temp_c)), "°C")} />
-                    <EnergyCard label="Minimum temperature" value={format(minimum(zoneSteps().map(value => value?.zone_air_temp_c)), "°C")} />
-                    <EnergyCard label="Maximum temperature" value={format(maximum(zoneSteps().map(value => value?.zone_air_temp_c)), "°C")} />
-                    <EnergyCard label="Heating setpoint" value={format(average(zoneSteps().map(value => value?.heating_setpoint_c)), "°C")} />
-                  </MetricGrid>
+                  <SingleMetricSummary
+                    simulationName={props.simulation.name}
+                    title="Summary metrics"
+                    unit="°C"
+                    values={zoneSteps().map(value => value?.zone_air_temp_c)}
+                  />
                   <div class="mt-4"><FullChart title={`Air temperature · ${selectedZone() || "selected zone"}`}><EChart option={temperatureOption()} /></FullChart></div>
                 </Match>
                 <Match when={panel === "co2"}>
-                  <MetricGrid>
-                    <EnergyCard label="Average CO₂" value={format(average(zoneSteps().map(value => value?.co2_concentration_ppm)), "ppm")} />
-                    <EnergyCard label="Peak CO₂" value={format(maximum(zoneSteps().map(value => value?.co2_concentration_ppm)), "ppm")} />
-                    <EnergyCard label="CO₂ setpoint" value={format(average(zoneSteps().map(value => value?.co2_setpoint_ppm)), "ppm")} />
-                    <EnergyCard label="Timesteps" value={format(countValues(zoneSteps().map(value => value?.co2_concentration_ppm)), "")} />
-                  </MetricGrid>
+                  <SingleCo2Summary
+                    simulationName={props.simulation.name}
+                    timesteps={props.timesteps}
+                    zone={selectedZone()}
+                  />
                   <div class="mt-4"><FullChart title={`Zone CO₂ concentration · ${selectedZone() || "selected zone"}`}><EChart option={co2Option()} /></FullChart></div>
                 </Match>
                 <Match when={panel === "humidity"}>
-                  <MetricGrid>
-                    <EnergyCard label="Average humidity" value={format(average(zoneSteps().map(value => value?.relative_humidity_percent)), "%")} />
-                    <EnergyCard label="Minimum humidity" value={format(minimum(zoneSteps().map(value => value?.relative_humidity_percent)), "%")} />
-                    <EnergyCard label="Maximum humidity" value={format(maximum(zoneSteps().map(value => value?.relative_humidity_percent)), "%")} />
-                    <EnergyCard label="Timesteps" value={format(countValues(zoneSteps().map(value => value?.relative_humidity_percent)), "")} />
-                  </MetricGrid>
+                  <SingleMetricSummary
+                    simulationName={props.simulation.name}
+                    title="Summary metrics"
+                    unit="%"
+                    values={zoneSteps().map(value => value?.relative_humidity_percent)}
+                  />
                   <div class="mt-4"><FullChart title={`Relative humidity · ${selectedZone() || "selected zone"}`}><EChart option={humidityOption()} /></FullChart></div>
                 </Match>
                 <Match when={panel === "ventilation"}>
-                  <MetricGrid>
-                    <EnergyCard label="Average outdoor air" value={format(average(outdoorAirPercentages(props.timesteps)), "%")} />
-                    <EnergyCard label="Minimum outdoor air" value={format(minimum(outdoorAirPercentages(props.timesteps)), "%")} />
-                    <EnergyCard label="Maximum outdoor air" value={format(maximum(outdoorAirPercentages(props.timesteps)), "%")} />
-                    <EnergyCard label="DCV setpoint" value={format(props.simulation.co2Control?.setpointPpm, "ppm")} />
-                  </MetricGrid>
+                  <SingleVentilationSummary simulationName={props.simulation.name} timesteps={props.timesteps} />
                   <div class="mt-4"><FullChart title="Outdoor-air flow"><EChart option={ventilationOption()} /></FullChart></div>
                 </Match>
                 <Match when={panel === "windowOpening"}>
-                  <MetricGrid>
-                    <EnergyCard label="Average opening" value={format(average(props.timesteps.map(step => windowOpeningPercent(step, selectedZone()))), "%")} />
-                    <EnergyCard label="Maximum opening" value={format(maximum(props.timesteps.map(step => windowOpeningPercent(step, selectedZone()))), "%")} />
-                    <EnergyCard label="CO₂ threshold" value={format(props.simulation.openWindows?.co2ThresholdPpm, "ppm")} />
-                    <EnergyCard label="Temperature margin" value={format(props.simulation.openWindows?.temperatureMarginC, "°C")} />
-                  </MetricGrid>
+                  <SingleWindowSummary simulationName={props.simulation.name} values={props.timesteps.map(step => windowOpeningPercent(step, selectedZone()))} openableArea={energyAnalytics.data?.zones[selectedZone()]?.openable_window_area_m2} />
                   <div class="mt-4"><FullChart title={`Mean window opening · ${selectedZone() || "selected zone"}`}><EChart option={windowOpeningOption()} /></FullChart></div>
                 </Match>
                 <Match when={panel === "greenWall"}>
-                  <MetricGrid>
-                    <EnergyCard label="Plant" value={props.simulation.plantSimulation?.plantName ?? "—"} />
-                    <EnergyCard label="Green wall size" value={props.simulation.plantSimulation?.greenWallSize ?? "—"} />
-                    <EnergyCard label="Lighting" value={props.simulation.plantSimulation?.lightingLevel ?? "—"} />
-                    <EnergyCard label="Exchange mode" value={props.simulation.plantSimulation?.exchangeMode === "UPTAKE_ONLY" ? "Uptake only" : "Full exchange"} />
-                  </MetricGrid>
+                  <SinglePlantSummary simulationName={props.simulation.name} plant={props.simulation.plantSimulation} />
                 </Match>
                 <Match when={panel === "thermalZones"}>
-                  <MetricGrid>
-                    <EnergyCard label="Thermal zones" value={format(zones().length, "")} />
-                    <EnergyCard label="Total floor area" value={format(totalFloorArea(props.timesteps), "m²")} />
-                    <EnergyCard label="Total air volume" value={format(totalAirVolume(props.timesteps), "m³")} />
-                    <EnergyCard label="Simulation timesteps" value={format(props.timesteps.length, "")} />
-                  </MetricGrid>
-                  <div class="mt-4"><AnalysisSummary rows={zones().map((zone, index) => [`Zone ${index + 1}`, zone])} empty="No thermal-zone results are available." /></div>
+                  <SingleThermalZoneOverview zones={zones()} timesteps={props.timesteps} analyticsZones={energyAnalytics.data?.zones ?? {}} />
                 </Match>
               </Switch>
             </AnalysisDialog>
@@ -345,8 +324,137 @@ function EnergyCard(props: { label: string; value: string }) {
     </article>
   );
 }
-function MetricGrid(props: { children: unknown }) {
-  return <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{props.children as any}</div>;
+function SingleCo2Summary(props: {
+  simulationName: string;
+  timesteps: SimulationTimestep[];
+  zone: string;
+}) {
+  const mean = (matches: (step: SimulationTimestep) => boolean) =>
+    average(
+      props.timesteps
+        .filter(matches)
+        .map((step) => zoneAt(step, props.zone)?.co2_concentration_ppm),
+    );
+  const weekdayDaytime = (step: SimulationTimestep) => isWeekdayHour(step, 8, 22);
+  const weekdayNight = (step: SimulationTimestep) => isWeekdayHour(step, 22, 8);
+  return (
+    <section class="overflow-hidden rounded-2xl border border-warm-stone/20 bg-cloud-white">
+      <div class="border-b border-citadel-blue/10 bg-sky-mist/30 px-4 py-3 sm:px-5">
+        <h3 class="font-bold text-graphite">Average CO₂ concentration</h3>
+      </div>
+      <div class="cozy-scrollbar overflow-x-auto">
+        <table class="w-full min-w-[42rem] border-separate border-spacing-0 text-left text-xs">
+          <thead class="bg-sky-mist/25 text-graphite/55">
+            <tr>
+              <th class="border-b border-warm-stone/20 p-3 font-bold">Simulation</th>
+              <th class="border-b border-warm-stone/20 p-3 text-center font-bold">All hours · Mean CO₂</th>
+              <th class="border-b border-warm-stone/20 p-3 text-center font-bold">Weekdays · 08:00–22:00 · Mean CO₂</th>
+              <th class="border-b border-warm-stone/20 p-3 text-center font-bold">Weekdays · 22:00–08:00 · Mean CO₂</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">{props.simulationName}</th>
+              <td class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">{format(mean(() => true), "ppm")}</td>
+              <td class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">{format(mean(weekdayDaytime), "ppm")}</td>
+              <td class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">{format(mean(weekdayNight), "ppm")}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function SingleMetricSummary(props: {
+  simulationName: string;
+  title: string;
+  unit: string;
+  values: Array<number | null | undefined>;
+}) {
+  return (
+    <section>
+      <h3 class="mb-3 font-bold text-graphite">{props.title}</h3>
+      <div class="cozy-scrollbar overflow-x-auto rounded-2xl border border-warm-stone/20">
+        <table class="min-w-full text-sm">
+          <thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50">
+            <tr>
+              <th class="p-3">Simulation</th>
+              <th class="p-3">Mean</th>
+              <th class="p-3">Maximum</th>
+              <th class="p-3">Minimum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-t border-warm-stone/10">
+              <td class="p-3 font-semibold text-graphite">{props.simulationName}</td>
+              <td class="whitespace-nowrap p-3">{format(average(props.values), props.unit)}</td>
+              <td class="whitespace-nowrap p-3">{format(maximum(props.values), props.unit)}</td>
+              <td class="whitespace-nowrap p-3">{format(minimum(props.values), props.unit)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function SingleRowTable(props: {
+  title?: string;
+  simulationName: string;
+  headers: string[];
+  values: string[];
+}) {
+  return (
+    <section class="overflow-hidden rounded-2xl border border-warm-stone/20 bg-cloud-white">
+      <Show when={props.title}>{title => <div class="border-b border-citadel-blue/10 bg-sky-mist/30 px-4 py-3 sm:px-5"><h3 class="font-bold text-graphite">{title()}</h3></div>}</Show>
+      <div class="cozy-scrollbar overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50">
+            <tr><th class="p-3">Simulation</th><For each={props.headers}>{header => <th class="p-3">{header}</th>}</For></tr>
+          </thead>
+          <tbody>
+            <tr class="border-t border-warm-stone/10"><td class="p-3 font-bold text-graphite">{props.simulationName}</td><For each={props.values}>{value => <td class="whitespace-nowrap p-3">{value}</td>}</For></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function SingleVentilationSummary(props: { simulationName: string; timesteps: SimulationTimestep[] }) {
+  const value = average(
+    props.timesteps
+      .filter(step => isWeekdayHour(step, 8, 10))
+      .map(step => outdoorAirPercentage(step)),
+  );
+  return <SingleRowTable simulationName={props.simulationName} headers={["Mean outdoor-air fraction · 08:00–10:00, weekdays"]} values={[format(value, "%")]} />;
+}
+
+function SingleWindowSummary(props: {
+  simulationName: string;
+  values: Array<number | null | undefined>;
+  openableArea?: number | null;
+}) {
+  return <SingleRowTable title="Window opening" simulationName={props.simulationName} headers={["Total openable window area (m²)", "Mean window opening (%)"]} values={[format(props.openableArea, "m²"), format(average(props.values), "%")]} />;
+}
+
+function SinglePlantSummary(props: { simulationName: string; plant?: PlantSimulation | null }) {
+  return <SingleRowTable title="Green wall parameters" simulationName={props.simulationName} headers={["Plant", "Green wall size", "Lighting", "Exchange mode"]} values={[props.plant?.plantName ?? "—", props.plant?.greenWallSize ?? "—", props.plant?.lightingLevel ?? "—", props.plant?.exchangeMode === "UPTAKE_ONLY" ? "Uptake only" : "Full exchange"]} />;
+}
+
+function SingleThermalZoneOverview(props: {
+  zones: string[];
+  timesteps: SimulationTimestep[];
+  analyticsZones: Record<string, Record<string, number | null>>;
+}) {
+  const geometry = props.timesteps[0]?.results?.zone_internal_variable_values ?? {};
+  return (
+    <section class="overflow-hidden rounded-2xl border border-warm-stone/20 bg-cloud-white">
+      <div class="border-b border-citadel-blue/10 bg-sky-mist/30 px-4 py-3 sm:px-5"><h3 class="font-bold text-graphite">Zones</h3></div>
+      <div class="cozy-scrollbar overflow-x-auto"><table class="min-w-[58rem] w-full text-sm"><thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50"><tr><th class="p-3">Thermal zone</th><th class="p-3">Floor area</th><th class="p-3">Net wall area</th><th class="p-3">Air volume</th><th class="p-3">Mean occupants · weekdays 08:00–22:00</th><th class="p-3">Mean CO₂ setpoint · weekdays 08:00–22:00</th></tr></thead><tbody><For each={props.zones}>{zone => <tr class="border-t border-warm-stone/10"><td class="p-3 font-semibold text-graphite">{zone}</td><td class="p-3">{format(geometry[zone]?.floor_area_m2, "m²")}</td><td class="p-3">{format(geometry[zone]?.net_wall_area_m2, "m²")}</td><td class="p-3">{format(geometry[zone]?.air_volume_m3, "m³")}</td><td class="p-3">{format(props.analyticsZones[zone]?.meanOccupantsWeekdays08To22, "people")}</td><td class="p-3">{format(props.analyticsZones[zone]?.meanCo2SetpointPpmWeekdays08To22, "ppm")}</td></tr>}</For></tbody></table></div>
+    </section>
+  );
 }
 function EmptyState() {
   return (
@@ -391,30 +499,25 @@ function maximum(values: Array<number | null | undefined>) {
   return numbers.length ? Math.max(...numbers) : undefined;
 }
 
-function countValues(values: Array<number | null | undefined>) {
-  return numericValues(values).length;
+function outdoorAirPercentage(step: SimulationTimestep) {
+  const results = step.results;
+  return results?.outdoor_air_flow_percent ??
+    (typeof results?.outdoor_air_flow_fraction === "number"
+      ? results.outdoor_air_flow_fraction * 100
+      : null);
 }
 
-function outdoorAirPercentages(timesteps: SimulationTimestep[]) {
-  return timesteps.map((step) => {
-    const results = step.results;
-    return results?.outdoor_air_flow_percent ??
-      (typeof results?.outdoor_air_flow_fraction === "number"
-        ? results.outdoor_air_flow_fraction * 100
-        : null);
-  });
-}
-
-function totalFloorArea(timesteps: SimulationTimestep[]) {
-  return Object.values(
-    timesteps[0]?.results?.zone_internal_variable_values ?? {},
-  ).reduce((total, zone) => total + (zone.floor_area_m2 ?? 0), 0);
-}
-
-function totalAirVolume(timesteps: SimulationTimestep[]) {
-  return Object.values(
-    timesteps[0]?.results?.zone_internal_variable_values ?? {},
-  ).reduce((total, zone) => total + (zone.air_volume_m3 ?? 0), 0);
+function isWeekdayHour(step: SimulationTimestep, startHour: number, endHour: number) {
+  const raw = step.simulation_timestamp ?? step.recorded_at;
+  if (!raw) return false;
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) return false;
+  const weekday = date.getDay() >= 1 && date.getDay() <= 5;
+  if (!weekday) return false;
+  const hour = date.getHours() + date.getMinutes() / 60;
+  return startHour < endHour
+    ? hour >= startHour && hour < endHour
+    : hour >= startHour || hour < endHour;
 }
 
 function ZoneSelector(props: {
@@ -444,29 +547,6 @@ function ZoneSelector(props: {
           )}
         </For>
       </div>
-    </section>
-  );
-}
-
-function AnalysisSummary(props: {
-  rows: Array<[string, string]>;
-  empty?: string;
-}) {
-  return (
-    <section class="rounded-2xl border border-warm-stone/20 bg-cloud-white p-4 shadow-sm">
-      <Show
-        when={props.rows.length > 0}
-        fallback={<p class="text-sm text-graphite/55">{props.empty ?? "No data is available."}</p>}
-      >
-        <For each={props.rows}>
-          {([label, value]) => (
-            <div class="grid grid-cols-[minmax(8rem,1fr)_minmax(0,2fr)] gap-3 border-b border-warm-stone/10 py-3 text-sm last:border-0">
-              <span class="text-graphite/50">{label}</span>
-              <span class="break-words text-right font-semibold text-graphite">{value}</span>
-            </div>
-          )}
-        </For>
-      </Show>
     </section>
   );
 }
