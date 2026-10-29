@@ -45,6 +45,7 @@ import GreenWallInfo from "./info/GreenWallInfo.tsx";
 import OpenWindowsInfo from "./info/OpenWindowsInfo.tsx";
 const PlantModelDialog = lazy(() => import("../plant-dt/PlantModelDialog"));
 import Co2ControlInfo from "./info/Co2ControlInfo";
+import ThermostatInfo from "./info/ThermostatInfo";
 
 const locations = [
   { value: "paris", label: "Paris", description: "Mixed–humid climate" },
@@ -76,6 +77,10 @@ const schemas = {
   }),
   location: z.object({ location: z.string().min(1) }),
   construction: z.object({ constructionSet: z.string().min(1) }),
+  thermostat: z.object({
+    heatingSetpointC: z.number().min(15).max(30),
+    coolingSetpointC: z.number().min(15).max(30),
+  }).refine(value => value.heatingSetpointC < value.coolingSetpointC),
   plants: z.object({
     plantId: z.string().min(1),
     plantName: z.string().min(1),
@@ -111,6 +116,7 @@ type StepId =
   | "options"
   | "location"
   | "construction"
+  | "thermostat"
   | "plants"
   | "windows"
   | "co2Control"
@@ -133,6 +139,8 @@ export default function NewSimulationWizard() {
     name: "",
     location: "",
     constructionSet: "",
+    heatingSetpointC: 21,
+    coolingSetpointC: 24,
     plantsEnabled: false,
     openWindowsEnabled: false,
     co2ControlEnabled: false,
@@ -174,6 +182,13 @@ export default function NewSimulationWizard() {
       eyebrow: "Building envelope",
       description: "Select the construction set used by the building.",
       info: ConstructionSetInfo,
+    },
+    {
+      id: "thermostat",
+      label: "Temperature setpoints",
+      eyebrow: "Heating and cooling",
+      description: "Set the occupied heating and cooling temperatures.",
+      info: ThermostatInfo,
     },
     ...(form().plantsEnabled
       ? [
@@ -264,6 +279,8 @@ export default function NewSimulationWizard() {
         return schemas.location.safeParse(value).success;
       case "construction":
         return schemas.construction.safeParse(value).success;
+      case "thermostat":
+        return schemas.thermostat.safeParse(value).success;
       case "plants":
         return schemas.plants.safeParse(value).success;
       case "windows":
@@ -314,7 +331,7 @@ export default function NewSimulationWizard() {
               </div>
               <For each={steps()}>
                 {(_, index) => (
-                    <div class="relative z-10 flex w-24 shrink-0 flex-col items-center text-center">
+                    <div class="relative z-10 flex w-20 shrink-0 flex-col items-center text-center">
                       <div
                           class={`grid size-6 place-items-center rounded-full border-2 text-[10px] ${index() < stepIndex() ? "border-citadel-blue bg-citadel-blue" : index() === stepIndex() ? "border-citadel-blue bg-graphite" : "border-cloud-white/30 bg-graphite"}`}
                       >
@@ -436,6 +453,58 @@ export default function NewSimulationWizard() {
                       </For>
                     </div>
                   </QueryChoices>
+                </Match>
+                <Match when={current().id === "thermostat"}>
+                  <div class="space-y-5">
+                    <div class="grid gap-5 sm:grid-cols-2">
+                      <Field
+                        label="Occupied heating setpoint (°C)"
+                        hint="Heating is requested when the zone becomes colder than this setting."
+                      >
+                        <input
+                          class="form-input w-full"
+                          type="number"
+                          min="15"
+                          max="30"
+                          step="0.5"
+                          required
+                          value={form().heatingSetpointC}
+                          aria-invalid={!schemas.thermostat.safeParse(form()).success}
+                          aria-describedby="thermostat-validation"
+                          onInput={event => update("heatingSetpointC", event.currentTarget.valueAsNumber)}
+                        />
+                      </Field>
+                      <Field
+                        label="Occupied cooling setpoint (°C)"
+                        hint="Cooling is requested when the zone becomes warmer than this setting."
+                      >
+                        <input
+                          class="form-input w-full"
+                          type="number"
+                          min="15"
+                          max="30"
+                          step="0.5"
+                          required
+                          value={form().coolingSetpointC}
+                          aria-invalid={!schemas.thermostat.safeParse(form()).success}
+                          aria-describedby="thermostat-validation"
+                          onInput={event => update("coolingSetpointC", event.currentTarget.valueAsNumber)}
+                        />
+                      </Field>
+                    </div>
+                    <p
+                      id="thermostat-validation"
+                      class={schemas.thermostat.safeParse(form()).success ? "text-sm text-graphite/60" : "text-sm text-error"}
+                      aria-live="polite"
+                    >
+                      Enter temperatures between 15°C and 30°C. Heating must be lower than cooling.
+                    </p>
+                    <p class="rounded-xl bg-sky-mist/20 p-4 text-sm leading-relaxed text-graphite/65">
+                      These settings apply to all zones with thermostats during the existing occupied schedule.
+                      Heating setback stays at 15°C and cooling setback at 30°C.
+                      Schedule times and supply-air temperature stay unchanged.
+                    </p>
+                  </div>
                 </Match>
                 <Match when={current().id === "plants"}>
                   <QueryChoices
@@ -856,6 +925,9 @@ export function LegacyReview(props: {
           return selected?.displayName ?? selected?.name ?? props.payload.constructionSet;
         })(),
       )}
+      {row("Occupied heating setpoint", props.payload.heatingSetpointC + " °C")}
+      {row("Occupied cooling setpoint", props.payload.coolingSetpointC + " °C")}
+      {row("Setback temperatures", "Heating 15°C · Cooling 30°C · Existing schedule")}
       {row(
         "Green wall",
         props.payload.plantsEnabled

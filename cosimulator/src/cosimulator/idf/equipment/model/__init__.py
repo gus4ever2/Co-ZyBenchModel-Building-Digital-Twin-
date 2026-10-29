@@ -1,1 +1,0 @@
-"""EnergyPlus equipment models."""

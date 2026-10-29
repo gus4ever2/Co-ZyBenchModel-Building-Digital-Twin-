@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from cosimulator.schemas.simulation.co2_control import CO2Control
 from cosimulator.schemas.simulation.open_windows import OpenWindows
 from cosimulator.schemas.simulation.plant import PlantSimulation
+from cosimulator.schemas.simulation.thermostat import ThermostatSetpoints
 
 
 class SimulationContext(BaseModel):
@@ -15,3 +16,4 @@ class SimulationContext(BaseModel):
     plant_simulation: PlantSimulation | None = None
     open_windows: OpenWindows | None = None
     co2_control: CO2Control | None = None
+    thermostat_setpoints: ThermostatSetpoints | None = None

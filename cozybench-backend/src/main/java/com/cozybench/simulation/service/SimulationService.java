@@ -8,6 +8,7 @@ import com.cozybench.simulation.dto.CurrentSimulationResponse;
 import com.cozybench.simulation.dto.DashboardSummaryResponse;
 import com.cozybench.simulation.dto.OpenWindowsRequest;
 import com.cozybench.simulation.dto.Co2ControlRequest;
+import com.cozybench.simulation.dto.ThermostatSetpointsRequest;
 import com.cozybench.simulation.dto.PlantSimulationRequest;
 import com.cozybench.simulation.dto.SimulationListResponse;
 import com.cozybench.simulation.dto.SimulationResultsResponse;
@@ -449,6 +450,7 @@ public class SimulationService {
                 plantWithPreviewId(parameters.get("plant_simulation"), string(document.get("plant_preview_id"))),
                 windows(parameters.get("open_windows")),
                 co2Control(parameters.get("co2_control")),
+                thermostat(parameters.get("thermostat_setpoints")),
                 instant(document.get("requested_at")),
                 instant(document.get("start_time")),
                 instant(document.get("end_time")),
@@ -524,6 +526,9 @@ public class SimulationService {
         if (request.co2Control() != null) {
             parameters.put("co2_control", co2ControlMap(request.co2Control()));
         }
+        if (request.thermostatSetpoints() != null) {
+            parameters.put("thermostat_setpoints", thermostatMap(request.thermostatSetpoints()));
+        }
         return parameters;
     }
 
@@ -542,6 +547,13 @@ public class SimulationService {
                 "opening_strategy", windows.openingStrategy().name().toLowerCase(Locale.ROOT),
                 "temperature_margin_c", windows.temperatureMarginC(),
                 "co2_threshold_ppm", windows.co2ThresholdPpm()
+        );
+    }
+
+    private Map<String, Object> thermostatMap(ThermostatSetpointsRequest settings) {
+        return Map.of(
+                "heating_setpoint_c", settings.heatingSetpointC(),
+                "cooling_setpoint_c", settings.coolingSetpointC()
         );
     }
 
@@ -640,6 +652,15 @@ public class SimulationService {
                 ),
                 decimal(windows.get("temperature_margin_c")),
                 decimal(windows.get("co2_threshold_ppm"))
+        );
+    }
+
+    private ThermostatSetpointsRequest thermostat(Object value) {
+        Map<String, Object> settings = map(value);
+        if (settings.isEmpty()) return null;
+        return new ThermostatSetpointsRequest(
+                decimal(settings.get("heating_setpoint_c")),
+                decimal(settings.get("cooling_setpoint_c"))
         );
     }
 

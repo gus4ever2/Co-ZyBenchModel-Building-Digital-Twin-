@@ -204,6 +204,39 @@ class PlantGridRuntimeTests(unittest.TestCase):
             0.0,
         )
 
+    def test_callback_actuates_only_co2_even_with_legacy_thermal_fields(self) -> None:
+        from dataclasses import replace
+        from types import SimpleNamespace
+        from unittest.mock import Mock, call
+        from cosimulator.simulation.case_study.plant.apply_plant_control import apply_plant_control
+        from cosimulator.simulation.case_study.plant.plant_control_models import ZonePlantActuatorHandles
+        from cosimulator.simulation_variables.schemas.results import SimulationTimestepResult, ZoneResult
+        lookup = PlantProfileLookup(
+            plant_id="test", profile_service=_InMemoryGridService(_physiology_grid_document()))
+        response = lookup.get_response(ppfd_umol_m2_s=25, air_temperature_c=20,
+                                       relative_humidity_percent=30, co2_concentration_ppm=450)
+        ep = Mock()
+        ep.exchange.zone_time_step.return_value = 1 / 3
+        settings = PlantSimulation(plant_id="test", plant_name="test", green_wall_size="medium")
+        handles = ZonePlantActuatorHandles(zone_name="Office", sink_schedule_name="sink",
+                                          sink_handle=1, source_schedule_name="source", source_handle=2)
+        timestep = SimulationTimestepResult(year=2026, month=1, day=1, hour=12, minute=0,
+            zone_results={"Office": ZoneResult(zone_name="Office", co2_concentration_ppm=600)},
+            zone_internal_variable_values={"Office": SimpleNamespace(air_volume_m3=100)})
+        for net_exchange in (1.0, -1.0):
+            with self.subTest(net_exchange=net_exchange):
+                profile = Mock()
+                profile.get_response.return_value = replace(response, net_co2_exchange_g_per_hour=net_exchange)
+                ep.exchange.set_actuator_value.reset_mock()
+                result = apply_plant_control(ep=ep, state=None, timestamp=datetime(2026, 1, 1, 12),
+                    timestep_result=timestep, actuator_handles_by_zone={"Office": handles},
+                    profile_lookup=profile, settings=settings, green_wall_area_by_zone={"Office": 1})["Office"]
+                self.assertEqual(ep.exchange.set_actuator_value.call_args_list, [
+                    call(None, 1, result.sink_volume_flow_rate_m3_s),
+                    call(None, 2, result.source_volume_flow_rate_m3_s)])
+                self.assertGreater(result.sink_volume_flow_rate_m3_s if net_exchange > 0
+                                   else result.source_volume_flow_rate_m3_s, 0)
+
     def test_green_wall_size_is_applied_to_each_zones_available_area(self) -> None:
         areas = calculate_green_wall_area_by_zone(
             idf=_Idf(),

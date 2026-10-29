@@ -5,7 +5,7 @@ from eppy.modeleditor import IDF
 from cosimulator.core.logger.logging import logger
 from cosimulator.idf.insert_idf_model import insert_idf_model
 from cosimulator.idf.models.schedule_constant import ScheduleConstant
-from cosimulator.idf.co2_control.model.co2_source_and_sink import Co2SourceAndSink
+from cosimulator.idf.living_wall.model.co2_source_and_sink import Co2SourceAndSink
 
 
 _SCHEDULE_OBJECT_TYPE = "SCHEDULE:CONSTANT"

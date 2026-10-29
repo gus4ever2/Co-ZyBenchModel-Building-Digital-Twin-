@@ -2,6 +2,7 @@ package com.cozybench.simulation.service;
 
 import com.cozybench.simulation.dto.OpenWindowsRequest;
 import com.cozybench.simulation.dto.Co2ControlRequest;
+import com.cozybench.simulation.dto.ThermostatSetpointsRequest;
 import com.cozybench.simulation.dto.PlantSimulationRequest;
 import com.cozybench.simulation.dto.StartSimulationRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,6 +62,9 @@ public class CosimulatorSimulationClient {
         }
         if (request.co2Control() != null) {
             context.put("co2_control", co2ControlMap(request.co2Control()));
+        }
+        if (request.thermostatSetpoints() != null) {
+            context.put("thermostat_setpoints", thermostatMap(request.thermostatSetpoints()));
         }
 
         Map<String, Object> requestBody = Map.of(
@@ -189,6 +193,13 @@ public class CosimulatorSimulationClient {
                 "opening_strategy", windows.openingStrategy().name().toLowerCase(Locale.ROOT),
                 "temperature_margin_c", windows.temperatureMarginC(),
                 "co2_threshold_ppm", windows.co2ThresholdPpm()
+        );
+    }
+
+    private Map<String, Object> thermostatMap(ThermostatSetpointsRequest settings) {
+        return Map.of(
+                "heating_setpoint_c", settings.heatingSetpointC(),
+                "cooling_setpoint_c", settings.coolingSetpointC()
         );
     }
 

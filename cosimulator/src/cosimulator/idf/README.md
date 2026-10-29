@@ -5,14 +5,21 @@ the ordered configurators in `registry.py`. Every configurator receives the IDF
 and the per-run `IdfBuildContext`, and modifies that IDF in place. The context
 contains the user's simulation settings and the saved construction snapshot.
 
-The order is intentional: weather, schedule definitions, CO2, airflow and
+The order is intentional: weather, schedule definitions, occupied thermostat setpoints, CO2, airflow and
 outputs are configured first. The construction snapshot is then inserted and
-assigned to surfaces, followed by the plant equipment. Construction cleanup
+assigned to surfaces, followed by the native living walls. Construction cleanup
 is last, after every package has had a chance to add references.
 
-`co2_control` owns CO2 sources, sinks and ventilation control. `equipment` creates a per-zone `InternalMass` and native `IndoorLivingWall`;
-PhotosynEB thermal fluxes are diagnostic only, while its CO2 sink/source
-schedules remain actuated at each timestep.
+`thermostat` applies optional occupied heating/cooling setpoints to the existing
+zone thermostat schedules. It preserves setback values, weekend rules, schedule
+times, supply-air temperature and the source input IDF. Requests without these
+settings retain the original thermostat schedules.
+
+`co2_control` owns the building CO2 balance and ventilation control.
+`living_wall` owns the plant CO2 source/sink objects, wall coverage, lighting
+schedules, and per-zone `InternalMass` and native `IndoorLivingWall` objects.
+The plant grid supplies only CO2 exchange to the runtime callback; EnergyPlus
+calculates the wall heat and moisture exchange.
 The wall-area utility is shared with the simulation callbacks. The plant grid
 and runtime simulation remain outside this IDF package.
 

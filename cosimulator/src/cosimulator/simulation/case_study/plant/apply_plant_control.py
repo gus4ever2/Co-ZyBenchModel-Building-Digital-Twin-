@@ -20,7 +20,7 @@ from cosimulator.schemas.simulation_context import (
 # flow (m3/s). This density is an appropriate engineering approximation for
 # the intended indoor conditions and keeps the conversion explicit/testable.
 _CO2_DENSITY_KG_M3 = 1.842  # Conversion between CO2 mass and pure-gas volume.
-from cosimulator.idf.equipment.plant_loads import LIGHTS_ON_HOUR, LIGHTS_OFF_HOUR
+from cosimulator.idf.living_wall.schedules import LIGHTS_ON_HOUR, LIGHTS_OFF_HOUR
 # Below this indoor boundary the green-wall uptake is not applied.
 _MINIMUM_ZONE_CO2_PPM = 300.0  # Lower physical concentration boundary.
 

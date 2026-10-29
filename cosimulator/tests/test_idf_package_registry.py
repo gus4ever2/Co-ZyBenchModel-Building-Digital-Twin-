@@ -11,7 +11,7 @@ from cosimulator.idf.co2_control.add_co2_balance import add_co2_balance
 from cosimulator.idf.output.add_output_variable_requests import add_output_variables
 from cosimulator.idf.registry import IDF_CONFIGURATORS
 from cosimulator.idf.construction_set.construction_set import ConstructionSetConfigurator
-from cosimulator.idf.co2_control.add_plant_co2_exchange import add_plant_co2_exchange
+from cosimulator.idf.living_wall.co2_exchange import add_plant_co2_exchange
 from cosimulator.idf.co2_control.configure_dcv import configure_co2_dcv
 from cosimulator.schemas.simulation_context import SimulationContext
 import pytest
