@@ -3,9 +3,10 @@ import axios from "axios";
 import type { EChartsOption } from "echarts";
 import {
   Check,
+  Atom,
+  AirVent,
   BrickWall,
-  ChevronDown,
-  Cuboid,
+  Droplets,
   CalendarDays,
   Eye,
   Gauge,
@@ -14,20 +15,19 @@ import {
   LoaderCircle,
   MapPin,
   PanelsTopLeft,
+  Thermometer,
   Wind,
+  Zap,
   X,
 } from "lucide-solid";
 import {For, Show, createMemo, createSignal, Switch, Match, lazy, onMount} from "solid-js";
 import { Portal } from "solid-js/web";
 const PlantModelDialog = lazy(() => import("../plant-dt/PlantModelDialog"));
 import EChart from "../../components/charts/EChart";
-import ComponentPropertiesPanel from "../../components/data-display/ComponentPropertiesPanel";
 import ConstructionSetComparison from "./ConstructionSetComparison";
+import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavigationCard";
 import EditorIdentityHeader from "../../components/form/EditorIdentityHeader";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
-import { constructionSetGroups } from "../construction-sets/constructionSetGroups";
-import { constructionIddMetadata } from "../constructions/constructionIddMetadata";
-import { materialIddMetadata } from "../materials/materialIddMetadata.generated";
 import {
   timestampLabel,
   zoneWindowOpeningPercent,
@@ -41,7 +41,6 @@ import {
   type SimulationListItem,
   type SimulationComparisonResponse,
   type SimulationReference,
-  type ComponentSnapshot,
   type SimulationTimestep,
   type ThermalZoneComparison,
   type AnalyticsResponse,
@@ -343,7 +342,7 @@ export function ConstructionSnapshotDialog(props: { simulation: SimulationListIt
       <dialog ref={dialog} aria-label="Construction set snapshot" onClose={props.onClose}
         onClick={event => { if (event.target === dialog) props.onClose(); }}
         class="m-auto h-[min(54rem,90dvh)] w-[min(72rem,94vw)] max-w-none overflow-hidden rounded-3xl border border-warm-stone/20 bg-cloud-white p-0 shadow-2xl backdrop:bg-black/50">
-        <div class="relative flex h-full min-h-0 flex-col pt-12">
+        <div class="relative flex h-full min-h-0 flex-col">
           <button type="button" aria-label="Close construction snapshot" onClick={props.onClose}
             class="absolute right-4 top-3 rounded-lg p-1 text-graphite/55 hover:bg-sky-mist/30">
             <X class="size-5" />
@@ -364,7 +363,7 @@ export function ConstructionSnapshotInspector(props: {
 
   return (
     <section class="flex h-full min-h-0 flex-col overflow-hidden bg-cloud-white">
-      <header class="flex flex-wrap items-center justify-between gap-3 border-b border-citadel-blue/10 bg-sky-mist/35 px-5 py-4">
+      <header class="flex flex-wrap items-center justify-between gap-3 border-b border-citadel-blue/10 bg-sky-mist/35 px-5 py-4 pr-14">
         <div>
           <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-citadel-blue">
             Construction snapshot
@@ -399,25 +398,9 @@ export function ConstructionSnapshotInspector(props: {
           </p>
         }
       >
-        {(storedSnapshot) => (
-          <div class="cozy-scrollbar min-h-0 flex-1 space-y-5 overflow-y-auto p-5">
-            <SnapshotGroup
-              title="Construction set"
-              components={[storedSnapshot().constructionSet]}
-              icon="set"
-            />
-            <SnapshotGroup
-              title="Constructions"
-              components={storedSnapshot().constructions}
-              icon="construction"
-            />
-            <SnapshotGroup
-              title="Materials"
-              components={storedSnapshot().materials}
-              icon="material"
-            />
-          </div>
-        )}
+        <div class="cozy-scrollbar min-h-0 flex-1 overflow-y-auto p-5">
+          <ConstructionSetComparison simulations={[props.simulation]} />
+        </div>
       </Show>
     </section>
   );
@@ -432,133 +415,15 @@ function SnapshotCount(props: { label: string; value: number }) {
   );
 }
 
-function SnapshotGroup(props: {
-  title: string;
-  components: ComponentSnapshot[];
-  icon: "set" | "construction" | "material";
-}) {
-  const [openComponentId, setOpenComponentId] = createSignal<string | null>(
-    null,
-  );
-  return (
-    <section>
-      <div class="mb-2 flex items-center justify-between">
-        <h3 class="text-sm font-bold text-graphite">{props.title}</h3>
-        <span class="rounded-full bg-sky-mist/45 px-2 py-1 text-[0.62rem] font-bold text-citadel-blue">
-          {props.components.length}
-        </span>
-      </div>
-      <div class="grid gap-2 lg:grid-cols-2">
-        <For each={props.components}>
-          {(component) => (
-            <SnapshotComponent
-              component={component}
-              icon={props.icon}
-              open={openComponentId() === component.id}
-              onToggle={() =>
-                setOpenComponentId((current) =>
-                  current === component.id ? null : component.id,
-                )
-              }
-            />
-          )}
-        </For>
-      </div>
-    </section>
-  );
-}
-
-function SnapshotComponent(props: {
-  component: ComponentSnapshot;
-  icon: "set" | "construction" | "material";
-  open: boolean;
-  onToggle: () => void;
-}) {
-  const properties = () => snapshotPropertyEntries(props.component);
-  return (
-    <article class="relative">
-      <button
-        type="button"
-        aria-expanded={props.open}
-        onClick={props.onToggle}
-        class="flex w-full items-center gap-3 rounded-xl border border-warm-stone/15 bg-warm-stone/5 px-3 py-3 text-left transition hover:border-citadel-blue/30 hover:bg-sky-mist/15"
-        classList={{ "border-citadel-blue/25 bg-sky-mist/20": props.open }}
-      >
-        <Switch>
-          <Match when={props.icon === "construction"}>
-            <BrickWall class="size-4 shrink-0 text-citadel-blue" />
-          </Match>
-
-          <Match when={props.icon === "material"}>
-            <Cuboid class="size-4 shrink-0 text-citadel-blue" />
-          </Match>
-
-          <Match when={props.icon === "set"}>
-            <PanelsTopLeft class="size-4 shrink-0 text-citadel-blue" />
-          </Match>
-        </Switch>
-
-        <span class="min-w-0 flex-1">
-          <strong class="block truncate text-xs text-graphite">
-            {props.component.name}
-          </strong>
-          <span class="block truncate text-[0.62rem] text-graphite/45">
-            {props.component.type}
-          </span>
-        </span>
-        <ChevronDown
-          class="size-4 shrink-0 text-graphite/40 transition-transform"
-          classList={{ "rotate-180": props.open }}
-        />
-      </button>
-
-      <ComponentPropertiesPanel open={props.open} properties={properties()} />
-    </article>
-  );
-}
-
-const constructionLayerOrder = [
-  "Name",
-  "Outside_Layer",
-  ...Array.from({ length: 9 }, (_, index) => `Layer_${index + 2}`),
-];
-
-const constructionSetPropertyOrder = [
-  "Name",
-  ...constructionSetGroups.flatMap((group) =>
-    group.fields.map(([property]) => property),
-  ),
-];
-
-function snapshotPropertyEntries(component: ComponentSnapshot) {
-  const entries = Object.entries(component.properties ?? {});
-  if (entries.length === 0 || entries[0][0] === "Name") return entries;
-
-  const materialMetadata = materialIddMetadata as Record<
-    string,
-    Record<string, unknown> | undefined
-  >;
-  const order =
-    component.type === "CONSTRUCTION"
-      ? constructionLayerOrder
-      : constructionIddMetadata[component.type]
-        ? Object.keys(constructionIddMetadata[component.type])
-        : materialMetadata[component.type]
-          ? Object.keys(materialMetadata[component.type] ?? {})
-          : component.type.includes("CONSTRUCTION_SET")
-            ? constructionSetPropertyOrder
-            : ["Name"];
-  const position = new Map(order.map((key, index) => [key, index]));
-
-  return entries.sort(([left], [right]) => {
-    const leftPosition = position.get(left) ?? Number.MAX_SAFE_INTEGER;
-    const rightPosition = position.get(right) ?? Number.MAX_SAFE_INTEGER;
-    if (leftPosition !== rightPosition) return leftPosition - rightPosition;
-    return left.localeCompare(right, undefined, { numeric: true });
-  });
-}
-
-type ComparisonPanel = "energy" | "co2" | "temperature" | "humidity" | "ventilation" | "construction";
+type ComparisonPanel =
+  | "energy"
+  | "co2"
+  | "temperature"
+  | "humidity"
+  | "ventilation"
+  | "windowOpening"
+  | "thermalZones"
+  | "construction";
 
 function ComparisonResults(props: {
   compared: ComparedSimulation[];
@@ -573,8 +438,21 @@ function ComparisonResults(props: {
     );
     return [...names].sort((left, right) => left.localeCompare(right));
   });
+  const zonesWithWindows = createMemo(() => {
+    const names = new Set<string>();
+    props.compared.forEach((item) =>
+      item.timesteps.forEach((timestep) =>
+        Object.entries(timestep.results?.window_opening_results ?? {}).forEach(
+          ([key, result]) => names.add(result.zone_name || key),
+        ),
+      ),
+    );
+    return [...names].sort((left, right) => left.localeCompare(right));
+  });
   const activeThermalZone = createMemo(() => {
-    const availableZones = thermalZones();
+    const availableZones = activePanel() === "windowOpening"
+      ? zonesWithWindows()
+      : thermalZones();
     return availableZones.includes(selectedThermalZone())
       ? selectedThermalZone()
       : (availableZones[0] ?? "");
@@ -587,27 +465,18 @@ function ComparisonResults(props: {
       return zone ? [{ comparison, zone }] : [];
     }),
   );
-  const zonesWithWindows = createMemo(() => {
-    const names = new Set<string>();
-    props.compared.forEach((item) =>
-      item.timesteps.forEach((timestep) =>
-        Object.entries(timestep.results?.window_opening_results ?? {}).forEach(
-          ([key, result]) => names.add(result.zone_name || key),
-        ),
-      ),
-    );
-    return [...names].sort((left, right) => left.localeCompare(right));
-  });
   const panelTitle = (panel: ComparisonPanel) => ({
     energy: "Energy consumption",
     co2: "CO₂ concentration by thermal zone",
     temperature: "Temperature by thermal zone",
     humidity: "Humidity by thermal zone",
     ventilation: "Ventilation / outdoor-air control",
+    windowOpening: "Window opening",
+    thermalZones: "Thermal zone data",
     construction: "Compare Construction Sets",
   })[panel];
   const panelNeedsZone = (panel: ComparisonPanel) =>
-    panel !== "energy";
+    panel !== "energy" && panel !== "construction" && panel !== "thermalZones";
 
   return (
     <section class="flex h-full min-h-0 flex-col p-5 sm:p-6">
@@ -638,40 +507,52 @@ function ComparisonResults(props: {
 
         <div class="cozy-scrollbar min-h-0 overflow-y-auto pr-1">
           <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            <AnalysisCard
-              icon={<Gauge />}
+            <WorkspaceNavigationCard
+              icon={Zap}
               title="Energy consumption"
               description="Heating, cooling and total HVAC use across time."
               onClick={() => setActivePanel("energy")}
             />
-            <AnalysisCard
-              icon={<Wind />}
+            <WorkspaceNavigationCard
+              icon={Atom}
               title="CO₂ concentration"
               description="Inspect zone CO₂ levels and differences from the baseline."
               onClick={() => setActivePanel("co2")}
             />
-            <AnalysisCard
-              icon={<PanelsTopLeft />}
+            <WorkspaceNavigationCard
+              icon={Thermometer}
               title="Temperature"
               description="Explore zone air temperature and its change from baseline."
               onClick={() => setActivePanel("temperature")}
             />
-            <AnalysisCard
-              icon={<Leaf />}
+            <WorkspaceNavigationCard
+              icon={Droplets}
               title="Humidity"
               description="Explore zone relative humidity and its change from baseline."
               onClick={() => setActivePanel("humidity")}
             />
-            <AnalysisCard
-              icon={<Wind />}
+            <WorkspaceNavigationCard
+              icon={AirVent}
               title="Ventilation / outdoor-air control"
-              description="Review outdoor-air fraction, window opening and control."
+              description="Review the simulated outdoor-air fraction and ventilation control."
               onClick={() => setActivePanel("ventilation")}
             />
-            <AnalysisCard
-              icon={<BrickWall />}
+            <WorkspaceNavigationCard
+              icon={Wind}
+              title="Window opening"
+              description="Compare mean window opening and its change from the baseline."
+              onClick={() => setActivePanel("windowOpening")}
+            />
+            <WorkspaceNavigationCard
+              icon={MapPin}
+              title="Thermal zones"
+              description="Compare zone geometry, weekday occupancy and CO₂ setpoints."
+              onClick={() => setActivePanel("thermalZones")}
+            />
+            <WorkspaceNavigationCard
+              icon={BrickWall}
               title="Compare Construction Sets"
-              description="Review construction differences and operative temperature."
+              description="Review construction-set and material differences."
               onClick={() => setActivePanel("construction")}
             />
           </div>
@@ -683,11 +564,18 @@ function ComparisonResults(props: {
           <ComparisonAnalysisDialog
             title={panelTitle(panel)}
             onClose={() => setActivePanel(null)}
+            constructionComparison={panel === "construction"}
           >
-            <div class="space-y-5">
+            <div
+              class="min-h-0"
+              classList={{
+                "flex min-h-0 flex-1 flex-col": panel === "construction",
+                "space-y-5": panel !== "construction",
+              }}
+            >
               <Show when={panelNeedsZone(panel)}>
                 <ThermalZoneSelector
-                  zones={thermalZones()}
+                  zones={panel === "windowOpening" ? zonesWithWindows() : thermalZones()}
                   selected={activeThermalZone()}
                   onSelect={setSelectedThermalZone}
                 />
@@ -719,6 +607,10 @@ function ComparisonResults(props: {
                   <Show when={activeThermalZone()} keyed>
                     {(zone) => (
                       <div class="space-y-5">
+                        <Co2AverageComparisonTable
+                          baseline={props.analysis.baseline}
+                          comparisons={activeZoneComparisons()}
+                        />
                         <Chart title={`${zone} · CO₂ concentration`}>
                           <EChart option={zoneCo2Option(props.compared, zone)} class="h-[26rem] w-full sm:h-[30rem]" />
                         </Chart>
@@ -774,35 +666,55 @@ function ComparisonResults(props: {
                 <Match when={panel === "humidity"}>
                   <Show when={activeThermalZone()} keyed>
                     {(zone) => (
-                      <ThermalZoneMetricComparisonView
-                        compared={props.compared}
-                        baseline={props.analysis.baseline}
-                        zone={zone}
-                        metric="humidity"
-                      />
+                      <div class="space-y-8">
+                        <section>
+                          <h3 class="mb-2 font-bold text-graphite">Relative humidity</h3>
+                          <p class="mb-3 text-xs text-graphite/55">
+                            Values compare the selected zone with the baseline at matching timestamps. Positive differences mean higher relative humidity.
+                          </p>
+                          <ThermalZoneMetricComparisonView
+                            compared={props.compared}
+                            baseline={props.analysis.baseline}
+                            zone={zone}
+                            metric="relativeHumidity"
+                          />
+                        </section>
+                      </div>
                     )}
                   </Show>
                 </Match>
 
                 <Match when={panel === "ventilation"}>
-                  <VentilationOutdoorAirControl compared={props.compared} baseline={props.analysis.baseline} />
-                  <Show when={zonesWithWindows().includes(activeThermalZone())}>
-                    <Chart title={`${activeThermalZone()} · window opening`}>
-                      <EChart option={zoneWindowOption(props.compared, activeThermalZone())} />
-                    </Chart>
+                  <VentilationOutdoorAirControl
+                    compared={props.compared}
+                    baseline={props.analysis.baseline}
+                  />
+                </Match>
+
+                <Match when={panel === "windowOpening"}>
+                  <Show when={activeThermalZone()} keyed fallback={
+                    <p class="rounded-xl border border-warm-stone/20 bg-cloud-white p-4 text-sm text-graphite/60">
+                      No window-opening data is available for these simulations.
+                    </p>
+                  }>
+                    {(zone) => (
+                      <WindowOpeningAnalysis compared={props.compared} zone={zone} />
+                    )}
                   </Show>
                 </Match>
 
+                <Match when={panel === "thermalZones"}>
+                  <ThermalZoneOverview
+                    compared={props.compared}
+                    plantConfigurations={props.analysis.plantConfigurations}
+                  />
+                </Match>
+
                 <Match when={panel === "construction"}>
-                  <ConstructionSetComparison simulations={props.compared.map((item) => item.simulation)} />
-                  <div class="border-t border-warm-stone/15 pt-5">
-                    <OperativeTemperatureComparisonView
-                      baseline={props.analysis.baseline}
-                      comparedSimulations={props.compared}
-                      comparisons={activeZoneComparisons()}
-                      zoneName={activeThermalZone()}
-                    />
-                  </div>
+                  <ConstructionSetComparison
+                    simulations={props.compared.map((item) => item.simulation)}
+                    scrollCardsOnly
+                  />
                 </Match>
               </Switch>
             </div>
@@ -880,32 +792,6 @@ function ParameterRow(props: { label: string; value: string }) {
   );
 }
 
-function AnalysisCard(props: {
-  icon: unknown;
-  title: string;
-  description: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={props.onClick}
-      class="flex min-h-28 w-full items-center gap-3 rounded-2xl border border-warm-stone/20 bg-cloud-white p-4 text-left shadow-sm transition hover:border-citadel-blue/35 hover:bg-sky-mist/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-citadel-blue/50"
-    >
-      <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-sky-mist/50 text-citadel-blue">
-        {props.icon as any}
-      </span>
-      <span class="min-w-0 flex-1">
-        <strong class="block text-sm text-graphite">{props.title}</strong>
-        <span class="mt-1 block text-xs leading-relaxed text-graphite/50">{props.description}</span>
-      </span>
-      <span class="grid size-8 shrink-0 place-items-center rounded-full border border-citadel-blue/25 text-citadel-blue">
-        <ChevronDown class="size-4 -rotate-90" />
-      </span>
-    </button>
-  );
-}
-
 function ThermalZoneSelector(props: {
   zones: string[];
   selected: string;
@@ -940,6 +826,7 @@ function ComparisonAnalysisDialog(props: {
   title: string;
   onClose: () => void;
   children: unknown;
+  constructionComparison?: boolean;
 }) {
   let dialog!: HTMLDialogElement;
   onMount(() => dialog.showModal());
@@ -968,7 +855,13 @@ function ComparisonAnalysisDialog(props: {
             <X class="size-5" />
           </button>
         </header>
-        <div class="cozy-scrollbar min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+        <div
+          class="cozy-scrollbar min-h-0 flex-1 p-4 sm:p-6"
+          classList={{
+            "flex flex-col overflow-hidden": props.constructionComparison,
+            "overflow-y-auto": !props.constructionComparison,
+          }}
+        >
           {props.children as any}
         </div>
       </dialog>
@@ -1090,12 +983,220 @@ function VentilationOutdoorAirControl(props: {
       <div class="mt-4">
         <Chart title="Δ Outdoor-air fraction over time">
           <p class="mb-2 text-xs text-graphite/55">
-            Baseline minus each simulation, in percentage points, at matching timestamps.
+            Baseline minus each simulation at matching timestamps, displayed with the % symbol.
           </p>
           <EChart option={deltaOutdoorAirFractionOption(props.compared, props.baseline)} />
         </Chart>
       </div>
     </>
+  );
+}
+
+function WindowOpeningAnalysis(props: {
+  compared: ComparedSimulation[];
+  zone: string;
+}) {
+  return (
+    <div class="space-y-4">
+      <WindowOpeningSummary compared={props.compared} zone={props.zone} />
+      <Chart title={`${props.zone} · window opening`}>
+        <EChart option={zoneWindowOption(props.compared, props.zone)} />
+      </Chart>
+    </div>
+  );
+}
+
+function WindowOpeningSummary(props: {
+  compared: ComparedSimulation[];
+  zone: string;
+}) {
+  const deltaPercent = (value: number | null | undefined) =>
+    typeof value === "number" && Number.isFinite(value)
+      ? `${value >= 0 ? "+" : ""}${number(value)} %`
+      : "—";
+  return (
+    <section class="overflow-hidden rounded-2xl border border-warm-stone/20 bg-cloud-white">
+      <div class="border-b border-citadel-blue/10 bg-sky-mist/30 px-4 py-3 sm:px-5">
+        <h3 class="font-bold text-graphite">Window opening</h3>
+        <p class="mt-1 text-xs text-graphite/50">
+          Mean opening across the selected zone’s windows and timesteps. Δ is the relative change from baseline; positive values mean more open.
+        </p>
+      </div>
+      <div class="cozy-scrollbar overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50">
+            <tr>
+              <th class="p-3">Simulation</th>
+              <th class="p-3">Mean window opening</th>
+              <th class="p-3">Δ vs baseline (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <For each={props.compared}>
+              {(item) => {
+                const value =
+                  item.analytics.zones[props.zone]?.meanWindowOpeningPercent;
+                const delta =
+                  item.analytics.zones[props.zone]?.meanWindowOpeningDeltaPercent;
+                return (
+                  <tr class="border-t border-warm-stone/10">
+                    <td class="p-3 font-bold text-graphite">
+                      {item.simulation.name}
+                    </td>
+                    <td class="p-3">
+                      {typeof value === "number" && Number.isFinite(value)
+                        ? `${number(value)} %`
+                        : "—"}
+                    </td>
+                    <td class="p-3">{deltaPercent(delta)}</td>
+                  </tr>
+                );
+              }}
+            </For>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function ThermalZoneOverview(props: {
+  compared: ComparedSimulation[];
+  plantConfigurations: ComparisonPlantConfiguration[];
+}) {
+  const valueWithUnit = (
+    value: number | null | undefined,
+    unit: string,
+  ) =>
+    typeof value === "number" && Number.isFinite(value)
+      ? `${number(value)} ${unit}`
+      : "—";
+
+  return (
+    <div class="space-y-5">
+      <p class="text-xs text-graphite/55">
+        Occupancy and CO₂ setpoints are averaged over weekdays, 08:00–22:00. Heating and cooling metrics are left out until their schedule and setback interpretation is agreed.
+      </p>
+      <For each={props.compared}>
+        {(item) => {
+          const zones = Object.entries(item.analytics.zones).sort(
+            ([left], [right]) => left.localeCompare(right),
+          );
+          const metrics = item.analytics.metrics;
+          const plantConfiguration = props.plantConfigurations.find(
+            (configuration) =>
+              configuration.simulationId === item.simulation.id,
+          );
+          return (
+            <article class="overflow-hidden rounded-2xl border border-warm-stone/20 bg-cloud-white">
+              <header class="border-b border-citadel-blue/10 bg-sky-mist/30 px-4 py-3 sm:px-5">
+                <h3 class="font-bold text-graphite">{item.simulation.name}</h3>
+              </header>
+
+              <section class="p-4 sm:p-5">
+                <h4 class="mb-3 text-sm font-bold text-graphite">Zones</h4>
+                <div class="cozy-scrollbar overflow-x-auto rounded-xl border border-warm-stone/20">
+                  <table class="min-w-[98rem] w-full text-sm">
+                    <thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50">
+                      <tr>
+                        <th class="p-3">Thermal zone</th>
+                        <th class="p-3">Floor area</th>
+                        <th class="p-3">Net wall area</th>
+                        <th class="p-3">Air volume</th>
+                        <th class="p-3">Openable windows</th>
+                        <th class="p-3">Openable window area</th>
+                        <th class="p-3">Mean occupants · weekdays 08:00–22:00</th>
+                        <th class="p-3">Mean CO₂ setpoint · weekdays 08:00–22:00</th>
+                        <th class="p-3">PPFD</th>
+                        <th class="p-3">Total leaf area</th>
+                        <th class="p-3">Mean PARleaf</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <Show
+                        when={zones.length > 0}
+                        fallback={
+                          <tr>
+                            <td class="p-3 text-graphite/55" colSpan={11}>
+                              No thermal-zone data is available for this simulation.
+                            </td>
+                          </tr>
+                        }
+                      >
+                        <For each={zones}>
+                          {([zoneName, zone]) => (
+                            <tr class="border-t border-warm-stone/10">
+                              <td class="p-3 font-semibold text-graphite">{zoneName}</td>
+                              <td class="whitespace-nowrap p-3">{valueWithUnit(zone.floor_area_m2, "m²")}</td>
+                              <td class="whitespace-nowrap p-3">{valueWithUnit(zone.net_wall_area_m2, "m²")}</td>
+                              <td class="whitespace-nowrap p-3">{valueWithUnit(zone.air_volume_m3, "m³")}</td>
+                              <td class="whitespace-nowrap p-3">{typeof zone.openable_window_count === "number" ? `${Math.round(zone.openable_window_count)} windows` : "—"}</td>
+                              <td class="whitespace-nowrap p-3">{valueWithUnit(zone.openable_window_area_m2, "m²")}</td>
+                              <td class="whitespace-nowrap p-3">{valueWithUnit(zone.meanOccupantsWeekdays08To22, "people")}</td>
+                              <td class="whitespace-nowrap p-3">{valueWithUnit(zone.meanCo2SetpointPpmWeekdays08To22, "ppm")}</td>
+                              <td class="whitespace-nowrap p-3">{scientificValue(plantConfiguration?.ppfdUmolM2S, "μmol·m⁻²·s⁻¹")}</td>
+                              <td class="whitespace-nowrap p-3">{valueWithUnit(zone.totalLeafAreaM2, "m²")}</td>
+                              <td class="whitespace-nowrap p-3">{scientificValue(plantConfiguration?.meanParLeafUmolM2S, "μmol·m⁻²·s⁻¹")}</td>
+                            </tr>
+                          )}
+                        </For>
+                      </Show>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="border-t border-warm-stone/10 px-4 pb-4 sm:px-5 sm:pb-5">
+                <h4 class="mb-3 text-sm font-bold text-graphite">Whole building</h4>
+                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  <ZoneOverviewMetric
+                    label="Total floor area"
+                    value={valueWithUnit(metrics.totalFloorAreaM2, "m²")}
+                  />
+                  <ZoneOverviewMetric
+                    label="Net wall area"
+                    value={valueWithUnit(metrics.totalNetWallAreaM2, "m²")}
+                  />
+                  <ZoneOverviewMetric
+                    label="Total air volume"
+                    value={valueWithUnit(metrics.totalVolumeM3, "m³")}
+                  />
+                  <ZoneOverviewMetric
+                    label="Total openable windows"
+                    value={typeof metrics.totalOpenableWindowCount === "number"
+                      ? `${Math.round(metrics.totalOpenableWindowCount)} windows`
+                      : "—"}
+                  />
+                  <ZoneOverviewMetric
+                    label="Total openable window area"
+                    value={valueWithUnit(metrics.totalOpenableWindowAreaM2, "m²")}
+                  />
+                  <ZoneOverviewMetric
+                    label="Total leaf area"
+                    value={valueWithUnit(metrics.totalLeafAreaM2, "m²")}
+                  />
+                  <ZoneOverviewMetric
+                    label="Mean occupants · weekdays 08:00–22:00"
+                    value={valueWithUnit(metrics.meanOccupantsWeekdays08To22, "people")}
+                  />
+                </div>
+              </section>
+            </article>
+          );
+        }}
+      </For>
+    </div>
+  );
+}
+
+function ZoneOverviewMetric(props: { label: string; value: string }) {
+  return (
+    <div class="rounded-xl border border-warm-stone/20 bg-sky-mist/10 px-3 py-3">
+      <p class="text-[0.65rem] font-semibold uppercase tracking-wide text-graphite/50">
+        {props.label}
+      </p>
+      <p class="mt-1 font-bold text-graphite">{props.value}</p>
+    </div>
   );
 }
 
@@ -1235,25 +1336,48 @@ function deltaOutdoorAirFractionOption(
   };
 }
 
-type ThermalZoneMetric = "temperature" | "humidity";
+type ThermalZoneMetric = "temperature" | "relativeHumidity";
 type ThermalZoneMetricField = "zone_air_temp_c" | "relative_humidity_percent";
 
 function thermalZoneMetricConfig(metric: ThermalZoneMetric) {
-  return metric === "temperature"
-    ? {
-        field: "zone_air_temp_c" as const,
-        label: "Zone air temperature",
-        unit: "°C",
-        deltaUnit: "°C",
-        deltaAxis: "Δ zone air temperature [°C]",
-      }
-    : {
-        field: "relative_humidity_percent" as const,
-        label: "Relative humidity",
-        unit: "%",
-        deltaUnit: "percentage points",
-        deltaAxis: "Δ relative humidity [percentage points]",
-      };
+  if (metric === "temperature") {
+    return {
+      field: "zone_air_temp_c" as const,
+      label: "Zone air temperature",
+      unit: "°C",
+      deltaUnit: "°C",
+      deltaAxis: "Zone air temperature change vs baseline [°C]",
+      deltaDescription: "Positive values mean the compared simulation is warmer than the baseline.",
+      differenceLabel: "Δ vs baseline",
+    };
+  }
+  if (metric === "relativeHumidity") {
+    return {
+      field: "relative_humidity_percent" as const,
+      label: "Relative humidity",
+      unit: "%",
+      deltaUnit: "%",
+      deltaAxis: "Relative humidity difference from baseline [%]",
+      deltaDescription: "Compared relative humidity minus baseline relative humidity at matching timestamps.",
+      differenceLabel: "Δ RH (%)",
+    };
+  }
+  return {
+    field: "zone_air_temp_c" as const,
+    label: "Zone air temperature",
+    unit: "°C",
+    deltaUnit: "°C",
+    deltaAxis: "Zone air temperature change vs baseline [°C]",
+    deltaDescription: "Positive values mean the compared simulation is warmer than the baseline.",
+    differenceLabel: "Δ vs baseline",
+  };
+}
+
+function zoneMetricDifference(
+  baselineValue: number,
+  comparedValue: number,
+): number | null {
+  return comparedValue - baselineValue;
 }
 
 function zoneMetricValue(
@@ -1262,7 +1386,8 @@ function zoneMetricValue(
   field: ThermalZoneMetricField,
 ): number | null {
   const value = timestep?.results?.zone_results?.[zone]?.[field];
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return value;
 }
 
 function zoneMetricOption(
@@ -1313,7 +1438,10 @@ function deltaZoneMetricOption(
         const value = zoneMetricValue(timestep, zone, field);
         const baselineValue = baselineByTime.get(timestamp);
         return Number.isFinite(timestamp) && value !== null && baselineValue !== undefined
-          ? [[timestamp, baselineValue - value]]
+          ? (() => {
+              const difference = zoneMetricDifference(baselineValue, value);
+              return difference === null ? [] : [[timestamp, difference]];
+            })()
           : [];
       }),
       markLine: index === 0
@@ -1351,7 +1479,10 @@ function pairedZoneMetricDeltas(
     const value = zoneMetricValue(timestep, zone, field);
     const baselineValue = baselineByTime.get(timestamp);
     return Number.isFinite(timestamp) && value !== null && baselineValue !== undefined
-      ? [baselineValue - value]
+      ? (() => {
+          const difference = zoneMetricDifference(baselineValue, value);
+          return difference === null ? [] : [difference];
+        })()
       : [];
   });
 }
@@ -1364,16 +1495,58 @@ function ThermalZoneMetricComparisonView(props: {
 }) {
   const config = () => thermalZoneMetricConfig(props.metric);
   const baseline = () => props.compared.find((item) => item.simulation.id === props.baseline.id);
+  const hasData = () => props.compared.some((item) =>
+    item.timesteps.some((timestep) => zoneMetricValue(timestep, props.zone, config().field) !== null),
+  );
   const summaries = () => props.compared.map((item) => ({
     item,
     values: summarize(item.timesteps.map((timestep) => zoneMetricValue(timestep, props.zone, config().field))),
     deltas: summarize(pairedZoneMetricDeltas(baseline(), item, props.zone, config().field)),
   }));
   const display = (value: number | null | undefined, unit = config().unit) =>
-    typeof value === "number" && Number.isFinite(value) ? `${number(value)} ${unit}` : "—";
+    typeof value === "number" && Number.isFinite(value)
+      ? `${number(value)}\u00a0${unit}`
+      : "—";
+  const summaryTable = () => (
+    <section>
+      <h3 class="mb-3 font-bold text-graphite">Summary metrics</h3>
+      <div class="cozy-scrollbar overflow-x-auto rounded-2xl border border-warm-stone/20">
+        <table class="min-w-full text-sm">
+          <thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50">
+            <tr>
+              <th class="p-3">Simulation</th><th class="p-3">Mean</th><th class="p-3">Maximum</th><th class="p-3">Minimum</th>
+              <th class="p-3">Mean {config().differenceLabel}</th><th class="p-3">Maximum {config().differenceLabel}</th><th class="p-3">Minimum {config().differenceLabel}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <For each={summaries()}>
+              {(summary) => (
+                <tr class="border-t border-warm-stone/10">
+                  <td class="p-3 font-semibold text-graphite">{summary.item.simulation.name}{summary.item.simulation.id === props.baseline.id ? " · baseline" : ""}</td>
+                  <td class="whitespace-nowrap p-3">{display(summary.values?.mean)}</td><td class="whitespace-nowrap p-3">{display(summary.values?.max)}</td><td class="whitespace-nowrap p-3">{display(summary.values?.min)}</td>
+                  <td class="whitespace-nowrap p-3">{summary.item.simulation.id === props.baseline.id ? display(0, config().deltaUnit) : display(summary.deltas?.mean, config().deltaUnit)}</td>
+                  <td class="whitespace-nowrap p-3">{summary.item.simulation.id === props.baseline.id ? display(0, config().deltaUnit) : display(summary.deltas?.max, config().deltaUnit)}</td>
+                  <td class="whitespace-nowrap p-3">{summary.item.simulation.id === props.baseline.id ? display(0, config().deltaUnit) : display(summary.deltas?.min, config().deltaUnit)}</td>
+                </tr>
+              )}
+            </For>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
 
   return (
+    <Show
+      when={hasData()}
+      fallback={
+        <p class="rounded-xl border border-dashed border-warm-stone/30 bg-sky-mist/10 p-4 text-sm text-graphite/60">
+          {`${config().label} data is not available for this zone in the selected simulations.`}
+        </p>
+      }
+    >
     <div class="space-y-5">
+      {summaryTable()}
       <Chart title={`${props.zone} · ${config().label}`}>
         <EChart option={zoneMetricOption(props.compared, props.zone, config().field, config().unit)} class="h-[26rem] w-full sm:h-[30rem]" />
       </Chart>
@@ -1382,7 +1555,7 @@ function ThermalZoneMetricComparisonView(props: {
           <div class="mb-3">
             <h3 class="font-bold text-graphite">Difference against baseline</h3>
             <p class="mt-1 text-xs text-graphite/50">
-              Values are baseline minus the compared simulation, matched by timestamp. Relative-humidity differences are percentage points.
+              {config().deltaDescription} Values are matched by timestamp.
             </p>
           </div>
           <Chart title={`${props.zone} · difference from baseline`}>
@@ -1390,33 +1563,8 @@ function ThermalZoneMetricComparisonView(props: {
           </Chart>
         </section>
       </Show>
-      <section>
-        <h3 class="mb-3 font-bold text-graphite">Summary metrics</h3>
-        <div class="cozy-scrollbar overflow-x-auto rounded-2xl border border-warm-stone/20">
-          <table class="min-w-full text-sm">
-            <thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50">
-              <tr>
-                <th class="p-3">Simulation</th><th class="p-3">Mean</th><th class="p-3">Maximum</th><th class="p-3">Minimum</th>
-                <th class="p-3">Mean Δ vs baseline</th><th class="p-3">Maximum Δ vs baseline</th><th class="p-3">Minimum Δ vs baseline</th>
-              </tr>
-            </thead>
-            <tbody>
-              <For each={summaries()}>
-                {(summary) => (
-                  <tr class="border-t border-warm-stone/10">
-                    <td class="p-3 font-semibold text-graphite">{summary.item.simulation.name}{summary.item.simulation.id === props.baseline.id ? " · baseline" : ""}</td>
-                    <td class="p-3">{display(summary.values?.mean)}</td><td class="p-3">{display(summary.values?.max)}</td><td class="p-3">{display(summary.values?.min)}</td>
-                    <td class="p-3">{summary.item.simulation.id === props.baseline.id ? display(0, config().deltaUnit) : display(summary.deltas?.mean, config().deltaUnit)}</td>
-                    <td class="p-3">{summary.item.simulation.id === props.baseline.id ? display(0, config().deltaUnit) : display(summary.deltas?.max, config().deltaUnit)}</td>
-                    <td class="p-3">{summary.item.simulation.id === props.baseline.id ? display(0, config().deltaUnit) : display(summary.deltas?.min, config().deltaUnit)}</td>
-                  </tr>
-                )}
-              </For>
-            </tbody>
-          </table>
-        </div>
-      </section>
     </div>
+    </Show>
   );
 }
 
@@ -1433,14 +1581,107 @@ function zoneCo2Option(
   );
 }
 
-function zoneOperativeTemperatureOption(
-  compared: ComparedSimulation[],
-  zone: string,
-): EChartsOption {
-  return lineOption(compared, "°C", (item, index) => {
-    const result = item.timesteps[index]?.results?.zone_results?.[zone];
-    return result?.operative_temperature_c ?? null;
-  });
+function Co2AverageComparisonTable(props: {
+  baseline: SimulationReference;
+  comparisons: Array<{
+    comparison: ScenarioComparison;
+    zone: ThermalZoneComparison;
+  }>;
+}) {
+  const baselineSummary = () => props.comparisons[0]?.zone.summary;
+  const rows = () => [
+    {
+      simulation: props.baseline.name,
+      baseline: true,
+      all: baselineSummary()?.averageCo2?.baselinePpm,
+      daytime: baselineSummary()?.daytimeWeekdayAverageCo2?.baselinePpm,
+      nighttime: baselineSummary()?.nightWeekdayAverageCo2?.baselinePpm,
+      allDifference: 0,
+      daytimeDifference: 0,
+      nighttimeDifference: 0,
+    },
+    ...props.comparisons.map(({ comparison, zone }) => ({
+      simulation: comparison.simulation.name,
+      baseline: false,
+      all: zone.summary.averageCo2?.comparedPpm,
+      daytime: zone.summary.daytimeWeekdayAverageCo2?.comparedPpm,
+      nighttime: zone.summary.nightWeekdayAverageCo2?.comparedPpm,
+      allDifference: zone.summary.averageCo2?.differencePercent,
+      daytimeDifference:
+        zone.summary.daytimeWeekdayAverageCo2?.differencePercent,
+      nighttimeDifference:
+        zone.summary.nightWeekdayAverageCo2?.differencePercent,
+    })),
+  ];
+  const ppm = (value: number | null | undefined) =>
+    typeof value === "number" && Number.isFinite(value)
+      ? `${number(value)} ppm`
+      : "—";
+  const percent = (value: number | null | undefined) =>
+    typeof value === "number" && Number.isFinite(value)
+      ? `${value > 0 ? "+" : ""}${number(value)} %`
+      : "—";
+
+  return (
+    <section class="overflow-hidden rounded-2xl border border-warm-stone/20 bg-cloud-white">
+      <div class="border-b border-citadel-blue/10 bg-sky-mist/30 px-4 py-3 sm:px-5">
+        <h3 class="font-bold text-graphite">Average CO₂ comparison</h3>
+        <p class="mt-1 text-xs text-graphite/50">
+          Average zone concentration and percentage change from baseline. Negative percentages mean lower CO₂ in the compared simulation.
+        </p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[60rem] border-separate border-spacing-0 text-left text-xs">
+          <thead class="bg-sky-mist/25 text-graphite/55">
+            <tr>
+              <th rowSpan={2} class="border-b border-warm-stone/20 p-3 font-bold">
+                Simulation
+              </th>
+              <th colSpan={2} class="border-b border-warm-stone/20 p-3 text-center font-bold">
+                All hours
+              </th>
+              <th colSpan={2} class="border-b border-warm-stone/20 p-3 text-center font-bold">
+                Weekdays · 08:00–22:00
+              </th>
+              <th colSpan={2} class="border-b border-warm-stone/20 p-3 text-center font-bold">
+                Weekdays · 22:00–08:00
+              </th>
+            </tr>
+            <tr>
+              <th class="border-b border-warm-stone/20 p-3 font-semibold">Mean CO₂</th>
+              <th class="border-b border-warm-stone/20 p-3 font-semibold">Δ vs baseline</th>
+              <th class="border-b border-warm-stone/20 p-3 font-semibold">Mean CO₂</th>
+              <th class="border-b border-warm-stone/20 p-3 font-semibold">Δ vs baseline</th>
+              <th class="border-b border-warm-stone/20 p-3 font-semibold">Mean CO₂</th>
+              <th class="border-b border-warm-stone/20 p-3 font-semibold">Δ vs baseline</th>
+            </tr>
+          </thead>
+          <tbody>
+            <For each={rows()}>
+              {(row) => (
+                <tr classList={{ "bg-sky-mist/10": row.baseline }}>
+                  <th class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">
+                    {row.simulation}
+                    <Show when={row.baseline}>
+                      <span class="ml-2 text-[0.62rem] font-bold uppercase tracking-wide text-citadel-blue">
+                        Baseline
+                      </span>
+                    </Show>
+                  </th>
+                  <td class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">{ppm(row.all)}</td>
+                  <td class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">{percent(row.allDifference)}</td>
+                  <td class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">{ppm(row.daytime)}</td>
+                  <td class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">{percent(row.daytimeDifference)}</td>
+                  <td class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">{ppm(row.nighttime)}</td>
+                  <td class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">{percent(row.nighttimeDifference)}</td>
+                </tr>
+              )}
+            </For>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
 }
 
 function zoneWindowOption(
@@ -1504,50 +1745,6 @@ function deltaCo2Option(
   };
 }
 
-function deltaOperativeTemperatureOption(
-  baseline: SimulationReference,
-  comparisons: Array<{
-    comparison: ScenarioComparison;
-    zone: ThermalZoneComparison;
-  }>,
-): EChartsOption {
-  const seriesNames = comparisons.map(
-    ({ comparison }) => `${baseline.name} − ${comparison.simulation.name}`,
-  );
-  return {
-    color: comparisons.map((_, index) => colors[(index + 1) % colors.length]),
-    tooltip: { trigger: "axis" },
-    legend: {
-      data: seriesNames,
-      bottom: 0,
-      type: "scroll",
-      selectedMode: true,
-    },
-    grid: { left: 62, right: 18, top: 24, bottom: 108 },
-    xAxis: { type: "time", axisLabel: { hideOverlap: true } },
-    yAxis: { type: "value", name: "Δ operative temperature [°C]" },
-    dataZoom: [{ type: "inside" }, { type: "slider", height: 18, bottom: 38 }],
-    series: comparisons.map(({ zone }, index) => ({
-      name: seriesNames[index],
-      type: "line",
-      showSymbol: false,
-      data: (zone.deltaOperativeTemperatureSeries ?? []).map((point) => [
-        point.timestamp,
-        point.temperatureC,
-      ]),
-      markLine:
-        index === 0
-          ? {
-              symbol: "none",
-              silent: true,
-              lineStyle: { color: "#8B7D73", type: "dashed" },
-              data: [{ yAxis: 0 }],
-            }
-          : undefined,
-    })),
-  };
-}
-
 function Co2SummaryComparisonView(props: {
   baseline: SimulationReference;
   comparisons: Array<{
@@ -1580,12 +1777,6 @@ function Co2SummaryComparisonView(props: {
     );
     return simulation?.analytics.zones[zoneName()]?.[field] ?? null;
   };
-  const meanPeopleCo2GenerationPpmPerHour = (simulationId: string) => {
-    const simulation = props.comparedSimulations.find(
-      (candidate) => candidate.simulation.id === simulationId,
-    );
-    return simulation?.analytics.zones[zoneName()]?.meanPeopleCo2GenerationPpmPerHour ?? null;
-  };
   const zoneRows = () => [
     {
       label: "Floor area",
@@ -1603,26 +1794,8 @@ function Co2SummaryComparisonView(props: {
         return typeof value === "number" ? `${number(value)} m³` : "—";
       },
     },
-    {
-      label: "Mean people CO₂ generation · 08:00–10:00, weekdays",
-      description:
-        "Mean CO₂ generation from occupied people only, calculated from the EnergyPlus People CO₂ factor and the zone air volume. Zero-occupancy timesteps are excluded.",
-      value: ({ comparison }: (typeof props.comparisons)[number]) => {
-        const value = meanPeopleCo2GenerationPpmPerHour(
-          comparison.simulation.id,
-        );
-        return typeof value === "number" ? `${number(value)} ppm/h` : "—";
-      },
-    },
   ];
   const co2Rows = () => [
-    {
-      label: "Mean ΔCO₂",
-      description:
-        "Average of baseline CO₂ minus compared CO₂ across the full effective range.",
-      value: ({ zone }: (typeof props.comparisons)[number]) =>
-        `${number(zone.summary.meanDeltaCo2Ppm)} ppm`,
-    },
     {
       label: "Maximum ΔCO₂",
       description:
@@ -1633,88 +1806,55 @@ function Co2SummaryComparisonView(props: {
     {
       label: "Minimum ΔCO₂",
       description:
-        "Smallest, most negative baseline-minus-compared CO₂ difference during the full effective range.",
+        "Smallest baseline-minus-compared CO₂ difference during the full effective range.",
       value: ({ zone }: (typeof props.comparisons)[number]) =>
         `${number(zone.summary.minDeltaCo2Ppm)} ppm`,
     },
     {
       label: "Mean ΔCO₂",
       description:
-        "Average of baseline CO₂ minus compared CO₂ across the full effective range.",
+        "Average baseline-minus-compared CO₂ difference during the full effective range.",
       value: ({ zone }: (typeof props.comparisons)[number]) =>
         `${number(zone.summary.meanDeltaCo2Ppm)} ppm`,
     },
     {
-      label: "Mean ΔCO₂ · 08:00–10:00, weekdays",
+      label: "Maximum ΔCO₂ · 08:00–22:00, weekdays",
       description:
-        "Average baseline-minus-compared CO₂ difference from Monday to Friday between 08:00 and 10:00.",
+        "Largest baseline-minus-compared CO₂ difference from Monday to Friday between 08:00 and 22:00.",
       value: ({ zone }: (typeof props.comparisons)[number]) =>
-        typeof zone.summary.meanMorningWeekdayDeltaCo2Ppm === "number"
-          ? `${number(zone.summary.meanMorningWeekdayDeltaCo2Ppm)} ppm`
+        typeof zone.summary.maxDaytimeWeekdayDeltaCo2Ppm === "number"
+          ? `${number(zone.summary.maxDaytimeWeekdayDeltaCo2Ppm)} ppm`
           : "—",
     },
     {
-      label: "Maximum ΔCO₂ · 08:00–10:00, weekdays",
+      label: "Minimum ΔCO₂ · 08:00–22:00, weekdays",
       description:
-        "Largest baseline-minus-compared CO₂ difference from Monday to Friday between 08:00 and 10:00.",
+        "Smallest baseline-minus-compared CO₂ difference from Monday to Friday between 08:00 and 22:00.",
       value: ({ zone }: (typeof props.comparisons)[number]) =>
-        typeof zone.summary.maxMorningWeekdayDeltaCo2Ppm === "number"
-          ? `${number(zone.summary.maxMorningWeekdayDeltaCo2Ppm)} ppm`
+        typeof zone.summary.minDaytimeWeekdayDeltaCo2Ppm === "number"
+          ? `${number(zone.summary.minDaytimeWeekdayDeltaCo2Ppm)} ppm`
           : "—",
     },
     {
-      label: "Minimum ΔCO₂ · 08:00–10:00, weekdays",
+      label: "Mean ΔCO₂ · 08:00–22:00, weekdays",
       description:
-        "Lowest baseline-minus-compared CO₂ difference from Monday to Friday between 08:00 and 10:00.",
+        "Average baseline-minus-compared CO₂ difference from Monday to Friday between 08:00 and 22:00.",
       value: ({ zone }: (typeof props.comparisons)[number]) =>
-        typeof zone.summary.minMorningWeekdayDeltaCo2Ppm === "number"
-          ? `${number(zone.summary.minMorningWeekdayDeltaCo2Ppm)} ppm`
+        typeof zone.summary.meanDaytimeWeekdayDeltaCo2Ppm === "number"
+          ? `${number(zone.summary.meanDaytimeWeekdayDeltaCo2Ppm)} ppm`
           : "—",
     },
     {
-      label: "Mean ΔCO₂ rate · 08:00–10:00, weekdays",
+      label: "Mean ΔCO₂ · 22:00–08:00, weekdays",
       description:
-        "Average timestep-to-timestep change in baseline-minus-compared CO₂ from Monday to Friday between 08:00 and 10:00.",
+        "Average baseline-minus-compared CO₂ difference from Monday to Friday between 22:00 and 08:00.",
       value: ({ zone }: (typeof props.comparisons)[number]) =>
-        typeof zone.summary.meanMorningWeekdayDeltaCo2RatePpmPerHour === "number"
-          ? `${number(zone.summary.meanMorningWeekdayDeltaCo2RatePpmPerHour)} ppm/h`
-          : "—",
-    },
-    {
-      label: "Mean ΔCO₂ rate · 22:00–08:00, weekdays",
-      description:
-        "Average timestep-to-timestep change in baseline-minus-compared CO₂ from Monday to Friday between 22:00 and 08:00.",
-      value: ({ zone }: (typeof props.comparisons)[number]) =>
-        typeof zone.summary.meanNightWeekdayDeltaCo2RatePpmPerHour === "number"
-          ? `${number(zone.summary.meanNightWeekdayDeltaCo2RatePpmPerHour)} ppm/h`
+        typeof zone.summary.meanNightWeekdayDeltaCo2Ppm === "number"
+          ? `${number(zone.summary.meanNightWeekdayDeltaCo2Ppm)} ppm`
           : "—",
     },
   ];
   const plantRows = () => [
-    {
-      label: "Mean ΔCO₂ · lights on (08:00–22:00, weekdays)",
-      description:
-        "Average baseline-minus-compared CO₂ difference from Monday to Friday while the selected plant lighting is on.",
-      value: ({ comparison, zone }: (typeof props.comparisons)[number]) => {
-        const configuration = configurationFor(comparison.simulation.id);
-        return configuration?.enabled &&
-          typeof zone.summary.meanLightsOnDeltaCo2Ppm === "number"
-          ? `${number(zone.summary.meanLightsOnDeltaCo2Ppm)} ppm`
-          : "—";
-      },
-    },
-    {
-      label: "Mean ΔCO₂ · lights off (22:00–08:00, weekdays)",
-      description:
-        "Average baseline-minus-compared CO₂ difference from Monday to Friday while the selected plant lighting is off.",
-      value: ({ comparison, zone }: (typeof props.comparisons)[number]) => {
-        const configuration = configurationFor(comparison.simulation.id);
-        return configuration?.enabled &&
-          typeof zone.summary.meanLightsOffDeltaCo2Ppm === "number"
-          ? `${number(zone.summary.meanLightsOffDeltaCo2Ppm)} ppm`
-          : "—";
-      },
-    },
     {
       label: "PPFD",
       description:
@@ -1726,7 +1866,7 @@ function Co2SummaryComparisonView(props: {
         ),
     },
     {
-      label: "Total leaf area · selected zone",
+      label: "Total leaf area",
       description:
         "Total modelled leaf area scaled to the green-wall area installed in the selected thermal zone.",
       value: ({ comparison }: (typeof props.comparisons)[number]) =>
@@ -1832,7 +1972,7 @@ function Co2SummaryComparisonView(props: {
               )}
             </For>
             <SummarySubsectionRow
-              title="Green Wall Analytics"
+              title="Green wall metrics"
               columns={props.comparisons.length + 1}
             />
             <For each={plantRows()}>
@@ -1867,191 +2007,6 @@ function Co2SummaryComparisonView(props: {
           {new Date(props.analysisRange.start!).toLocaleString()} –{" "}
           {new Date(props.analysisRange.end!).toLocaleString()}
         </p>
-      </Show>
-    </section>
-  );
-}
-
-function OperativeTemperatureComparisonView(props: {
-  baseline: SimulationReference;
-  comparedSimulations: ComparedSimulation[];
-  comparisons: Array<{
-    comparison: ScenarioComparison;
-    zone: ThermalZoneComparison;
-  }>;
-  zoneName: string;
-}) {
-  const hasOperativeTemperature = () =>
-    props.comparisons.some(
-      ({ zone }) => (zone.deltaOperativeTemperatureSeries?.length ?? 0) > 0,
-    );
-  const rows = () => [
-    {
-      label: "Mean Δ operative temperature",
-      description:
-        "Average baseline-minus-compared operative temperature across the full effective range.",
-      value: ({ zone }: (typeof props.comparisons)[number]) =>
-        scientificValue(
-          zone.operativeTemperatureSummary?.meanDeltaOperativeTemperatureC,
-          "°C",
-        ),
-    },
-    {
-      label: "Maximum Δ operative temperature",
-      description:
-        "Largest baseline-minus-compared operative temperature difference across the full effective range.",
-      value: ({ zone }: (typeof props.comparisons)[number]) =>
-        scientificValue(
-          zone.operativeTemperatureSummary?.maxDeltaOperativeTemperatureC,
-          "°C",
-        ),
-    },
-    {
-      label: "Minimum Δ operative temperature",
-      description:
-        "Smallest baseline-minus-compared operative temperature difference across the full effective range.",
-      value: ({ zone }: (typeof props.comparisons)[number]) =>
-        scientificValue(
-          zone.operativeTemperatureSummary?.minDeltaOperativeTemperatureC,
-          "°C",
-        ),
-    },
-    {
-      label: "Mean Δ operative temperature · 08:00–10:00, weekdays",
-      description:
-        "Average baseline-minus-compared operative temperature from Monday to Friday between 08:00 and 10:00.",
-      value: ({ zone }: (typeof props.comparisons)[number]) =>
-        scientificValue(
-          zone.operativeTemperatureSummary
-            ?.meanMorningWeekdayDeltaOperativeTemperatureC,
-          "°C",
-        ),
-    },
-    {
-      label: "Maximum Δ operative temperature · 08:00–10:00, weekdays",
-      description:
-        "Largest baseline-minus-compared operative temperature difference from Monday to Friday between 08:00 and 10:00.",
-      value: ({ zone }: (typeof props.comparisons)[number]) =>
-        scientificValue(
-          zone.operativeTemperatureSummary
-            ?.maxMorningWeekdayDeltaOperativeTemperatureC,
-          "°C",
-        ),
-    },
-    {
-      label: "Minimum Δ operative temperature · 08:00–10:00, weekdays",
-      description:
-        "Smallest baseline-minus-compared operative temperature difference from Monday to Friday between 08:00 and 10:00.",
-      value: ({ zone }: (typeof props.comparisons)[number]) =>
-        scientificValue(
-          zone.operativeTemperatureSummary
-            ?.minMorningWeekdayDeltaOperativeTemperatureC,
-          "°C",
-        ),
-    },
-  ];
-
-  return (
-    <section>
-      <div class="mb-4">
-        <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-citadel-blue">
-          Thermal comfort indicator
-        </p>
-        <h3 class="mt-1 text-lg font-bold text-graphite">
-          Operative temperature
-        </h3>
-        <p class="mt-1 max-w-3xl text-xs leading-relaxed text-graphite/55">
-          Calculated at every timestep as (zone air temperature + mean radiant
-          temperature) / 2. Positive Δ values mean that the baseline feels
-          warmer than the compared construction set.
-        </p>
-      </div>
-      <Show
-        when={props.zoneName && hasOperativeTemperature()}
-        fallback={
-          <p class="rounded-xl border border-warm-stone/15 bg-warm-stone/5 p-4 text-sm text-graphite/55">
-            Operative-temperature data is not available for this selection.
-            Simulations must be run after the mean-radiant-temperature output is
-            enabled.
-          </p>
-        }
-      >
-        <div class="space-y-5">
-          <Chart title={`${props.zoneName} · operative temperature`}>
-            <EChart
-              option={zoneOperativeTemperatureOption(
-                props.comparedSimulations,
-                props.zoneName,
-              )}
-              class="h-[26rem] w-full sm:h-[30rem]"
-            />
-          </Chart>
-          <Chart title={`${props.zoneName} · Δ operative temperature`}>
-            <EChart
-              option={deltaOperativeTemperatureOption(
-                props.baseline,
-                props.comparisons,
-              )}
-              class="h-[26rem] w-full sm:h-[30rem]"
-            />
-          </Chart>
-          <section class="overflow-x-auto rounded-2xl border border-warm-stone/20 bg-cloud-white">
-            <table class="w-full min-w-[44rem] border-separate border-spacing-0 text-left text-xs">
-              <thead>
-                <tr>
-                  <th class="border-b border-warm-stone/20 p-3 font-bold text-graphite/55">
-                    Metric
-                  </th>
-                  <For each={props.comparisons}>
-                    {({ comparison }, index) => (
-                      <th class="border-b border-warm-stone/20 p-3 align-bottom">
-                        <div
-                          class="pt-3"
-                          style={{
-                            "border-top": `3px solid ${colors[(index() + 1) % colors.length]}`,
-                          }}
-                        >
-                          <p class="font-bold text-graphite">
-                            {comparison.simulation.name}
-                          </p>
-                        </div>
-                      </th>
-                    )}
-                  </For>
-                </tr>
-              </thead>
-              <tbody>
-                <SummarySubsectionRow
-                  title="Operative temperature metrics"
-                  columns={props.comparisons.length + 1}
-                />
-                <For each={rows()}>
-                  {(row) => (
-                    <tr>
-                      <th
-                        class="cursor-help border-b border-warm-stone/10 bg-sky-mist/15 p-3 font-semibold text-graphite/60"
-                        title={row.description}
-                      >
-                        {row.label}
-                      </th>
-                      <For each={props.comparisons}>
-                        {(entry) => (
-                          <td class="border-b border-warm-stone/10 p-3 font-semibold text-graphite">
-                            {row.value(entry)}
-                          </td>
-                        )}
-                      </For>
-                    </tr>
-                  )}
-                </For>
-              </tbody>
-            </table>
-          </section>
-          <p class="text-[0.68rem] text-graphite/45">
-            Working-hours metrics use Monday–Friday, 08:00–10:00 only. Saturday
-            and Sunday are excluded.
-          </p>
-        </div>
       </Show>
     </section>
   );

@@ -36,9 +36,6 @@ class Co2Data:
     delta_points: dict[str, dict[str, list[dict[str, Any]]]] = field(
         default_factory=dict
     )
-    previous_delta_values: dict[tuple[str, str], tuple[datetime, float]] = field(
-        default_factory=dict
-    )
 
 
 class Co2Result(AnalyticsResult):
@@ -114,41 +111,13 @@ def _calculate_delta(
 
     baseline_ppm = data.baseline_values.get(key)
     delta_ppm = baseline_ppm - ppm if baseline_ppm is not None and ppm is not None else None
-    previous = data.previous_delta_values.get((input.simulation_id, zone_name))
-    if delta_ppm is not None and input.timestamp is not None:
-        data.previous_delta_values[(input.simulation_id, zone_name)] = (
-            input.timestamp,
-            delta_ppm,
-        )
-
     data.delta_points.setdefault(input.simulation_id, {}).setdefault(zone_name, []).append(
         {
             "timestamp": timestamp.replace("+00:00", "Z"),
             "deltaCo2Ppm": delta_ppm,
-            "deltaCo2RatePpmPerHour": _rate_per_hour(
-                input.timestamp,
-                delta_ppm,
-                previous,
-            ),
+            "baselineCo2Ppm": baseline_ppm,
+            "comparedCo2Ppm": ppm,
         }
-    )
-
-
-def _rate_per_hour(
-    timestamp: datetime | None,
-    delta_ppm: float | None,
-    previous: tuple[datetime, float] | None,
-) -> float | None:
-    """Return the change in delta CO2 per hour, or null when unavailable."""
-    if timestamp is None or delta_ppm is None or previous is None:
-        return None
-
-    previous_timestamp, previous_delta_ppm = previous
-    elapsed_hours = (timestamp - previous_timestamp).total_seconds() / 3_600
-    return (
-        (delta_ppm - previous_delta_ppm) / elapsed_hours
-        if elapsed_hours > 0
-        else None
     )
 
 
@@ -160,11 +129,6 @@ def _comparison_result(data: Co2Data) -> dict[str, Any]:
     for simulation_id, zones in data.delta_points.items():
         thermal_zones: list[dict[str, Any]] = []
         for zone_name, points in zones.items():
-            valid_deltas = [
-                point["deltaCo2Ppm"]
-                for point in points
-                if point["deltaCo2Ppm"] is not None
-            ]
             # Simulation timestamps represent the simulated clock. Keep the
             # established weekday windows rather than applying a local timezone.
             weekday_points = [
@@ -172,7 +136,6 @@ def _comparison_result(data: Co2Data) -> dict[str, Any]:
                 for point in points
             ]
             weekday_points = [item for item in weekday_points if item[0].weekday() < 5]
-            morning = [point for time, point in weekday_points if 8 <= time.hour < 10]
             night = [point for time, point in weekday_points if time.hour >= 22 or time.hour < 8]
             lights_on = [point for time, point in weekday_points if 8 <= time.hour < 22]
 
@@ -182,20 +145,40 @@ def _comparison_result(data: Co2Data) -> dict[str, Any]:
             def mean(items: list[float]) -> float | None:
                 return sum(items) / len(items) if items else None
 
-            morning_deltas = values(morning, "deltaCo2Ppm")
+            daytime_deltas = values(lights_on, "deltaCo2Ppm")
+            night_deltas = values(night, "deltaCo2Ppm")
+            valid_deltas = values(points, "deltaCo2Ppm")
+
+            def average_comparison(
+                items: list[dict[str, Any]],
+            ) -> dict[str, float | None]:
+                paired_points = [
+                    item
+                    for item in items
+                    if item.get("baselineCo2Ppm") is not None
+                    and item.get("comparedCo2Ppm") is not None
+                ]
+                baseline_values = [item["baselineCo2Ppm"] for item in paired_points]
+                compared_values = [item["comparedCo2Ppm"] for item in paired_points]
+                baseline_mean = mean(baseline_values)
+                compared_mean = mean(compared_values)
+                difference_percent = (
+                    (compared_mean - baseline_mean) / baseline_mean * 100.0
+                    if baseline_mean not in (None, 0.0) and compared_mean is not None
+                    else None
+                )
+                return {
+                    "baselinePpm": baseline_mean,
+                    "comparedPpm": compared_mean,
+                    "differencePercent": difference_percent,
+                }
+
             timestamps.extend(point["timestamp"] for point in points)
             thermal_zones.append(
                 {
                     "zoneName": zone_name,
                     "deltaCo2Series": [
                         {"timestamp": point["timestamp"], "ppm": point["deltaCo2Ppm"]}
-                        for point in points
-                    ],
-                    "deltaCo2RateSeries": [
-                        {
-                            "timestamp": point["timestamp"],
-                            "ppmPerHour": point["deltaCo2RatePpmPerHour"],
-                        }
                         for point in points
                     ],
                     "summary": {
@@ -206,13 +189,13 @@ def _comparison_result(data: Co2Data) -> dict[str, Any]:
                         ),
                         "maxDeltaCo2Ppm": max(valid_deltas) if valid_deltas else None,
                         "minDeltaCo2Ppm": min(valid_deltas) if valid_deltas else None,
-                        "meanMorningWeekdayDeltaCo2Ppm": mean(morning_deltas),
-                        "maxMorningWeekdayDeltaCo2Ppm": max(morning_deltas) if morning_deltas else None,
-                        "minMorningWeekdayDeltaCo2Ppm": min(morning_deltas) if morning_deltas else None,
-                        "meanMorningWeekdayDeltaCo2RatePpmPerHour": mean(values(morning, "deltaCo2RatePpmPerHour")),
-                        "meanNightWeekdayDeltaCo2RatePpmPerHour": mean(values(night, "deltaCo2RatePpmPerHour")),
-                        "meanLightsOnDeltaCo2Ppm": mean(values(lights_on, "deltaCo2Ppm")),
-                        "meanLightsOffDeltaCo2Ppm": mean(values(night, "deltaCo2Ppm")),
+                        "meanDaytimeWeekdayDeltaCo2Ppm": mean(daytime_deltas),
+                        "maxDaytimeWeekdayDeltaCo2Ppm": max(daytime_deltas) if daytime_deltas else None,
+                        "minDaytimeWeekdayDeltaCo2Ppm": min(daytime_deltas) if daytime_deltas else None,
+                        "meanNightWeekdayDeltaCo2Ppm": mean(night_deltas),
+                        "averageCo2": average_comparison(points),
+                        "daytimeWeekdayAverageCo2": average_comparison(lights_on),
+                        "nightWeekdayAverageCo2": average_comparison(night),
                     },
                 }
             )

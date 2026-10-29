@@ -1,9 +1,12 @@
+import os
 from pathlib import Path
 
 from cosimulator.core.config import settings
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[4]
+PROJECT_ROOT = Path(
+    os.environ.get("COSIMULATOR_PROJECT_ROOT", Path(__file__).resolve().parents[4])
+).resolve()
 
 
 ENERGYPLUS_HOME = settings.energyplus_home

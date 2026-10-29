@@ -37,6 +37,8 @@ def get_simulation_timestep_result(
         state: c_void_p,
         zone_names: set[str],
         simulation_handles: SimulationHandles,
+        net_wall_area_by_zone: dict[str, float] | None = None,
+        openable_window_geometry_by_zone: dict[str, dict[str, float]] | None = None,
 ) -> SimulationTimestepResult:
 
     # ``year()`` exposes the source year of each EPW weather record. Typical
@@ -84,6 +86,8 @@ def get_simulation_timestep_result(
             state=state,
             zone_names=zone_names,
             handle_variables_dict=simulation_handles.zone_internal_variable_handles,
+            net_wall_area_by_zone=net_wall_area_by_zone,
+            openable_window_geometry_by_zone=openable_window_geometry_by_zone,
         ),
 
         # Zone-specific results

@@ -21,7 +21,6 @@ import {
   Plus,
   Save,
   Trash2,
-  X,
 } from "lucide-solid";
 import { z } from "zod";
 import {
@@ -34,6 +33,8 @@ import EditorWorkspace, {
   EditorSidebar,
 } from "../../components/building-dt/EditorWorkspace";
 import EditorNotification from "../../components/building-dt/EditorNotification";
+import ConstructionSetSlotCard from "./ConstructionSetSlotCard";
+import ConstructionAssignmentCard from "./ConstructionAssignmentCard";
 import { constructionSetGroups } from "./constructionSetGroups";
 import {
   addConstructionSet,
@@ -203,7 +204,14 @@ export default function ConstructionSetManager() {
       </EditorSidebar>
 
       <EditorMain>
-        <EditorNotification message={requestError() || message()} error={Boolean(requestError())} onDismiss={() => { setRequestError(""); setMessage(""); }} />
+        <EditorNotification
+          message={requestError() || message()}
+          error={Boolean(requestError())}
+          onDismiss={() => {
+            setRequestError("");
+            setMessage("");
+          }}
+        />
         <Switch>
           <Match when={state.isPending && !state.data}>
             <div class="flex min-h-[28rem] items-center justify-center text-citadel-blue">
@@ -319,10 +327,7 @@ export default function ConstructionSetManager() {
                         const key = field[0];
                         const label = field[1];
                         return (
-                          <article class="relative min-h-36 rounded-2xl border border-warm-stone/20 bg-sky-mist/8 p-4">
-                            <p class="mb-3 text-sm font-bold text-graphite">
-                              {label}
-                            </p>
+                          <ConstructionSetSlotCard label={label}>
                             <Show
                               when={assignments()[key]}
                               fallback={
@@ -341,27 +346,15 @@ export default function ConstructionSetManager() {
                               }
                             >
                               {(assigned) => (
-                                <div class="flex items-start gap-2 rounded-xl border border-citadel-blue/25 bg-citadel-blue/8 p-3">
-                                  <span
-                                    title={assigned()}
-                                    class="min-w-0 flex-1 break-words text-sm font-semibold leading-5 text-graphite"
-                                  >
-                                    {assigned()}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    aria-label={`Remove ${assigned()}`}
-                                    class="flex size-7 shrink-0 items-center justify-center rounded-full bg-citadel-blue text-cloud-white"
-                                    onClick={() =>
-                                      setAssignments((values) => ({
-                                        ...values,
-                                        [key]: "",
-                                      }))
-                                    }
-                                  >
-                                    <X class="size-3.5" />
-                                  </button>
-                                </div>
+                                <ConstructionAssignmentCard
+                                  name={assigned()}
+                                  onRemove={() =>
+                                    setAssignments((values) => ({
+                                      ...values,
+                                      [key]: "",
+                                    }))
+                                  }
+                                />
                               )}
                             </Show>
                             <Show when={openSlot() === key}>
@@ -405,7 +398,7 @@ export default function ConstructionSetManager() {
                                 </For>
                               </div>
                             </Show>
-                          </article>
+                          </ConstructionSetSlotCard>
                         );
                       }}
                     </For>

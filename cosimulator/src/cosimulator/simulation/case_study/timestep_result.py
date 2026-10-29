@@ -19,6 +19,5 @@ class CaseStudyTimestepResult(BaseModel):
 
     def to_persistence_fields(self) -> dict[str, Any]:
         """Return the single validated field owned by this case study."""
-        return {
-            self.persistence_field_name: self.model_dump(mode="json"),
-        }
+        serialized = self.model_dump(mode="json")
+        return {self.persistence_field_name: serialized[self.persistence_field_name]}

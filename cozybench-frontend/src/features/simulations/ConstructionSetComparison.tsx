@@ -1,23 +1,29 @@
-import { BrickWall, ChevronDown, Cuboid, PanelsTopLeft } from "lucide-solid";
+import { BrickWall, PanelsTopLeft, X } from "lucide-solid";
 import { For, Show, createMemo, createSignal } from "solid-js";
+import { constructionSetGroups } from "../construction-sets/constructionSetGroups";
+import ConstructionSetSlotCard from "../construction-sets/ConstructionSetSlotCard";
+import ConstructionAssignmentCard from "../construction-sets/ConstructionAssignmentCard";
 import type {
   ComponentSnapshot,
   SimulationListItem,
 } from "./simulationsService";
 
-type SnapshotKind = "set" | "construction" | "material";
 type DiffStatus = "unchanged" | "changed" | "baseline-only" | "compare-only";
 
-type SnapshotPair = {
+type ConstructionSlot = {
   key: string;
-  name: string;
+  label: string;
+  baselineName: string | null;
+  comparedName: string | null;
   baseline?: ComponentSnapshot;
   compared?: ComponentSnapshot;
   status: DiffStatus;
 };
+type ConstructionSide = "baseline" | "compared";
 
 export default function ConstructionSetComparison(props: {
   simulations: SimulationListItem[];
+  scrollCardsOnly?: boolean;
 }) {
   const scenarios = () => props.simulations.slice(1);
   const [scenarioId, setScenarioId] = createSignal("");
@@ -26,219 +32,310 @@ export default function ConstructionSetComparison(props: {
       scenarios().find((item) => item.id === scenarioId()) ?? scenarios()[0],
   );
   const baseline = () => props.simulations[0];
+  const [activeGroup, setActiveGroup] = createSignal<string>(
+    constructionSetGroups[0].id,
+  );
+  const [activeDropdown, setActiveDropdown] = createSignal<{
+    slotKey: string;
+    side: ConstructionSide;
+  } | null>(null);
+  const group = createMemo(
+    () =>
+      constructionSetGroups.find((item) => item.id === activeGroup()) ??
+      constructionSetGroups[0],
+  );
+  const slots = createMemo(() =>
+    constructionSlots(baseline(), scenario(), group().fields),
+  );
+  const changedCount = (groupId: string) => {
+    const selected = constructionSetGroups.find((item) => item.id === groupId);
+    return selected
+      ? constructionSlots(baseline(), scenario(), selected.fields).filter(
+          (slot) => slot.status !== "unchanged",
+        ).length
+      : 0;
+  };
 
   return (
-    <div class="space-y-5">
+    <div
+      class="min-h-0"
+      classList={{
+        "flex h-full flex-col gap-4": props.scrollCardsOnly,
+        "space-y-6": !props.scrollCardsOnly,
+      }}
+    >
       <Show
-        when={baseline()?.constructionSet && scenario()?.constructionSet}
+        when={baseline()?.constructionSet}
         fallback={
           <p class="rounded-xl bg-warm-stone/5 p-4 text-sm text-graphite/55">
-            Both simulations need a stored construction-set snapshot before
-            their exact configurations can be compared.
+            This simulation has no stored construction-set snapshot.
           </p>
         }
       >
-        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
-          <SnapshotIdentity eyebrow="Baseline" simulation={baseline()} />
-          <span class="hidden text-center text-xs font-bold uppercase tracking-[0.14em] text-graphite/35 md:block">
-            versus
-          </span>
-          <div>
-            <Show when={scenarios().length > 1}>
-              <div class="mb-2 flex flex-wrap justify-end gap-2">
-                <For each={scenarios()}>
+        <div
+          class="gap-5"
+          classList={{
+            "flex min-h-0 flex-1 flex-col": props.scrollCardsOnly,
+            "grid": !props.scrollCardsOnly,
+          }}
+        >
+          <Show when={scenario()}>
+            <section
+              class="space-y-3"
+              classList={{ "shrink-0": props.scrollCardsOnly }}
+            >
+              <div class="flex items-center gap-2">
+                <PanelsTopLeft class="size-4 text-citadel-blue" />
+                <h3 class="text-sm font-bold text-graphite">
+                  Construction Set
+                </h3>
+              </div>
+              <div class="grid gap-6 md:grid-cols-2">
+                <ConstructionSetCard
+                  eyebrow="Baseline"
+                  simulation={baseline()}
+                  snapshot={baseline()?.constructionSet?.constructionSet}
+                  constructionCount={baseline()?.constructionSet?.constructions.length ?? 0}
+                  materialCount={baseline()?.constructionSet?.materials.length ?? 0}
+                />
+                <Show when={scenario()}>
+                  {(compared) => (
+                    <ConstructionSetCard
+                      eyebrow="Compared"
+                      simulation={compared()}
+                      snapshot={compared()?.constructionSet?.constructionSet}
+                      constructionCount={compared()?.constructionSet?.constructions.length ?? 0}
+                      materialCount={compared()?.constructionSet?.materials.length ?? 0}
+                    />
+                  )}
+                </Show>
+              </div>
+            </section>
+          </Show>
+
+          <section
+            class="space-y-3"
+            classList={{ "flex min-h-0 flex-1 flex-col": props.scrollCardsOnly }}
+          >
+            <div class="flex shrink-0 flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <BrickWall class="size-4 text-citadel-blue" />
+                <h3 class="text-sm font-bold text-graphite">Constructions</h3>
+              </div>
+              <Show when={scenarios().length > 1}>
+                <label class="flex items-center gap-2 text-xs font-semibold text-graphite/55">
+                  Compared simulation
+                  <select
+                    value={scenario()?.id ?? ""}
+                    onChange={(event) =>
+                      setScenarioId(event.currentTarget.value)
+                    }
+                    class="max-w-64 rounded-lg border border-warm-stone/25 bg-cloud-white px-3 py-2 text-xs text-graphite"
+                  >
+                    <For each={scenarios()}>
+                      {(item) => <option value={item.id}>{item.name}</option>}
+                    </For>
+                  </select>
+                </label>
+              </Show>
+            </div>
+
+            <div
+              class="space-y-2"
+              classList={{ "flex min-h-0 flex-1 flex-col": props.scrollCardsOnly }}
+            >
+              <nav
+                class="cozy-scrollbar flex shrink-0 gap-1 overflow-x-auto rounded-2xl bg-sky-mist/15 p-2"
+                aria-label="Construction categories"
+              >
+                <For each={constructionSetGroups}>
                   {(item) => (
                     <button
                       type="button"
-                      aria-pressed={scenario()?.id === item.id}
-                      onClick={() => setScenarioId(item.id)}
-                      class="rounded-full border px-3 py-1.5 text-[0.68rem] font-semibold transition"
+                      aria-pressed={activeGroup() === item.id}
+                      onClick={() => setActiveGroup(item.id)}
+                      class="shrink-0 rounded-xl px-3 py-2 text-xs font-semibold transition"
                       classList={{
-                        "border-citadel-blue bg-citadel-blue text-cloud-white":
-                          scenario()?.id === item.id,
-                        "border-warm-stone/25 bg-cloud-white text-graphite/60 hover:border-citadel-blue/45":
-                          scenario()?.id !== item.id,
+                        "bg-cloud-white text-graphite shadow-sm":
+                          activeGroup() === item.id,
+                        "text-graphite/55 hover:bg-cloud-white/60":
+                          activeGroup() !== item.id,
                       }}
                     >
-                      {item.name}
+                      {item.title}
+                      <Show when={scenario()}>
+                        <span class="ml-2 rounded-full bg-citadel-blue/10 px-1.5 py-0.5 text-[0.6rem] text-citadel-blue">
+                          {changedCount(item.id)}
+                        </span>
+                      </Show>
                     </button>
                   )}
                 </For>
-              </div>
-            </Show>
-            <SnapshotIdentity
-              eyebrow="Compared simulation"
-              simulation={scenario()}
-            />
-          </div>
-        </div>
+              </nav>
 
-        <DiffGroup
-          title="Construction set"
-          kind="set"
-          pairs={pairRootSnapshots(baseline(), scenario())}
-        />
-        <DiffGroup
-          title="Constructions"
-          kind="construction"
-          pairs={pairSnapshots(
-            baseline()?.constructionSet?.constructions ?? [],
-            scenario()?.constructionSet?.constructions ?? [],
-          )}
-        />
-        <DiffGroup
-          title="Materials"
-          kind="material"
-          pairs={pairSnapshots(
-            baseline()?.constructionSet?.materials ?? [],
-            scenario()?.constructionSet?.materials ?? [],
-          )}
-        />
+              <div
+                class="p-4 sm:p-5"
+                classList={{ "flex min-h-0 flex-1 flex-col": props.scrollCardsOnly }}
+              >
+                <div class="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-2">
+                  <h4 class="font-bold text-graphite">{group().title}</h4>
+                  <span class="rounded-full bg-sky-mist/50 px-2 py-1 text-[0.65rem] font-semibold text-citadel-blue">
+                    {scenario()
+                      ? `${slots().filter((slot) => slot.status !== "unchanged").length} changed · ${slots().length} slots`
+                      : `${slots().filter((slot) => Boolean(slot.baselineName)).length} assigned`}
+                  </span>
+                </div>
+                <div
+                  classList={{
+                    "cozy-scrollbar min-h-0 flex-1 overflow-y-auto": props.scrollCardsOnly,
+                  }}
+                >
+                  <div class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+                  <For each={slots()}>
+                    {(slot) => (
+                      <ConstructionSetSlotCard label={slot.label}>
+                        <div class="space-y-2">
+                          <div class="relative">
+                            <Show when={scenario()}>
+                              <span class="mb-1 flex flex-wrap items-baseline gap-x-1.5 text-[0.58rem] font-bold uppercase tracking-wide text-graphite/45">
+                                <span>Baseline</span>
+                                <span class="break-words text-[0.62rem] font-semibold normal-case tracking-normal text-graphite/65">
+                                  · {baseline()?.constructionSet?.constructionSet.properties.Name ?? baseline()?.constructionSetName ?? baseline()?.constructionSet?.constructionSet.name ?? "Unnamed construction set"}
+                                </span>
+                              </span>
+                            </Show>
+                            <ConstructionAssignmentCard
+                              name={slot.baselineName ?? "Not assigned"}
+                              changed={
+                                Boolean(scenario()) &&
+                                !sameName(slot.baselineName, slot.comparedName)
+                              }
+                              expanded={
+                                activeDropdown()?.slotKey === slot.key &&
+                                activeDropdown()?.side === "baseline"
+                              }
+                              onClick={() =>
+                                setActiveDropdown((active) =>
+                                  active?.slotKey === slot.key &&
+                                  active.side === "baseline"
+                                    ? null
+                                    : { slotKey: slot.key, side: "baseline" },
+                                )
+                              }
+                            />
+                            <Show
+                              when={
+                                activeDropdown()?.slotKey === slot.key &&
+                                activeDropdown()?.side === "baseline"
+                              }
+                            >
+                              <ConstructionSlotDetails
+                                slot={slot}
+                                baseline={baseline()!}
+                                compared={scenario()}
+                                side="baseline"
+                              />
+                            </Show>
+                          </div>
+                          <Show when={scenario()}>
+                            <div class="relative">
+                              <span class="mb-1 flex flex-wrap items-baseline gap-x-1.5 text-[0.58rem] font-bold uppercase tracking-wide text-graphite/45">
+                                <span>Compared</span>
+                                <span class="break-words text-[0.62rem] font-semibold normal-case tracking-normal text-graphite/65">
+                                  · {scenario()?.constructionSet?.constructionSet.properties.Name ?? scenario()?.constructionSetName ?? scenario()?.constructionSet?.constructionSet.name ?? "Unnamed construction set"}
+                                </span>
+                              </span>
+                              <ConstructionAssignmentCard
+                                name={slot.comparedName ?? "Not assigned"}
+                                changed={
+                                  !sameName(
+                                    slot.baselineName,
+                                    slot.comparedName,
+                                  )
+                                }
+                                expanded={
+                                  activeDropdown()?.slotKey === slot.key &&
+                                  activeDropdown()?.side === "compared"
+                                }
+                                onClick={() =>
+                                  setActiveDropdown((active) =>
+                                    active?.slotKey === slot.key &&
+                                    active.side === "compared"
+                                      ? null
+                                      : { slotKey: slot.key, side: "compared" },
+                                  )
+                                }
+                              />
+                              <Show
+                                when={
+                                  activeDropdown()?.slotKey === slot.key &&
+                                  activeDropdown()?.side === "compared"
+                                }
+                              >
+                                <ConstructionSlotDetails
+                                  slot={slot}
+                                  baseline={baseline()!}
+                                  compared={scenario()}
+                                  side="compared"
+                                />
+                              </Show>
+                            </div>
+                          </Show>
+                        </div>
+                        <Show when={scenario()}>
+                          <div class="mt-2 flex justify-end">
+                            <DiffBadge status={slot.status} />
+                          </div>
+                        </Show>
+                      </ConstructionSetSlotCard>
+                    )}
+                  </For>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
       </Show>
     </div>
   );
 }
 
-function SnapshotIdentity(props: {
+function ConstructionSetCard(props: {
   eyebrow: string;
   simulation?: SimulationListItem;
+  snapshot?: ComponentSnapshot;
+  constructionCount: number;
+  materialCount: number;
 }) {
+  const name = () =>
+    props.snapshot?.properties.Name ??
+    props.simulation?.constructionSetName ??
+    props.snapshot?.name ??
+    "Unnamed construction set";
   return (
-    <div class="rounded-xl border border-citadel-blue/10 bg-sky-mist/25 px-4 py-3">
-      <p class="text-[0.6rem] font-bold uppercase tracking-[0.14em] text-citadel-blue">
+    <article class="min-w-0 px-1">
+      <p class="border-b border-warm-stone/25 pb-2 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-citadel-blue">
         {props.eyebrow}
       </p>
-      <p class="mt-1 truncate text-sm font-bold text-graphite">
-        {props.simulation?.name ?? "—"}
+      <p class="mt-3 break-words text-base font-bold leading-6 text-graphite">
+        {name()}
       </p>
-      <p class="mt-0.5 truncate text-xs text-graphite/50">
-        {props.simulation?.constructionSetName ?? "No construction set"}
-      </p>
-    </div>
-  );
-}
-
-function DiffGroup(props: {
-  title: string;
-  kind: SnapshotKind;
-  pairs: SnapshotPair[];
-}) {
-  const [changedOnly, setChangedOnly] = createSignal(true);
-  const visible = createMemo(() =>
-    changedOnly()
-      ? props.pairs.filter((pair) => pair.status !== "unchanged")
-      : props.pairs,
-  );
-  const changedCount = () =>
-    props.pairs.filter((pair) => pair.status !== "unchanged").length;
-
-  return (
-    <section>
-      <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
-          <h3 class="text-sm font-bold text-graphite">{props.title}</h3>
-          <span class="rounded-full bg-sky-mist/50 px-2 py-1 text-[0.62rem] font-bold text-citadel-blue">
-            {changedCount()} changed · {props.pairs.length} total
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={() => setChangedOnly((value) => !value)}
-          class="text-[0.68rem] font-semibold text-citadel-blue hover:underline"
-        >
-          {changedOnly() ? "Show all" : "Show differences only"}
-        </button>
+      <div class="mt-3 flex flex-wrap gap-2 text-center text-xs">
+        <SnapshotCount label="Constructions" value={props.constructionCount} />
+        <SnapshotCount label="Materials" value={props.materialCount} />
       </div>
-      <Show
-        when={visible().length > 0}
-        fallback={
-          <p class="rounded-xl border border-warm-stone/15 bg-warm-stone/5 px-4 py-3 text-xs text-graphite/50">
-            No differences in this section.
-          </p>
-        }
-      >
-        <div class="space-y-2">
-          <For each={visible()}>
-            {(pair) => <DiffCard pair={pair} kind={props.kind} />}
-          </For>
-        </div>
-      </Show>
-    </section>
-  );
-}
-
-function DiffCard(props: { pair: SnapshotPair; kind: SnapshotKind }) {
-  const [open, setOpen] = createSignal(false);
-  const rows = () => propertyRows(props.pair.baseline, props.pair.compared);
-  return (
-    <article class="overflow-hidden rounded-xl border border-warm-stone/20 bg-cloud-white">
-      <button
-        type="button"
-        aria-expanded={open()}
-        onClick={() => setOpen((value) => !value)}
-        class="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-sky-mist/15"
-      >
-        <SnapshotIcon kind={props.kind} />
-        <span class="min-w-0 flex-1">
-          <strong class="block truncate text-xs text-graphite">
-            {props.pair.name}
-          </strong>
-          <span class="mt-0.5 block text-[0.62rem] uppercase tracking-wide text-graphite/40">
-            {props.pair.baseline?.type ?? props.pair.compared?.type}
-          </span>
-        </span>
-        <DiffBadge status={props.pair.status} />
-        <ChevronDown
-          class="size-4 shrink-0 text-graphite/40 transition-transform"
-          classList={{ "rotate-180": open() }}
-        />
-      </button>
-      <Show when={open()}>
-        <div class="border-t border-warm-stone/15">
-          <div class="grid grid-cols-[minmax(8rem,0.8fr)_minmax(0,1fr)_minmax(0,1fr)] bg-sky-mist/20 text-[0.62rem] font-bold uppercase tracking-wide text-graphite/45">
-            <div class="p-3">Property</div>
-            <div class="border-l border-warm-stone/10 p-3">Baseline</div>
-            <div class="border-l border-warm-stone/10 p-3">Compared</div>
-          </div>
-          <For each={rows()}>
-            {(row) => (
-              <div
-                class="grid grid-cols-[minmax(8rem,0.8fr)_minmax(0,1fr)_minmax(0,1fr)] border-t border-warm-stone/10 text-[0.7rem]"
-                classList={{ "bg-amber-50/55": row.changed }}
-              >
-                <div class="break-words p-3 text-graphite/50">{row.key}</div>
-                <div class="break-words border-l border-warm-stone/10 p-3 font-semibold text-graphite/75">
-                  {row.baseline ?? "—"}
-                </div>
-                <div class="break-words border-l border-warm-stone/10 p-3 font-semibold text-graphite/75">
-                  {row.compared ?? "—"}
-                </div>
-              </div>
-            )}
-          </For>
-        </div>
-      </Show>
     </article>
   );
 }
-
-function SnapshotIcon(props: { kind: SnapshotKind }) {
+function SnapshotCount(props: { label: string; value: number }) {
   return (
-    <span class="grid size-8 shrink-0 place-items-center rounded-lg bg-sky-mist/45 text-citadel-blue [&>svg]:size-4">
-      <Show
-        when={props.kind === "construction"}
-        fallback={
-          <Show when={props.kind === "material"} fallback={<PanelsTopLeft />}>
-            <Cuboid />
-          </Show>
-        }
-      >
-        <BrickWall />
-      </Show>
-    </span>
+    <div class="min-w-20 rounded-xl border border-citadel-blue/10 bg-cloud-white/75 px-3 py-2">
+      <strong class="block text-sm text-graphite">{props.value}</strong>
+      <span class="text-[0.62rem] text-graphite/45">{props.label}</span>
+    </div>
   );
 }
-
 function DiffBadge(props: { status: DiffStatus }) {
   const label = () =>
     ({
@@ -249,12 +346,12 @@ function DiffBadge(props: { status: DiffStatus }) {
     })[props.status];
   return (
     <span
-      class="shrink-0 rounded-full px-2 py-1 text-[0.6rem] font-bold"
+      class="shrink-0 rounded-full px-2 py-1 text-[0.58rem] font-bold"
       classList={{
         "bg-warm-stone/10 text-graphite/45": props.status === "unchanged",
-        "bg-amber-100 text-amber-800": props.status === "changed",
-        "bg-red-50 text-red-wine": props.status === "baseline-only",
-        "bg-emerald-50 text-emerald-700": props.status === "compare-only",
+        "bg-red-wine/10 text-red-wine":
+          props.status === "changed" || props.status === "baseline-only",
+        "bg-citadel-blue/10 text-citadel-blue": props.status === "compare-only",
       }}
     >
       {label()}
@@ -262,105 +359,332 @@ function DiffBadge(props: { status: DiffStatus }) {
   );
 }
 
-function pairRootSnapshots(
-  baseline?: SimulationListItem,
-  compared?: SimulationListItem,
-) {
-  const left = baseline?.constructionSet?.constructionSet;
-  const right = compared?.constructionSet?.constructionSet;
-  return left || right ? [makePair("construction-set", left, right)] : [];
-}
-
-function pairSnapshots(
-  baseline: ComponentSnapshot[],
-  compared: ComponentSnapshot[],
-) {
-  const left = new Map(baseline.map((item) => [componentKey(item), item]));
-  const right = new Map(compared.map((item) => [componentKey(item), item]));
-  const keys = [
-    ...left.keys(),
-    ...[...right.keys()].filter((key) => !left.has(key)),
-  ];
-  return keys.map((key) => makePair(key, left.get(key), right.get(key)));
-}
-
-function makePair(
-  key: string,
-  baseline?: ComponentSnapshot,
-  compared?: ComponentSnapshot,
-): SnapshotPair {
-  const status: DiffStatus = !baseline
-    ? "compare-only"
-    : !compared
-      ? "baseline-only"
-      : sameProperties(baseline, compared)
-        ? "unchanged"
-        : "changed";
-  return {
-    key,
-    name: baseline?.name ?? compared?.name ?? "Unnamed component",
-    baseline,
-    compared,
-    status,
+function ConstructionSlotDetails(props: {
+  slot: ConstructionSlot;
+  baseline: SimulationListItem;
+  compared?: SimulationListItem;
+  side: ConstructionSide;
+}) {
+  const [selectedLayer, setSelectedLayer] = createSignal<string | null>(null);
+  const baselineMaterials = () =>
+    props.baseline.constructionSet?.materials ?? [];
+  const comparedMaterials = () =>
+    props.compared?.constructionSet?.materials ?? [];
+  const layerRows = createMemo(() =>
+    constructionLayerRows(props.slot.baseline, props.slot.compared),
+  );
+  const selected = createMemo(() =>
+    layerRows().find((layer) => layer.key === selectedLayer()),
+  );
+  const materialPair = createMemo(() => {
+    const layer = selected();
+    if (!layer) return undefined;
+    return {
+      baseline: findMaterial(baselineMaterials(), layer.baselineName),
+      compared: findMaterial(comparedMaterials(), layer.comparedName),
+    };
+  });
+  const materialIsSame = () => {
+    const pair = materialPair();
+    return Boolean(
+      pair?.baseline &&
+      pair.compared &&
+      sameName(pair.baseline.name, pair.compared.name) &&
+      sameProperties(pair.baseline, pair.compared),
+    );
   };
-}
 
-function componentKey(component: ComponentSnapshot) {
-  return `${component.type}::${component.name}`.trim().toLocaleLowerCase();
-}
+  return (
+    <div class="absolute left-0 right-0 top-[calc(100%+0.25rem)] z-50 max-h-64 overflow-y-auto rounded-xl border border-warm-stone/25 bg-cloud-white p-2 shadow-2xl">
+      <For each={layerRows()}>
+        {(layer) => {
+          const changed = () => layer.changed;
+          const materialName = () =>
+            props.side === "baseline" ? layer.baselineName : layer.comparedName;
+          return (
+            <button
+              type="button"
+              disabled={!materialName()}
+              aria-expanded={selectedLayer() === layer.key}
+              onClick={() =>
+                setSelectedLayer(
+                  selectedLayer() === layer.key ? null : layer.key,
+                )
+              }
+              class="block w-full rounded-lg px-3 py-2.5 text-left transition disabled:cursor-default disabled:opacity-55"
+              classList={{
+                "bg-red-wine/5 hover:bg-red-wine/10": changed(),
+                "hover:bg-sky-mist/20": !changed(),
+              }}
+            >
+              <span
+                class="block break-words text-xs font-semibold"
+                classList={{
+                  "text-red-wine": changed(),
+                  "text-graphite": !changed(),
+                }}
+              >
+                {materialName() ?? "No material assigned"}
+              </span>
+              <span class="mt-0.5 flex items-center justify-between gap-2">
+                <span class="text-[0.58rem] uppercase tracking-wide text-citadel-blue">
+                  {layer.label} · Material
+                </span>
+                <Show when={props.compared && changed()}>
+                  <span class="text-[0.58rem] font-bold uppercase tracking-wide text-red-wine">
+                    Different
+                  </span>
+                </Show>
+              </span>
+            </button>
+          );
+        }}
+      </For>
 
-function sameProperties(left: ComponentSnapshot, right: ComponentSnapshot) {
-  const leftEntries = Object.entries(left.properties ?? {});
-  const rightEntries = Object.entries(right.properties ?? {});
-  if (leftEntries.length !== rightEntries.length) return false;
-  return leftEntries.every(
-    ([key, value]) => normalize(value) === normalize(right.properties?.[key]),
+      <Show keyed when={selected() && materialPair()}>
+        {(pair) => {
+          const layer = selected();
+          const same = materialIsSame();
+          return (
+            <div class="pointer-events-none fixed inset-0 z-[100] grid place-items-center p-4">
+              <section
+                role="dialog"
+                aria-modal="false"
+                aria-labelledby="material-inspection-title"
+                class="pointer-events-auto flex h-[min(80dvh,48rem)] w-[min(56rem,94vw)] flex-col overflow-hidden rounded-2xl border border-warm-stone/25 bg-cloud-white shadow-2xl"
+              >
+                <header class="flex shrink-0 items-start justify-between gap-4 border-b border-citadel-blue/10 bg-sky-mist/35 px-5 py-4">
+                  <div>
+                    <p class="text-[0.62rem] font-bold uppercase tracking-[0.14em] text-citadel-blue">
+                      {props.compared
+                        ? "Material comparison"
+                        : "Material details"}
+                    </p>
+                    <h2
+                      id="material-inspection-title"
+                      class="mt-1 text-lg font-bold text-graphite"
+                    >
+                      {layer?.label ?? "Selected layer"}
+                    </h2>
+                    <p class="mt-1 text-xs text-graphite/55">
+                      {!props.compared
+                        ? "Properties from this saved material."
+                        : same
+                          ? "Both constructions use the same material."
+                          : "Compare the materials assigned to this layer."}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Close material details"
+                    onClick={() => setSelectedLayer(null)}
+                    class="rounded-lg p-1 text-graphite/55 transition hover:bg-cloud-white hover:text-graphite"
+                  >
+                    <X class="size-5" />
+                  </button>
+                </header>
+                <div
+                  class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-4 sm:p-5"
+                  classList={{
+                    "sm:grid-cols-2": Boolean(props.compared),
+                  }}
+                >
+                  <Show
+                    when={Boolean(props.compared)}
+                    fallback={
+                      <MaterialPropertiesCard
+                        title="Material"
+                        constructionSetName={props.baseline.constructionSetName}
+                        material={pair.baseline ?? pair.compared}
+                        other={undefined}
+                      />
+                    }
+                  >
+                    <MaterialPropertiesCard
+                      title="Baseline material"
+                      constructionSetName={props.baseline.constructionSetName}
+                      material={pair.baseline}
+                      other={pair.compared}
+                    />
+                    <MaterialPropertiesCard
+                      title="Compared material"
+                      constructionSetName={props.compared?.constructionSetName}
+                      material={pair.compared}
+                      other={pair.baseline}
+                    />
+                  </Show>
+                </div>
+              </section>
+            </div>
+          );
+        }}
+      </Show>
+    </div>
   );
 }
 
-function propertyRows(
+function MaterialPropertiesCard(props: {
+  title: string;
+  constructionSetName?: string;
+  material?: ComponentSnapshot;
+  other?: ComponentSnapshot;
+}) {
+  const properties = () => {
+    const left = props.material?.properties ?? {};
+    const right = props.other?.properties ?? {};
+    const keys = [
+      ...Object.keys(left),
+      ...Object.keys(right).filter((key) => !(key in left)),
+    ];
+    return keys.map((key) => ({
+      key,
+      value: left[key],
+      otherValue: right[key],
+      changed:
+        Boolean(props.other) && normalize(left[key]) !== normalize(right[key]),
+    }));
+  };
+  return (
+    <article class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-warm-stone/20 bg-cloud-white">
+      <header class="shrink-0 border-b border-warm-stone/10 bg-sky-mist/20 px-3 py-2">
+        <p class="flex flex-wrap items-baseline gap-x-1.5 text-[0.6rem] font-bold uppercase tracking-wide text-citadel-blue">
+          <span>{props.title}</span>
+          <Show when={props.constructionSetName}>
+            <span class="break-words text-[0.62rem] font-semibold normal-case tracking-normal text-graphite/65">
+              · {props.constructionSetName}
+            </span>
+          </Show>
+        </p>
+        <p class="mt-1 break-words text-xs font-semibold text-graphite">
+          {props.material?.name ?? "Material unavailable"}
+        </p>
+      </header>
+      <div class="cozy-scrollbar min-h-0 flex-1 overflow-y-auto divide-y divide-warm-stone/10">
+        <For each={properties()}>
+          {(property) => (
+            <div
+              class="grid grid-cols-[minmax(7rem,0.8fr)_minmax(0,1fr)] gap-2 px-3 py-2 text-[0.68rem]"
+              classList={{ "bg-red-50": property.changed }}
+            >
+              <span class="break-words text-graphite/50">
+                {propertyLabel(property.key)}
+              </span>
+              <span
+                class="break-words font-semibold"
+                classList={{
+                  "text-red-wine": property.changed,
+                  "text-graphite": !property.changed,
+                }}
+              >
+                {property.value ?? "—"}
+              </span>
+            </div>
+          )}
+        </For>
+        <Show when={!props.material}>
+          <p class="p-3 text-xs text-graphite/50">
+            No stored material snapshot was found.
+          </p>
+        </Show>
+      </div>
+    </article>
+  );
+}
+
+function constructionSlots(
+  baseline: SimulationListItem | undefined,
+  compared: SimulationListItem | undefined,
+  fields: ReadonlyArray<readonly [string, string]>,
+): ConstructionSlot[] {
+  const leftSet = baseline?.constructionSet;
+  const rightSet = compared?.constructionSet;
+  return fields.map(([field, label]) => {
+    const leftName = leftSet?.constructionSet.properties[field]?.trim() || null;
+    const rightName =
+      rightSet?.constructionSet.properties[field]?.trim() || null;
+    const left = leftSet?.constructions.find((item) =>
+      sameName(item.name, leftName),
+    );
+    const right = rightSet?.constructions.find((item) =>
+      sameName(item.name, rightName),
+    );
+    const status: DiffStatus =
+      !leftName && !rightName
+        ? "unchanged"
+        : !leftName
+          ? "compare-only"
+          : !rightName
+            ? "baseline-only"
+            : sameName(leftName, rightName) &&
+                (!left || !right || sameProperties(left, right))
+              ? "unchanged"
+              : "changed";
+    return {
+      key: field,
+      label,
+      baselineName: leftName,
+      comparedName: rightName,
+      baseline: left,
+      compared: right,
+      status,
+    };
+  });
+}
+
+function constructionLayerRows(
   baseline?: ComponentSnapshot,
   compared?: ComponentSnapshot,
 ) {
   const left = baseline?.properties ?? {};
   const right = compared?.properties ?? {};
-  const keys = orderedPropertyKeys(
-    left,
-    right,
-    baseline?.type ?? compared?.type,
-  );
+  const keys = [...new Set([...Object.keys(left), ...Object.keys(right)])]
+    .filter((key) => key !== "Name" && /^(Outside_Layer|Layer_\d+)$/.test(key))
+    .sort((a, b) => layerIndex(a) - layerIndex(b));
   return keys.map((key) => ({
     key,
-    baseline: left[key],
-    compared: right[key],
-    changed: normalize(left[key]) !== normalize(right[key]),
+    label: key === "Outside_Layer" ? "Outside layer" : "Layer " + key.slice(6),
+    baselineName: left[key] ?? null,
+    comparedName: right[key] ?? null,
+    changed: Boolean(compared) && !sameName(left[key], right[key]),
   }));
 }
 
-function orderedPropertyKeys(
-  left: Record<string, string | null>,
-  right: Record<string, string | null>,
-  type?: string,
-) {
-  const insertionOrder = [
-    ...Object.keys(left),
-    ...Object.keys(right).filter((key) => !(key in left)),
-  ];
-  if (type !== "CONSTRUCTION") return insertionOrder;
+function layerIndex(key: string) {
+  return key === "Outside_Layer" ? 1 : Number(key.slice(6));
+}
 
-  const layerOrder = [
-    "Name",
-    "Outside_Layer",
-    ...Array.from({ length: 9 }, (_, index) => `Layer_${index + 2}`),
-  ];
-  const position = new Map(layerOrder.map((key, index) => [key, index]));
-  return insertionOrder.sort(
-    (a, b) =>
-      (position.get(a) ?? Number.MAX_SAFE_INTEGER) -
-      (position.get(b) ?? Number.MAX_SAFE_INTEGER),
+function findMaterial(materials: ComponentSnapshot[], name: string | null) {
+  return name
+    ? materials.find((material) => sameName(material.name, name))
+    : undefined;
+}
+
+function sameProperties(left: ComponentSnapshot, right: ComponentSnapshot) {
+  const leftProperties = left.properties ?? {};
+  const rightProperties = right.properties ?? {};
+  const keys = new Set([
+    ...Object.keys(leftProperties),
+    ...Object.keys(rightProperties),
+  ]);
+  return [...keys].every(
+    (key) => normalize(leftProperties[key]) === normalize(rightProperties[key]),
+  );
+}
+
+function sameName(
+  left: string | null | undefined,
+  right: string | null | undefined,
+) {
+  return (
+    (left ?? "").trim().toLocaleLowerCase() ===
+    (right ?? "").trim().toLocaleLowerCase()
   );
 }
 
 function normalize(value: string | null | undefined) {
   return value == null ? "" : String(value).trim();
+}
+
+function propertyLabel(key: string) {
+  return key.replaceAll("_", " ").replace(/\s+/g, " ").trim();
 }

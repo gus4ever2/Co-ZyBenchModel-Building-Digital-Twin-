@@ -71,6 +71,24 @@ def _zones(results: dict[str, dict]) -> dict[str, dict]:
     for result_name, field_name in (("green_wall", "meanGreenWallAreaM2"), ("people_co2", "meanPeopleCo2GenerationPpmPerHour")):
         for zone_name, value in results.get(result_name, {}).get("byZone", {}).items():
             zones.setdefault(zone_name, {})[field_name] = value
+    for zone_name, value in results.get("green_wall", {}).get("totalLeafAreaByZone", {}).items():
+        zones.setdefault(zone_name, {})["totalLeafAreaM2"] = value
+    for result_field in (
+        "meanCo2RemovedLightsOnPpmByZone",
+        "meanCo2AddedLightsOnPpmByZone",
+        "meanCo2RemovedLightsOffPpmByZone",
+        "meanCo2AddedLightsOffPpmByZone",
+    ):
+        for zone_name, value in results.get("green_wall", {}).get(result_field, {}).items():
+            zones.setdefault(zone_name, {})[result_field] = value
+    for zone_name, value in results.get("ventilation", {}).get(
+        "meanWindowOpeningPercentByZone", {}
+    ).items():
+        zones.setdefault(zone_name, {})["meanWindowOpeningPercent"] = value
+    for zone_name, value in results.get("ventilation", {}).get(
+        "meanWindowOpeningDeltaPercentByZone", {}
+    ).items():
+        zones.setdefault(zone_name, {})["meanWindowOpeningDeltaPercent"] = value
     return zones
 
 

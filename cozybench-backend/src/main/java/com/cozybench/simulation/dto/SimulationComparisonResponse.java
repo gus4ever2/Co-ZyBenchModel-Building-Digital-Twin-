@@ -31,13 +31,10 @@ public record SimulationComparisonResponse(
             double meanDeltaCo2Ppm,
             double maxDeltaCo2Ppm,
             double minDeltaCo2Ppm,
-            Double meanMorningWeekdayDeltaCo2Ppm,
-            Double maxMorningWeekdayDeltaCo2Ppm,
-            Double minMorningWeekdayDeltaCo2Ppm,
-            Double meanMorningWeekdayDeltaCo2RatePpmPerHour,
-            Double meanNightWeekdayDeltaCo2RatePpmPerHour,
-            Double meanLightsOnDeltaCo2Ppm,
-            Double meanLightsOffDeltaCo2Ppm
+            Double meanDaytimeWeekdayDeltaCo2Ppm,
+            Double maxDaytimeWeekdayDeltaCo2Ppm,
+            Double minDaytimeWeekdayDeltaCo2Ppm,
+            Double meanNightWeekdayDeltaCo2Ppm
     ) {
     }
 

@@ -35,6 +35,7 @@ OUTPUT_VARIABLE_MAPPING: dict[str, OutputVariable] = {
     "Zone Air CO2 Setpoint Concentration": OutputVariable(result_field="co2_setpoint_ppm", is_zone_result=True, key_type=OutputVariableKeyType.ZONE),
     "Zone Air CO2 Predicted Load to Setpoint Mass Flow Rate": OutputVariable(result_field="co2_predicted_load_kg_s", is_zone_result=True, key_type=OutputVariableKeyType.ZONE),
     "Zone Air Relative Humidity": OutputVariable(result_field="relative_humidity_percent", is_zone_result=True, key_type=OutputVariableKeyType.ZONE),
+    "Zone Air Humidity Ratio": OutputVariable(result_field="humidity_ratio_kg_water_per_kg_dry_air", is_zone_result=True, key_type=OutputVariableKeyType.ZONE),
     "Zone Thermostat Cooling Setpoint Temperature": OutputVariable(result_field="cooling_setpoint_c", is_zone_result=True, key_type=OutputVariableKeyType.ZONE),
     "Zone Thermostat Heating Setpoint Temperature": OutputVariable(result_field="heating_setpoint_c", is_zone_result=True, key_type=OutputVariableKeyType.ZONE),
     "Zone Air Heat Balance Outdoor Air Transfer Rate": OutputVariable(result_field="outdoor_air_transfer_rate_w", is_zone_result=True, key_type=OutputVariableKeyType.ZONE),

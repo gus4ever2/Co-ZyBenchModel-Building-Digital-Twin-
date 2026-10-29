@@ -14,6 +14,7 @@ class ZonePlantCO2ExchangeValue(BaseModel):
 
     zone_name: str
     green_wall_area_m2: float
+    total_leaf_area_m2: float
     net_co2_exchange_g_per_hour: float
     sink_volume_flow_rate_m3_s: float
     source_volume_flow_rate_m3_s: float

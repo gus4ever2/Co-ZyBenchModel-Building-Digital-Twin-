@@ -26,6 +26,7 @@ class ZoneResult:
     co2_setpoint_ppm: float = 0.0
     co2_predicted_load_kg_s: float = 0.0
     relative_humidity_percent: float = 0.0
+    humidity_ratio_kg_water_per_kg_dry_air: float = 0.0
     cooling_setpoint_c: float = 0.0
     heating_setpoint_c: float = 0.0
     occupant_count: float = 0.0
