@@ -3,6 +3,9 @@
 from cosimulator.analytics.calculations.building import (
     BuildingData, calculate_building, create_building_result,
 )
+from cosimulator.analytics.calculations.seasonal_energy import (
+    SeasonalEnergyData, calculate_seasonal_energy, create_seasonal_energy_result,
+)
 from cosimulator.analytics.calculations.energy import (
     EnergyData, calculate_energy, create_energy_result,
 )
@@ -42,6 +45,7 @@ from cosimulator.analytics.calculations.ventilation import (
 # one readable line here, not registering or subclassing an implementation.
 ANALYTICS = [
     ("energy", EnergyData, calculate_energy, create_energy_result, False),
+    ("seasonal_energy", SeasonalEnergyData, calculate_seasonal_energy, create_seasonal_energy_result, False),
     ("co2", Co2Data, calculate_co2, create_co2_result, True),
     (
         "temperature",

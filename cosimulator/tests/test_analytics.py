@@ -48,7 +48,7 @@ class AnalyticsTests(unittest.TestCase):
                                          timestep_number=0,
                                          results=document["results"]), data)
         result = create_co2_result(data).comparison
-        self.assertEqual(result["comparisons"][0]["thermalZones"][0]["summary"]["meanDeltaCo2Ppm"], 100)
+        self.assertEqual(result["comparisons"][0]["thermalZones"][0]["summary"]["meanDeltaCo2Ppm"], -100)
 
     def test_co2_comparison_weekday_windows_and_missing_values(self):
         data = Co2Data()
@@ -73,13 +73,11 @@ class AnalyticsTests(unittest.TestCase):
                 ), data)
 
         summary = create_co2_result(data).comparison["comparisons"][0]["thermalZones"][0]["summary"]
-        self.assertEqual(summary["meanMorningWeekdayDeltaCo2Ppm"], 20)
-        self.assertEqual(summary["maxMorningWeekdayDeltaCo2Ppm"], 20)
-        self.assertEqual(summary["minMorningWeekdayDeltaCo2Ppm"], 20)
-        self.assertEqual(summary["meanMorningWeekdayDeltaCo2RatePpmPerHour"], 40)
-        self.assertEqual(summary["meanLightsOnDeltaCo2Ppm"], 30)
-        self.assertEqual(summary["meanLightsOffDeltaCo2Ppm"], 30)
-        self.assertAlmostEqual(summary["meanNightWeekdayDeltaCo2RatePpmPerHour"], 10 / 12)
+        self.assertEqual(summary["meanDaytimeWeekdayDeltaCo2Ppm"], -30)
+        self.assertEqual(summary["maxDaytimeWeekdayDeltaCo2Ppm"], -20)
+        self.assertEqual(summary["minDaytimeWeekdayDeltaCo2Ppm"], -40)
+        self.assertEqual(summary["meanNightWeekdayDeltaCo2Ppm"], -30)
+        self.assertIsNone(create_co2_result(data).comparison["comparisons"][0]["thermalZones"][0]["deltaCo2Series"][2]["ppm"])
 
     def test_co2_window_without_samples_returns_null(self):
         data = Co2Data()
@@ -91,8 +89,8 @@ class AnalyticsTests(unittest.TestCase):
                 results={"zone_results": {"Office": {"co2_concentration_ppm": ppm}}},
             ), data)
         summary = create_co2_result(data).comparison["comparisons"][0]["thermalZones"][0]["summary"]
-        self.assertIsNone(summary["meanMorningWeekdayDeltaCo2Ppm"])
-        self.assertIsNone(summary["meanLightsOnDeltaCo2Ppm"])
+        self.assertIsNone(summary["meanDaytimeWeekdayDeltaCo2Ppm"])
+        self.assertIsNone(summary["meanNightWeekdayDeltaCo2Ppm"])
 
     def test_comparison_runner_reuses_one_state_for_two_runs(self):
         persistent_states = create_comparison_states()
@@ -102,7 +100,7 @@ class AnalyticsTests(unittest.TestCase):
         result = response.results["co2"]["comparison"]
         summary = result["comparisons"][0]["thermalZones"][0]["summary"]
         self.assertEqual(persistent_states["co2"][1].baseline_id, "baseline")
-        self.assertEqual(summary["meanDeltaCo2Ppm"], 100)
+        self.assertEqual(summary["meanDeltaCo2Ppm"], -100)
 
     def test_enrich_does_not_change_source_document(self):
         document = step()

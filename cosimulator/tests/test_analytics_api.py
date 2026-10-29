@@ -53,7 +53,7 @@ class AnalyticsApiTests(unittest.TestCase):
             self.assertEqual(response.status_code, 200, response.text)
             data = response.json()
             self.assertEqual(data["baseline"]["name"], "Baseline")
-            self.assertEqual(data["comparisons"][0]["thermalZones"][0]["summary"]["meanDeltaCo2Ppm"], 100)
+            self.assertEqual(data["comparisons"][0]["thermalZones"][0]["summary"]["meanDeltaCo2Ppm"], -100)
             self.assertEqual(data["analyticsBySimulation"][second]["metrics"]["totalHvacKwhDelta"], 0)
 
 

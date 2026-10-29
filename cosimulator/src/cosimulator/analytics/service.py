@@ -84,6 +84,7 @@ class AnalyticsService:
 
         self._attach_reference_names(result, baseline_id, references)
         self._attach_metric_deltas(analytics_by_simulation, baseline_id)
+        self._attach_seasonal_deltas(analytics_by_simulation, baseline_id)
 
         result["analyticsBySimulation"] = analytics_by_simulation
         result["plantConfigurations"] = [
@@ -244,6 +245,29 @@ class AnalyticsService:
                 )
                 metrics[f"{name}Delta"] = delta
                 metrics[f"{name}DeltaPercent"] = percent
+
+    @staticmethod
+    def _attach_seasonal_deltas(analytics_by_simulation, baseline_id) -> None:
+        """Align seasonal graph differences by timestamp and calculate table deltas."""
+        baseline_periods = analytics_by_simulation[baseline_id]["results"].get(
+            "seasonal_energy", {}).get("periods", {})
+        for key, baseline_period in baseline_periods.items():
+            baseline_values = {
+                point["timestamp"]: point.get("hvacKwh")
+                for point in baseline_period["series"]
+            }
+            for response in analytics_by_simulation.values():
+                period = response["results"].get("seasonal_energy", {}).get("periods", {}).get(key)
+                if period is None:
+                    continue
+                for name in ("totalHeatingKwh", "totalCoolingKwh", "totalHvacKwh"):
+                    delta, percent = AnalyticsService._metric_delta(
+                        period["metrics"].get(name), baseline_period["metrics"].get(name))
+                    period["metrics"][name + "Delta"] = delta
+                    period["metrics"][name + "DeltaPercent"] = percent
+                for point in period["series"]:
+                    value, baseline = point.get("hvacKwh"), baseline_values.get(point["timestamp"])
+                    point["hvacDeltaKwh"] = value - baseline if value is not None and baseline is not None else None
 
     @staticmethod
     def _metric_delta(
