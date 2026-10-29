@@ -53,26 +53,24 @@ export default function SimulationDataView(props: {
   timesteps: SimulationTimestep[];
 }) {
   const [selectedZone, setSelectedZone] = createSignal("");
-  const [energyRange, setEnergyRange] = createSignal({ start: 0, end: 100 });
   const [activePanel, setActivePanel] = createSignal<AnalysisPanel | null>(null);
   const zones = createMemo(() => zoneNames(props.timesteps));
   const timestamps = () => props.timesteps.map(timestampLabel);
   const zoneSteps = () =>
     props.timesteps.map((step) => zoneAt(step, selectedZone()));
-  const energyAnalytics = createQuery(() => {
-    const first = Math.floor((energyRange().start / 100) * Math.max(0, props.timesteps.length - 1));
-    const last = Math.ceil((energyRange().end / 100) * Math.max(0, props.timesteps.length - 1)) + 1;
-    return { queryKey: ["simulation-analytics", props.simulation.id, first, last, props.timesteps.length],
-      queryFn: () => loadSimulationAnalytics(props.simulation.id, first, last),
-      enabled: props.timesteps.length > 0 };
-  });
+  const energyAnalytics = createQuery(() => ({
+    queryKey: ["simulation-analytics", props.simulation.id, props.timesteps.length],
+    queryFn: () =>
+      loadSimulationAnalytics(props.simulation.id, 0, props.timesteps.length),
+    enabled: props.timesteps.length > 0,
+  }));
   const energyMetrics = () => energyAnalytics.data?.metrics ?? {};
 
   createEffect(() => {
     if (!zones().includes(selectedZone())) setSelectedZone(zones()[0] ?? "");
   });
 
-  const energyOption = createMemo<EChartsOption>(() =>
+  const heatingOption = createMemo<EChartsOption>(() =>
     chartOption(timestamps(), "kWh / timestep", [
       line(
         "Heating",
@@ -80,12 +78,20 @@ export default function SimulationDataView(props: {
           step.results?.meter_results?.heating_electricity_kwh ?? null,
         ),
       ),
+    ]),
+  );
+  const coolingOption = createMemo<EChartsOption>(() =>
+    chartOption(timestamps(), "kWh / timestep", [
       line(
         "Cooling",
         props.timesteps.map((step) =>
           step.results?.meter_results?.cooling_electricity_kwh ?? null,
         ),
       ),
+    ]),
+  );
+  const totalHvacOption = createMemo<EChartsOption>(() =>
+    chartOption(timestamps(), "kWh / timestep", [
       line(
         "Total HVAC",
         props.timesteps.map((step) =>
@@ -200,7 +206,11 @@ export default function SimulationDataView(props: {
                     <EnergyCard label="Total HVAC" value={format(energyMetrics().totalHvacKwh, "kWh")} />
                     <EnergyCard label="Total HVAC / floor area" value={format(energyMetrics().hvacKwhPerM2, "kWh/m²")} />
                   </div>
-                  <div class="mt-4"><FullChart title="Energy consumption"><EChart option={energyOption()} onDataZoom={setEnergyRange} /></FullChart></div>
+                  <div class="mt-4 space-y-4">
+                    <FullChart title="Heating consumption"><EChart option={heatingOption()} /></FullChart>
+                    <FullChart title="Cooling consumption"><EChart option={coolingOption()} /></FullChart>
+                    <FullChart title="Total HVAC consumption"><EChart option={totalHvacOption()} /></FullChart>
+                  </div>
                 </Match>
                 <Match when={panel === "temperature"}><FullChart title={`Air temperature · ${selectedZone() || "selected zone"}`}><EChart option={temperatureOption()} /></FullChart></Match>
                 <Match when={panel === "co2"}><FullChart title={`Zone CO₂ concentration · ${selectedZone() || "selected zone"}`}><EChart option={co2Option()} /></FullChart></Match>
