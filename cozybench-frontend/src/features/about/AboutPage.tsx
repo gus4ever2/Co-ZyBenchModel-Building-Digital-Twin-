@@ -1,5 +1,5 @@
 import { Award, BookOpen, Cpu, Globe2, Mail, Thermometer, Users } from "lucide-solid";
-import { useContext } from "solid-js";
+import { onMount, useContext } from "solid-js";
 import { InfoModalContext } from "../../context/InfoModalContext";
 import CozyBenchGuide from "./CozyBenchGuide";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
@@ -19,6 +19,8 @@ export default function AboutPage() {
     infoModal.setInfoModalContent(() => CozyBenchGuide);
     infoModal.setInfoModalOpen(true);
   };
+
+  onMount(openGuide);
 
   return (
     <section class="mx-auto flex h-[calc(100vh-10rem)] min-h-0 w-full max-w-6xl flex-col gap-4 lg:h-[calc(100vh-4rem)]">
