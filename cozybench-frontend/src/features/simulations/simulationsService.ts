@@ -25,7 +25,8 @@ export type PlantSimulation = {
 };
 
 export type OpenWindows = {
-  openingStrategy: "LINEAR" | "ON_OFF";
+  openingStrategy: "LINEAR" | "ON_OFF" | "FIXED_PERCENTAGE";
+  openingPercentage?: number | null;
   temperatureMarginC: number;
   co2ThresholdPpm: number;
 };

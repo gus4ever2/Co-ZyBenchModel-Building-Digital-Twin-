@@ -543,11 +543,14 @@ public class SimulationService {
     }
 
     private Map<String, Object> windowsMap(OpenWindowsRequest windows) {
-        return Map.of(
-                "opening_strategy", windows.openingStrategy().name().toLowerCase(Locale.ROOT),
-                "temperature_margin_c", windows.temperatureMarginC(),
-                "co2_threshold_ppm", windows.co2ThresholdPpm()
-        );
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("opening_strategy", windows.openingStrategy().name().toLowerCase(Locale.ROOT));
+        values.put("temperature_margin_c", windows.temperatureMarginC());
+        values.put("co2_threshold_ppm", windows.co2ThresholdPpm());
+        if (windows.openingStrategy() == WindowOpeningStrategy.FIXED_PERCENTAGE) {
+            values.put("opening_percentage", windows.openingPercentage());
+        }
+        return values;
     }
 
     private Map<String, Object> thermostatMap(ThermostatSetpointsRequest settings) {
@@ -651,7 +654,8 @@ public class SimulationService {
                         WindowOpeningStrategy.LINEAR
                 ),
                 decimal(windows.get("temperature_margin_c")),
-                decimal(windows.get("co2_threshold_ppm"))
+                decimal(windows.get("co2_threshold_ppm")),
+                windows.get("opening_percentage") instanceof Number percentage ? percentage.doubleValue() : null
         );
     }
 

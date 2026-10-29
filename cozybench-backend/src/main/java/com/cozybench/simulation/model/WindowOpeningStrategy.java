@@ -2,5 +2,6 @@ package com.cozybench.simulation.model;
 
 public enum WindowOpeningStrategy {
     LINEAR,
-    ON_OFF
+    ON_OFF,
+    FIXED_PERCENTAGE
 }

@@ -24,9 +24,10 @@ export type NewSimulationPayload = {
   lightingLevel?: "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH";
   exchangeMode?: "FULL_EXCHANGE" | "UPTAKE_ONLY";
   openWindowsEnabled: boolean;
-  openingStrategy?: "LINEAR" | "ON_OFF";
+  openingStrategy?: "LINEAR" | "ON_OFF" | "FIXED_PERCENTAGE";
   minCo2Level?: 500 | 600 | 700 | 800 | 900 | 1000;
   temperatureMargin?: number;
+  openingPercentage?: number;
   co2ControlEnabled: boolean;
   co2SetpointPpm?: 500 | 600 | 700 | 800 | 900 | 1000;
 };
@@ -112,6 +113,7 @@ export async function startSimulation(payload: NewSimulationPayload) {
           openingStrategy: payload.openingStrategy ?? "LINEAR",
           temperatureMarginC: payload.temperatureMargin ?? 2,
           co2ThresholdPpm: payload.minCo2Level ?? 800,
+          openingPercentage: payload.openingStrategy === "FIXED_PERCENTAGE" ? payload.openingPercentage : null,
         }
       : null,
     co2Control: payload.co2ControlEnabled

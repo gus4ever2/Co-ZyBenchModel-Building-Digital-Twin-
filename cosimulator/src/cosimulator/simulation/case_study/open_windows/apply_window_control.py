@@ -3,7 +3,7 @@ from ctypes import c_void_p
 from energyplus_api_helpers.import_helper import EPlusAPIHelper
 
 from cosimulator.core.logger.logging import logger
-from cosimulator.schemas.simulation_context import OpenWindows
+from cosimulator.schemas.simulation_context import OpenWindows, WindowOpeningStrategy
 from cosimulator.simulation_variables.schemas.handles import SimulationHandles
 from cosimulator.simulation_variables.schemas.results import SimulationTimestepResult
 from cosimulator.simulation.case_study.open_windows.calculate_window_opening_factor import (
@@ -82,6 +82,10 @@ def apply_window_control(
                 indoor_temperature_factor,
                 outdoor_temperature_factor,
             )
+            if settings.opening_strategy is WindowOpeningStrategy.FIXED_PERCENTAGE:
+                # The percentage is a 0–100 user value; EnergyPlus expects 0–1.
+                # Both temperature checks above are binary for this strategy.
+                opening_factor *= settings.opening_percentage / 100.0
 
         opening_results[zone_name] = set_window_opening_factor(
             ep=ep,
