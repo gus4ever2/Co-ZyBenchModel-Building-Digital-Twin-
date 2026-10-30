@@ -24,13 +24,11 @@ import {
   createSignal,
   lazy,
   onMount,
+  Suspense,
 } from "solid-js";
 import { Portal } from "solid-js/web";
 import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavigationCard";
-import EChart from "../../components/charts/EChart";
-import ConstructionSetComparison from "./ConstructionSetComparison";
-import BuildingInformation, { hasBuildingInformation } from "./BuildingInformation";
-import SeasonalEnergyAnalysis from "./SeasonalEnergyAnalysis";
+import { hasBuildingInformation } from "./BuildingInformation";
 import SimulationSetupCard from "./SimulationSetupCard";
 import {
   timestampLabel,
@@ -45,6 +43,10 @@ import type {
 
 const COLORS = ["#3C6F8F", "#641D16", "#4D4936"];
 const PlantModelDialog = lazy(() => import("../plant-dt/PlantModelDialog"));
+const EChart = lazy(() => import("../../components/charts/EChart"));
+const ConstructionSetComparison = lazy(() => import("./ConstructionSetComparison"));
+const BuildingInformation = lazy(() => import("./BuildingInformation"));
+const SeasonalEnergyAnalysis = lazy(() => import("./SeasonalEnergyAnalysis"));
 
 type AnalysisPanel =
   | "energy"
@@ -84,6 +86,11 @@ export default function SimulationDataView(props: {
     queryFn: () =>
       loadSimulationAnalytics(props.simulation.id, 0, props.timesteps.length),
     enabled: activePanel() !== null && props.timesteps.length > 0,
+    // Analytics for a completed simulation is immutable; retain it while the
+    // user opens and closes analysis cards.
+    staleTime: Infinity,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
   }));
   const energyMetrics = () => energyAnalytics.data?.metrics ?? {};
 
@@ -224,6 +231,7 @@ export default function SimulationDataView(props: {
                   onSelect={setSelectedZone}
                 />
               </Show>
+              <Suspense fallback={<p class="text-sm text-graphite/55">Loading analysis…</p>}>
               <Switch>
                 <Match when={panel === "energy"}>
                   <Show when={energyAnalytics.isError}>
@@ -298,6 +306,7 @@ export default function SimulationDataView(props: {
                   <ConstructionSetComparison simulations={[props.simulation]} scrollCardsOnly />
                 </Match>
               </Switch>
+              </Suspense>
             </AnalysisDialog>
           )}
         </Show>

@@ -53,6 +53,11 @@ export default function HistoryPage() {
     queryKey: ["simulations", selectedId(), "results"],
     queryFn: () => loadSimulationResults(selectedId()),
     enabled: Boolean(selectedId()),
+    // Completed simulation outputs never change. Keep them ready when a user
+    // returns to a history card instead of downloading every timestep again.
+    staleTime: Infinity,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
   }));
   const removeSimulation = createMutation(() => ({
     mutationFn: deleteSimulation,
