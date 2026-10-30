@@ -29,6 +29,7 @@ import { Portal } from "solid-js/web";
 import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavigationCard";
 import EChart from "../../components/charts/EChart";
 import ConstructionSetComparison from "./ConstructionSetComparison";
+import BuildingInformation, { hasBuildingInformation } from "./BuildingInformation";
 import SeasonalEnergyAnalysis from "./SeasonalEnergyAnalysis";
 import SimulationSetupCard from "./SimulationSetupCard";
 import {
@@ -181,7 +182,7 @@ export default function SimulationDataView(props: {
       ventilation: "Ventilation / outdoor-air control",
       greenWall: "Green wall analysis",
       windowOpening: "Open windows analysis",
-      thermalZones: "Thermal zones",
+      thermalZones: "Building information",
       construction: "Construction Set",
     })[panel];
   return (
@@ -206,7 +207,9 @@ export default function SimulationDataView(props: {
             <Show when={props.simulation.openWindows}>
               <WorkspaceNavigationCard icon={Wind} title="Open windows analysis" description="Review zone window-opening results across the simulation." onClick={() => setActivePanel("windowOpening")} />
             </Show>
-            <WorkspaceNavigationCard icon={MapPin} title="Thermal zones" description="Review the thermal zones included in this simulation." onClick={() => setActivePanel("thermalZones")} />
+            <Show when={hasBuildingInformation(props.timesteps)}>
+              <WorkspaceNavigationCard icon={MapPin} title="Building information" description="Review building metrics, thermal-zone geometry and occupants." onClick={() => setActivePanel("thermalZones")} />
+            </Show>
             <WorkspaceNavigationCard icon={BrickWall} title="Construction Set" description="Review the construction set and material details used by this simulation." onClick={() => setActivePanel("construction")} />
           </div>
         </div>
@@ -287,7 +290,9 @@ export default function SimulationDataView(props: {
                   </Show>
                 </Match>
                 <Match when={panel === "thermalZones"}>
-                  <SingleThermalZoneOverview zones={zones()} timesteps={props.timesteps} analyticsZones={energyAnalytics.data?.zones ?? {}} />
+                  <Show when={energyAnalytics.data} fallback={<p class="text-sm text-graphite/55">Loading building information…</p>}>
+                    {analytics => <BuildingInformation simulation={props.simulation} timesteps={props.timesteps} analytics={analytics()} />}
+                  </Show>
                 </Match>
                 <Match when={panel === "construction"}>
                   <ConstructionSetComparison simulations={[props.simulation]} scrollCardsOnly />
@@ -499,7 +504,7 @@ function SinglePlantSummary(props: {
   );
 }
 
-function SingleThermalZoneOverview(props: {
+export function SingleThermalZoneOverview(props: {
   zones: string[];
   timesteps: SimulationTimestep[];
   analyticsZones: Record<string, Record<string, number | null>>;
