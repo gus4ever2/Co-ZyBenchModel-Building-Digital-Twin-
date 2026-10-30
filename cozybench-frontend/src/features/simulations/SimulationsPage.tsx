@@ -912,8 +912,10 @@ function EnergyTotals(props: { compared: ComparedSimulation[] }) {
               <th class="p-3">Simulation</th>
               <th class="p-3">Heating</th>
               <th class="p-3">Δ Heating</th>
+              <th class="p-3">Δ Heating %</th>
               <th class="p-3">Cooling</th>
               <th class="p-3">Δ Cooling</th>
+              <th class="p-3">Δ Cooling %</th>
               <th class="p-3">Total HVAC</th>
               <th class="p-3">Δ Total HVAC</th>
               <th class="p-3">Δ Total HVAC %</th>
@@ -934,9 +936,15 @@ function EnergyTotals(props: { compared: ComparedSimulation[] }) {
                     <td class="p-3">
                       {delta(metrics.totalHeatingKwhDelta, "kWh")}
                     </td>
+                    <td class="p-3">
+                      {delta(metrics.totalHeatingKwhDeltaPercent, "%")}
+                    </td>
                     <td class="p-3">{metric(metrics.totalCoolingKwh, "kWh")}</td>
                     <td class="p-3">
                       {delta(metrics.totalCoolingKwhDelta, "kWh")}
+                    </td>
+                    <td class="p-3">
+                      {delta(metrics.totalCoolingKwhDeltaPercent, "%")}
                     </td>
                     <td class="p-3">{metric(metrics.totalHvacKwh, "kWh")}</td>
                     <td class="p-3">
