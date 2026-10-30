@@ -8,29 +8,34 @@ type InfoModalProps = {
     onClose: () => void;
 }
 
+type InfoModalContent = Component & {
+    infoModalSize?: "expanded";
+};
+
 export default function InfoModal(props: InfoModalProps) {
+    const usesExpandedLayout = () => (props.infoModalContent as InfoModalContent | undefined)?.infoModalSize === "expanded";
+
     return(
         <>
             <Show when={props.infoModal}>
                 <div
-                    class="fixed inset-0 z-[100] grid place-items-center bg-black/50 p-5"
+                    class={`fixed inset-0 z-[100] grid place-items-center bg-black/50 ${usesExpandedLayout() ? "p-2" : "p-5"}`}
                     role="presentation"
                     onClick={props.onClose}
                 >
                     <section
-                        class="
+                        class={`
           relative
           flex
-          h-[min(42rem,calc(100vh-2.5rem))]
           w-full
-          max-w-3xl
+          ${usesExpandedLayout() ? "h-[calc(100vh-1rem)] max-w-[calc(100vw-1rem)] rounded-3xl" : "h-[min(42rem,calc(100vh-2.5rem))] max-w-3xl"}
           flex-col
           overflow-hidden
           rounded-2xl
           bg-cloud-white
           p-6
           shadow-2xl
-        "
+        `}
                         role="dialog"
                         aria-modal="true"
                         aria-label="Information"
@@ -60,19 +65,18 @@ export default function InfoModal(props: InfoModalProps) {
                         </button>
 
                         <div
-                            class="
-            cozy-scrollbar
+                            class={`
             mt-8
             min-h-0
             flex-1
-            overflow-y-auto
             rounded-2xl
             border
             border-citadel-blue/15
             bg-cloud-white
             p-5
             shadow-sm
-          "
+            ${usesExpandedLayout() ? "overflow-hidden" : "cozy-scrollbar overflow-y-auto"}
+          `}
                         >
                             <Show when={props.infoModalContent}>
                                 {(InfoContent) => <Dynamic component={InfoContent()} />}
