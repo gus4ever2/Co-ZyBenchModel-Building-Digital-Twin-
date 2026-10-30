@@ -159,6 +159,22 @@ class PlantGridRuntimeTests(unittest.TestCase):
         )
         self.assertAlmostEqual(value, 200.0)
 
+    def test_co2_only_grid_keeps_legacy_thermal_values_absent(self) -> None:
+        lookup = PlantProfileLookup(
+            plant_id="test-plant",
+            profile_service=_InMemoryGridService(_linear_grid_document()),
+        )
+        response = lookup.get_response(
+            ppfd_umol_m2_s=25.0,
+            air_temperature_c=20.0,
+            relative_humidity_percent=30.0,
+            co2_concentration_ppm=450.0,
+        )
+        self.assertFalse(response.has_transpiration_data)
+        self.assertFalse(response.has_thermal_flux_data)
+        self.assertEqual(response.transpiration_kg_per_hour, 0.0)
+        self.assertEqual(response.latent_heat_flux_w_m2_leaf, 0.0)
+
     def test_schema_v3_interpolates_all_physiology_fields(self) -> None:
         lookup = PlantProfileLookup(
             plant_id="test-plant",

@@ -75,10 +75,10 @@ def apply_plant_control(
     settings: PlantSimulation,
     green_wall_area_by_zone: dict[str, float],
 ) -> dict[str, ZonePlantCO2ExchangeResult]:
-    """Apply PhotosynEB CO2 sink/source flow; EnergyPlus models wall heat/moisture.
+    """Apply Photosyn CO2 sink/source flow; EnergyPlus models wall heat/moisture.
 
-    Green-wall areas are fixed before EnergyPlus starts. PhotosynEB flux fields
-    are retained as diagnostics only; they are not injected into zone loads.
+    Green-wall areas are fixed before EnergyPlus starts. Legacy grids may
+    contain thermal diagnostics, but CO2-only grids intentionally omit them.
     """
     if not actuator_handles_by_zone:
         return {}

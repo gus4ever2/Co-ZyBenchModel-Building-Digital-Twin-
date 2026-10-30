@@ -1,18 +1,14 @@
-"""Generate coupled CO2 and leaf-energy response grids from an OBJ.
+"""Generate lightweight CO2-response grids from an OBJ.
 
 CARIBU calculates diffuse light interception per OBJ leaf.  Leaf identity is
 preferentially taken from OBJ groups/objects named ``leaf_*``.  Older OBJ files
 that identify leaves only with ``usemtl leaf_green`` remain supported through a
 connected-component fallback.
 
-``plantecophys::Photosyn`` and ``FindTleaf`` solve the same coupled leaf gas
-exchange and Penman--Monteith energy balance used by ``PhotosynEB``.  The
-fixed point is verified explicitly because the package's convenience wrapper
-can return a non-converged temperature for low-airflow indoor conditions.
-The generated grid contains net CO2 exchange, transpiration and the complete
-leaf energy-balance fluxes for every environmental grid point.  The runtime
-uses the latent and convective fluxes as explicit EnergyPlus zone loads; the
-radiative terms remain available for diagnostics and balance verification.
+CARIBU calculates absorbed light once from the OBJ. ``plantecophys::Photosyn``
+then evaluates only net CO2 exchange for each environmental grid point. The
+living-wall simulation is CO2-only, so new grids deliberately do not generate
+transpiration, latent/sensible heat, radiation, or leaf-energy-balance data.
 """
 
 from __future__ import annotations
@@ -128,7 +124,12 @@ def get_grid_config(name: str) -> PlantGridConfig:
 
 @dataclass(frozen=True, slots=True)
 class PlantParameters:
-    """Species-specific optical, photosynthetic and leaf-energy inputs."""
+    """Species-specific optical and photosynthetic inputs.
+
+    The last four fields are retained only so previously saved plant records
+    can still be regenerated. The lightweight CO2 generator does not use
+    them for newly generated profiles.
+    """
 
     reflectance: float
     transmittance: float
@@ -852,6 +853,81 @@ def _evaluate_slice(
     ]
 
 
+def _evaluate_co2_slice(
+    *,
+    ro: Any,
+    leaf_areas_m2: list[float],
+    absorbed_factors: list[float],
+    ppfd: float,
+    temperature_c: float,
+    humidities: tuple[float, ...],
+    co2_values: tuple[float, ...],
+    parameters: PlantParameters,
+) -> list[dict[str, float]]:
+    """Evaluate only CO2 exchange with plantecophys::Photosyn.
+
+    The zone air temperature is used as the leaf temperature. This avoids the
+    expensive indoor leaf-energy fixed point and intentionally leaves all
+    thermal/latent fields out of newly generated grid documents.
+    """
+    ro.globalenv["cb_leaf_areas"] = ro.FloatVector(leaf_areas_m2)
+    ro.globalenv["cb_leaf_ppfd"] = ro.FloatVector(
+        [factor * ppfd for factor in absorbed_factors]
+    )
+    ro.globalenv["cb_temperature"] = temperature_c
+    ro.globalenv["cb_humidities"] = ro.FloatVector(humidities)
+    ro.globalenv["cb_co2_values"] = ro.FloatVector(co2_values)
+    ro.globalenv["cb_reference_pressure_kpa"] = REFERENCE_PRESSURE_KPA
+    ro.globalenv["cb_vcmax"] = parameters.vcmax
+    ro.globalenv["cb_jmax"] = parameters.jmax
+    ro.globalenv["cb_rd"] = parameters.rd
+    ro.r(
+        """
+        cb_co2_slice <- function() {
+          rows <- list(); index <- 1L
+          for (humidity in cb_humidities) {
+            saturation <- 0.6108 * exp((17.27 * cb_temperature) / (cb_temperature + 237.3))
+            vpd <- max(0, saturation * (1 - humidity / 100))
+            for (co2 in cb_co2_values) {
+              evaluate_leaf <- function(leaf_ppfd) {
+                gas <- tryCatch(
+                  plantecophys::Photosyn(
+                    PPFD=leaf_ppfd, Tleaf=cb_temperature, VPD=vpd,
+                    Ca=co2, Patm=cb_reference_pressure_kpa, Vcmax=cb_vcmax,
+                    Jmax=cb_jmax, Rd=cb_rd
+                  ),
+                  error=function(error) NULL
+                )
+                if (is.null(gas) || !is.finite(gas$ALEAF[[1]])) return(NA_real_)
+                gas$ALEAF[[1]]
+              }
+              leaf_assimilation <- vapply(cb_leaf_ppfd, evaluate_leaf, numeric(1L))
+              valid_leaf <- is.finite(leaf_assimilation)
+              valid_areas <- cb_leaf_areas[valid_leaf]
+              net_umol_s <- if (length(valid_areas) == 0L) 0 else
+                sum(leaf_assimilation[valid_leaf] * valid_areas)
+              rows[[index]] <- c(humidity, co2, vpd, net_umol_s)
+              index <- index + 1L
+            }
+          }
+          do.call(rbind, rows)
+        }
+        cb_result <- cb_co2_slice()
+        """
+    )
+    frame = ro.r("as.data.frame(cb_result)")
+    columns = [list(frame.rx2(index)) for index in range(1, 5)]
+    return [
+        {
+            "humidity": float(row[0]),
+            "co2": float(row[1]),
+            "vpd": float(row[2]),
+            "net_umol_s": float(row[3]),
+        }
+        for row in zip(*columns, strict=True)
+    ]
+
+
 def _evaluate_grid_slice_task(
     task: tuple[
         float,
@@ -879,7 +955,7 @@ def _evaluate_grid_slice_task(
     return (
         ppfd,
         temperature_c,
-        _evaluate_slice(
+        _evaluate_co2_slice(
             ro=_WORKER_R_SESSION,
             leaf_areas_m2=leaf_areas_m2,
             absorbed_factors=absorbed_factors,
@@ -940,31 +1016,6 @@ def generate_obj_caribu_plantecophys_profiles(
                     row["net_umol_s"] * 1e-6 * 44.01 * 3600.0,
                     12,
                 ),
-                "transpiration_kg_per_hour": round(
-                    row["transpiration_kg_h"], 12
-                ),
-                "leaf_temperature_c": round(row["leaf_temperature_c"], 8),
-                "stomatal_conductance_mol_m2_s": round(
-                    row["stomatal_conductance_mol_m2_s"], 12
-                ),
-                "energy_balance_failed_leaf_fraction": round(
-                    row["energy_balance_failed_leaf_fraction"], 8
-                ),
-                "latent_heat_flux_w_m2_leaf": round(
-                    row["latent_heat_flux_w_m2_leaf"], 12
-                ),
-                "sensible_heat_flux_w_m2_leaf": round(
-                    row["sensible_heat_flux_w_m2_leaf"], 12
-                ),
-                "incident_shortwave_flux_w_m2_leaf": round(
-                    row["incident_shortwave_flux_w_m2_leaf"], 12
-                ),
-                "net_radiation_flux_w_m2_leaf": round(
-                    row["net_radiation_flux_w_m2_leaf"], 12
-                ),
-                "longwave_emission_flux_w_m2_leaf": round(
-                    row["longwave_emission_flux_w_m2_leaf"], 12
-                ),
             }
             vpd_values.setdefault(_key(temperature), {})[humidity_key] = round(
                 row["vpd"], 8
@@ -1012,7 +1063,7 @@ def generate_obj_caribu_plantecophys_profiles(
         ro = _r_session()
         for task in tasks:
             ppfd, temperature = task[0], task[1]
-            rows = _evaluate_slice(
+            rows = _evaluate_co2_slice(
                 ro=ro,
                 leaf_areas_m2=task[2],
                 absorbed_factors=task[3],
@@ -1052,15 +1103,8 @@ def generate_obj_caribu_plantecophys_profiles(
         json.dumps(
             {
                 "schema_version": 5,
-                "profile_type": "steady_state_environment_grid",
-                "source": (
-                    "CARIBU + plantecophys Photosyn + indoor leaf "
-                    "energy-balance fixed point"
-                ),
-                "radiative_closure": (
-                    "indoor enclosure: long-wave mean radiant temperature "
-                    "equals zone air temperature"
-                ),
+                "profile_type": "co2_response_grid",
+                "source": "CARIBU + plantecophys Photosyn (CO2-only)",
                 "grid_preset": grid_preset,
                 "grid_purpose": (
                     "case-study validation sampling; validate against the "
@@ -1102,15 +1146,6 @@ def generate_obj_caribu_plantecophys_profiles(
                 },
                 "value_fields": {
                     "net_co2_exchange_g_per_hour": "g CO2 h-1 reference-panel-1",
-                    "transpiration_kg_per_hour": "kg H2O h-1 reference-panel-1",
-                    "leaf_temperature_c": "degC leaf-area-weighted",
-                    "stomatal_conductance_mol_m2_s": "mol H2O m-2 leaf s-1 leaf-area-weighted",
-                    "energy_balance_failed_leaf_fraction": "leaf-area fraction without a verified energy-balance solution",
-                    "latent_heat_flux_w_m2_leaf": "W m-2 leaf-area-1",
-                    "sensible_heat_flux_w_m2_leaf": "W m-2 leaf-area-1; positive leaf-to-air",
-                    "incident_shortwave_flux_w_m2_leaf": "W m-2 leaf-area-1",
-                    "net_radiation_flux_w_m2_leaf": "W m-2 leaf-area-1",
-                    "longwave_emission_flux_w_m2_leaf": "W m-2 leaf-area-1",
                 },
                 "sign_convention": (
                     "Positive values are uptake; negative values are respiration."
