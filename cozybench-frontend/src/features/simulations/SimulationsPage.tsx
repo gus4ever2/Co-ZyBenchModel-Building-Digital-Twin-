@@ -25,6 +25,7 @@ import { Portal } from "solid-js/web";
 const PlantModelDialog = lazy(() => import("../plant-dt/PlantModelDialog"));
 import EChart from "../../components/charts/EChart";
 import ConstructionSetComparison from "./ConstructionSetComparison";
+import BuildingInformation, { hasBuildingInformation } from "./BuildingInformation";
 import SeasonalEnergyAnalysis from "./SeasonalEnergyAnalysis";
 import GreenWallParameters from "./GreenWallParameters";
 import TemperatureComparisonChart, { TemperatureSetpointsTable } from "./TemperatureComparisonChart";
@@ -481,7 +482,7 @@ function ComparisonResults(props: {
     ventilation: "Ventilation / outdoor-air control",
     windowOpening: "Open windows analysis",
     greenWall: "Green wall analysis",
-    thermalZones: "Thermal zone data",
+    thermalZones: "Building information",
     construction: "Compare Construction Sets",
   })[panel];
   const panelNeedsZone = (panel: ComparisonPanel) =>
@@ -562,12 +563,14 @@ function ComparisonResults(props: {
                 onClick={() => setActivePanel("windowOpening")}
               />
             </Show>
-            <WorkspaceNavigationCard
-              icon={MapPin}
-              title="Thermal zones"
-              description="Compare zone geometry, weekday occupancy and CO₂ setpoints."
-              onClick={() => setActivePanel("thermalZones")}
-            />
+            <Show when={props.compared.some((item) => hasBuildingInformation(item.timesteps, item.analytics))}>
+              <WorkspaceNavigationCard
+                icon={MapPin}
+                title="Building information"
+                description="Review building metrics, thermal-zone geometry and occupants."
+                onClick={() => setActivePanel("thermalZones")}
+              />
+            </Show>
             <WorkspaceNavigationCard
               icon={BrickWall}
               title="Compare Construction Sets"
@@ -732,10 +735,19 @@ function ComparisonResults(props: {
                 </Match>
 
                 <Match when={panel === "thermalZones"}>
-                  <ThermalZoneOverview
-                    compared={props.compared}
-                    plantConfigurations={props.analysis.plantConfigurations}
-                  />
+                  <div class="space-y-5">
+                    <For each={props.compared}>
+                      {(item) => (
+                        <Show when={hasBuildingInformation(item.timesteps, item.analytics)}>
+                          <BuildingInformation
+                            simulation={item.simulation}
+                            timesteps={item.timesteps}
+                            analytics={item.analytics}
+                          />
+                        </Show>
+                      )}
+                    </For>
+                  </div>
                 </Match>
 
                 <Match when={panel === "construction"}>
@@ -1104,7 +1116,7 @@ function WindowOpeningSummary(props: {
   );
 }
 
-function ThermalZoneOverview(props: {
+export function ThermalZoneOverview(props: {
   compared: ComparedSimulation[];
   plantConfigurations: ComparisonPlantConfiguration[];
 }) {
