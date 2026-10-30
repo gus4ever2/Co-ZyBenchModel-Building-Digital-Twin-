@@ -7,7 +7,7 @@ services:
     environment:
       MONGO_INITDB_DATABASE: cozybench
     ports:
-      - "127.0.0.1:27017:27017"
+      - "127.0.0.1:2700:27017"
     volumes:
       - mongo-data:/data/db
     healthcheck:
