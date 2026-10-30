@@ -37,6 +37,9 @@ export default function BuildingInformation(props: BuildingInformationProps) {
   const selectedGeometry = () =>
     props.timesteps[0]?.results?.zone_internal_variable_values?.[selectedZone()];
   const selectedMetrics = () => props.analytics.zones[selectedZone()] ?? {};
+  const selectedPlant = createMemo(() =>
+    plantZoneData(props.timesteps, selectedZone()),
+  );
 
   createEffect(() => {
     if (!zones().includes(selectedZone())) setSelectedZone(zones()[0] ?? "");
@@ -134,6 +137,12 @@ export default function BuildingInformation(props: BuildingInformationProps) {
               <Metric label="Air volume" value={format(selectedMetrics().air_volume_m3 ?? selectedGeometry()?.air_volume_m3, "m³")} />
               <Metric label="Openable windows" value={windowCount(selectedMetrics().openable_window_count)} />
               <Metric label="Openable window area" value={format(selectedMetrics().openable_window_area_m2, "m²")} />
+              <Show when={selectedPlant()}>
+                {(plant) => <>
+                  <Metric label="Green-wall area" value={format(plant().greenWallAreaM2, "m²")} />
+                  <Metric label="Total leaf area" value={format(plant().totalLeafAreaM2, "m²")} />
+                </>}
+              </Show>
             </div>
             <section class="mt-4 rounded-xl border border-warm-stone/20 bg-sky-mist/10 p-3 sm:p-4">
               <h5 class="mb-2 text-sm font-bold text-graphite">Occupants · {selectedZone()}</h5>
@@ -167,4 +176,24 @@ function format(value: number | null | undefined, unit: string) {
 
 function windowCount(value: number | null | undefined) {
   return isNumber(value) ? `${Math.round(value)} windows` : "—";
+}
+
+function plantZoneData(timesteps: SimulationTimestep[], zone: string) {
+  for (const timestep of timesteps) {
+    const raw = timestep.results?.plant_co2_exchange_results;
+    if (!raw) continue;
+    const values = "plant_co2_exchange_results" in raw
+      ? raw.plant_co2_exchange_results
+      : raw;
+    const result = Object.entries(values ?? {}).find(
+      ([key, value]) => key === zone || value.zone_name === zone,
+    )?.[1];
+    if (result) {
+      return {
+        greenWallAreaM2: result.green_wall_area_m2,
+        totalLeafAreaM2: result.total_leaf_area_m2,
+      };
+    }
+  }
+  return undefined;
 }
