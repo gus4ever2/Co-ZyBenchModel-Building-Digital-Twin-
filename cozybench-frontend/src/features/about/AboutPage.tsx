@@ -29,7 +29,6 @@ export default function AboutPage() {
           eyebrow="Building performance case study"
           title="About CozyBench"
           description="CozyBench supports the creation, execution and evaluation of building energy simulations, bringing digital-twin configuration and simulation results into one consistent workspace."
-          info={{ onOpen: openGuide }}
           action={{ label: "Open guide", onClick: openGuide }}
         />
 
