@@ -8,6 +8,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG ENERGYPLUS_VERSION=26.1.0
 ARG ENERGYPLUS_SHA256=b651f4197bfc147a0f66dc92c58895d1748bdadb7a0288145fa9d50375edfbca
 ARG ENERGYPLUS_ARCHIVE=EnergyPlus-26.1.0-6f2e40d102-Linux-Ubuntu24.04-x86_64
+ARG LIBCARIBU_VERSION=3.1.1
 
 ENV ENERGYPLUS_HOME=/opt/${ENERGYPLUS_ARCHIVE} \
     R_HOME=/usr/lib/R \
@@ -23,8 +24,9 @@ ENV ENERGYPLUS_HOME=/opt/${ENERGYPLUS_ARCHIVE} \
 # self-contained micromamba binary used to install CARIBU for Python 3.11.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        bzip2 ca-certificates curl gnupg gfortran libcurl4-openssl-dev \
-        libexpat1 libgomp1 libssl-dev libxml2-dev libx11-6 tar \
+        binutils build-essential bzip2 ca-certificates cmake curl git gnupg \
+        gfortran libcurl4-openssl-dev libexpat1 libgomp1 libssl-dev \
+        libxml2-dev libx11-6 ninja-build tar \
     && install -d -m 0755 /etc/apt/keyrings \
     && curl --fail --location --silent --show-error \
         https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
@@ -51,6 +53,23 @@ RUN micromamba create --yes --prefix /opt/cosimulator-env \
         --channel openalea3 --channel conda-forge \
         python=3.11 openalea.caribu pip \
     && micromamba clean --all --yes
+
+# The OpenAlea conda package contains a pre-built canestrad executable which
+# requires the x86-64-v2/v3 CPU instruction sets.  The deployment server only
+# supports the x86-64 baseline, so compile the same libcaribu release inside
+# this image with an explicit generic target and replace that executable.
+RUN git clone --depth 1 --branch "v${LIBCARIBU_VERSION}" \
+        https://github.com/openalea/libcaribu.git /tmp/libcaribu \
+    && /opt/cosimulator-env/bin/python -m pip install --no-cache-dir \
+        scikit-build-core setuptools-scm \
+    && CFLAGS='-O2 -march=x86-64 -mtune=generic' \
+       CXXFLAGS='-O2 -march=x86-64 -mtune=generic' \
+       /opt/cosimulator-env/bin/python -m pip install --no-deps \
+        --no-build-isolation --ignore-installed /tmp/libcaribu \
+    && test -x /opt/cosimulator-env/bin/canestrad \
+    && ! readelf -n /opt/cosimulator-env/bin/canestrad \
+        | grep -q 'x86-64-v[2-9]' \
+    && rm -rf /tmp/libcaribu
 
 # Install the EnergyPlus version required by the IDF code and verify the
 # official release archive using its published SHA-256 checksum.
