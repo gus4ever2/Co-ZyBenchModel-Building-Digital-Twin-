@@ -195,8 +195,17 @@ class PlantProfileLookup:
             ),
             reference_panel_area_m2=panel_area_m2,
             total_leaf_area_m2=total_leaf_area_m2,
-            has_transpiration_data=True,
-            has_thermal_flux_data=True,
+            has_transpiration_data="transpiration_kg_per_hour" in weighted_values,
+            has_thermal_flux_data=any(
+                field in weighted_values
+                for field in (
+                    "latent_heat_flux_w_m2_leaf",
+                    "sensible_heat_flux_w_m2_leaf",
+                    "incident_shortwave_flux_w_m2_leaf",
+                    "net_radiation_flux_w_m2_leaf",
+                    "longwave_emission_flux_w_m2_leaf",
+                )
+            ),
             energy_balance_failed_leaf_fraction=weighted_values.get(
                 "energy_balance_failed_leaf_fraction"
             ),
