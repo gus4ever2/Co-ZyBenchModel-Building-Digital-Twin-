@@ -1063,6 +1063,7 @@ function WindowOpeningSummary(props: {
           <thead class="bg-sky-mist/25 text-left text-xs uppercase tracking-wide text-graphite/50">
             <tr>
               <th class="p-3">Simulation</th>
+              <th class="p-3">Window-opening strategy</th>
               <th class="p-3">Total openable window area (m²)</th>
               <th class="p-3">Mean window opening (%)</th>
               <th class="p-3">Δ vs baseline (%)</th>
@@ -1079,6 +1080,9 @@ function WindowOpeningSummary(props: {
                   <tr class="border-t border-warm-stone/10">
                     <td class="p-3 font-bold text-graphite">
                       {item.simulation.name}
+                    </td>
+                    <td class="whitespace-nowrap p-3">
+                      {windowStrategyLabel(item.simulation)}
                     </td>
                     <td class="whitespace-nowrap p-3">
                       {metric(item.analytics.zones[props.zone]?.openable_window_area_m2, "m²")}
@@ -1929,10 +1933,19 @@ function plantLabel(simulation: SimulationListItem) {
 function windowsLabel(simulation: SimulationListItem) {
   const windows = simulation.openWindows;
   if (!windows) return "Open windows disabled";
-  const strategy = windows.openingStrategy === "FIXED_PERCENTAGE"
-    ? "Fixed " + (windows.openingPercentage ?? "—") + "%"
-    : windows.openingStrategy === "ON_OFF" ? "On–Off" : "Linear";
+  const strategy = windowStrategyLabel(simulation);
   return `${strategy} · ${windows.co2ThresholdPpm} ppm · ±${windows.temperatureMarginC} °C`;
+}
+
+function windowStrategyLabel(simulation: SimulationListItem) {
+  const windows = simulation.openWindows;
+  if (!windows) return "Disabled";
+  if (windows.openingStrategy === "FIXED_PERCENTAGE") {
+    return typeof windows.openingPercentage === "number"
+      ? `Fixed · ${number(windows.openingPercentage)} %`
+      : "Fixed";
+  }
+  return windows.openingStrategy === "ON_OFF" ? "On–Off" : "Linear";
 }
 
 function co2ControlLabel(simulation: SimulationListItem) {
