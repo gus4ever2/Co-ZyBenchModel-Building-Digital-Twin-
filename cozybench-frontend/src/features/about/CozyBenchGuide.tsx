@@ -183,21 +183,21 @@ const pages: GuidePage[] = [
   },
 ];
 
-export default function CozyBenchGuide() {
+function CozyBenchGuide() {
   const [activeIndex, setActiveIndex] = createSignal(0);
   const activePage = createMemo(() => pages[activeIndex()]);
   const goTo = (index: number) => setActiveIndex(Math.max(0, Math.min(index, pages.length - 1)));
 
   return (
-    <div class="text-sm leading-6 text-graphite/70">
-      <header class="rounded-2xl border border-citadel-blue/15 bg-sky-mist/15 p-5">
+    <div class="flex h-full min-h-0 flex-col text-sm leading-6 text-graphite/70">
+      <header class="shrink-0 rounded-2xl border border-citadel-blue/15 bg-sky-mist/15 p-5">
         <p class="text-xs font-bold uppercase tracking-[0.18em] text-citadel-blue">Platform guide</p>
         <h2 class="mt-2 pr-8 text-2xl font-bold text-graphite">Using CozyBench</h2>
         <p class="mt-3 max-w-3xl">A practical guide to setting up a case, using GreenWall and air-control strategies, and reading single-simulation or comparison results.</p>
       </header>
 
-      <div class="mt-5 grid gap-5 lg:grid-cols-[13rem_minmax(0,1fr)]">
-        <nav class="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible" aria-label="Guide contents">
+      <div class="mt-5 grid min-h-0 flex-1 gap-5 lg:grid-cols-[13rem_minmax(0,1fr)]">
+        <nav class="flex shrink-0 gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible" aria-label="Guide contents">
           <For each={pages}>
             {(page, index) => (
               <button
@@ -217,7 +217,7 @@ export default function CozyBenchGuide() {
           </For>
         </nav>
 
-        <article class="min-w-0 rounded-2xl border border-warm-stone/20 bg-cloud-white p-5 shadow-sm">
+        <article class="flex min-h-0 min-w-0 flex-col rounded-2xl border border-warm-stone/20 bg-cloud-white p-5 shadow-sm">
           <p class="text-xs font-bold uppercase tracking-[0.16em] text-citadel-blue">{activePage().eyebrow}</p>
           <div class="mt-2 flex items-start gap-3">
             <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-sky-mist/35 text-citadel-blue">
@@ -229,7 +229,7 @@ export default function CozyBenchGuide() {
             </div>
           </div>
 
-          <div class="mt-5 space-y-5">
+          <div class="cozy-scrollbar mt-5 min-h-0 flex-1 space-y-5 overflow-y-auto pr-3">
             <For each={activePage().sections}>
               {(section) => (
                 <section>
@@ -245,7 +245,7 @@ export default function CozyBenchGuide() {
             </For>
           </div>
 
-          <footer class="mt-6 flex items-center justify-between gap-3 border-t border-warm-stone/15 pt-4">
+          <footer class="mt-5 flex shrink-0 items-center justify-between gap-3 border-t border-warm-stone/15 pt-4">
             <button type="button" disabled={activeIndex() === 0} onClick={() => goTo(activeIndex() - 1)} class="inline-flex items-center gap-2 rounded-xl border border-warm-stone/20 px-3 py-2 text-xs font-bold text-graphite transition hover:border-citadel-blue/45 hover:bg-sky-mist/25 disabled:cursor-not-allowed disabled:opacity-40">
               <ArrowLeft class="size-4" /> Previous
             </button>
@@ -259,3 +259,7 @@ export default function CozyBenchGuide() {
     </div>
   );
 }
+
+Object.assign(CozyBenchGuide, { infoModalSize: "expanded" as const });
+
+export default CozyBenchGuide;
