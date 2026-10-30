@@ -1,4 +1,4 @@
-import { createMutation, createQuery } from "@tanstack/solid-query";
+import { createMutation, createQuery, useQueryClient } from "@tanstack/solid-query";
 import axios from "axios";
 import type { EChartsOption } from "echarts";
 import {
@@ -20,14 +20,15 @@ import {
   Zap,
   X,
 } from "lucide-solid";
-import {For, Show, createMemo, createSignal, Switch, Match, lazy, onMount} from "solid-js";
+import {For, Show, createMemo, createSignal, Switch, Match, lazy, onMount, Suspense} from "solid-js";
 import { Portal } from "solid-js/web";
 const PlantModelDialog = lazy(() => import("../plant-dt/PlantModelDialog"));
-import EChart from "../../components/charts/EChart";
-import ConstructionSetComparison from "./ConstructionSetComparison";
-import BuildingInformation, { hasBuildingInformation } from "./BuildingInformation";
-import SeasonalEnergyAnalysis from "./SeasonalEnergyAnalysis";
-import GreenWallParameters from "./GreenWallParameters";
+const EChart = lazy(() => import("../../components/charts/EChart"));
+const ConstructionSetComparison = lazy(() => import("./ConstructionSetComparison"));
+const BuildingInformation = lazy(() => import("./BuildingInformation"));
+const SeasonalEnergyAnalysis = lazy(() => import("./SeasonalEnergyAnalysis"));
+const GreenWallParameters = lazy(() => import("./GreenWallParameters"));
+import { hasBuildingInformation } from "./BuildingInformation";
 import TemperatureComparisonChart, { TemperatureSetpointsTable } from "./TemperatureComparisonChart";
 import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavigationCard";
 import EditorIdentityHeader from "../../components/form/EditorIdentityHeader";
@@ -71,6 +72,7 @@ const colors = [
 ];
 
 export default function SimulationsPage() {
+  const queryClient = useQueryClient();
   const [selectedIds, setSelectedIds] = createSignal<string[]>([]);
   const [inspectedId, setInspectedId] = createSignal<string | null>(null);
   const [previewPlantId, setPreviewPlantId] = createSignal("");
@@ -91,15 +93,29 @@ export default function SimulationsPage() {
   );
   const compare = createMutation(() => ({
     mutationFn: async (ids: string[]): Promise<ComparisonBundle> => {
-      const analysis = await loadSimulationComparison(ids);
-      const compared: ComparedSimulation[] = [];
-      for (const id of ids) {
-        compared.push({
-          simulation: completed().find((item) => item.id === id)!,
-          timesteps: (await loadSimulationResults(id)).timesteps,
-          analytics: analysis.analyticsBySimulation[id],
-        });
-      }
+      const selected = new Map(completed().map((item) => [item.id, item]));
+      const analysisRequest = queryClient.fetchQuery({
+        queryKey: ["simulations", "comparison", ...ids],
+        queryFn: () => loadSimulationComparison(ids),
+        staleTime: Infinity,
+        gcTime: 30 * 60 * 1000,
+      });
+      const resultRequests = mapInBatches(ids, 3, async (id) => ({
+        id,
+        timesteps: (await queryClient.fetchQuery({
+          queryKey: ["simulations", id, "results"],
+          queryFn: () => loadSimulationResults(id),
+          staleTime: Infinity,
+          gcTime: 30 * 60 * 1000,
+        })).timesteps,
+      }));
+      const [analysis, resultPages] = await Promise.all([analysisRequest, resultRequests]);
+      const resultsById = new Map(resultPages.map((result) => [result.id, result.timesteps]));
+      const compared = ids.map((id) => ({
+        simulation: selected.get(id)!,
+        timesteps: resultsById.get(id) ?? [],
+        analytics: analysis.analyticsBySimulation[id],
+      }));
       return { compared, analysis };
     },
     onSuccess: () => setComparisonOpen(true),
@@ -606,6 +622,7 @@ function ComparisonResults(props: {
                 />
               </Show>
 
+              <Suspense fallback={<Loading label="Loading analysis…" />}>
               <Switch>
                 <Match when={panel === "energy"}>
                   <EnergyTotals compared={props.compared} />
@@ -757,6 +774,7 @@ function ComparisonResults(props: {
                   />
                 </Match>
               </Switch>
+              </Suspense>
             </div>
           </ComparisonAnalysisDialog>
         )}
@@ -1848,9 +1866,24 @@ function lineOption(
       name: seriesNames[index],
       type: "line",
       showSymbol: false,
+      sampling: "lttb",
+      progressive: 5_000,
+      progressiveThreshold: 3_000,
       data: Array.from({ length }, (_, index) => valueAt(item, index)),
     })),
   };
+}
+
+async function mapInBatches<T, R>(
+  items: T[],
+  batchSize: number,
+  work: (item: T) => Promise<R>,
+) {
+  const output: R[] = [];
+  for (let index = 0; index < items.length; index += batchSize) {
+    output.push(...(await Promise.all(items.slice(index, index + batchSize).map(work))));
+  }
+  return output;
 }
 
 function Chart(props: { title: string; children: unknown }) {
