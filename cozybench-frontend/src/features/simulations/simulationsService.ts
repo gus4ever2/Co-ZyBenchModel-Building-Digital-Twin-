@@ -285,20 +285,38 @@ export async function loadSimulation(simulationId: string) {
 
 export async function loadSimulationResults(simulationId: string) {
   const limit = 1000;
-  const timesteps: SimulationTimestep[] = [];
-  let total = 0;
-  do {
+  const fetchPage = async (offset: number) => {
     const { data } = await api.get<SimulationResultsResponse>(
       `/v1/simulations/${simulationId}/results`,
-      { params: { offset: timesteps.length, limit } },
+      { params: { offset, limit } },
     );
-    total = data.total;
-    const page = data.timesteps ?? [];
-    if (!page.length && timesteps.length < total) {
-      throw new Error("Simulation results stopped loading before all timesteps were received.");
-    }
-    for (const step of page) timesteps.push(step);
-  } while (timesteps.length < total);
+    return { offset, data };
+  };
+  const first = await fetchPage(0);
+  const total = first.data.total;
+  const pages = [first];
+  const offsets = Array.from(
+    { length: Math.ceil(Math.max(total - limit, 0) / limit) },
+    (_, index) => limit * (index + 1),
+  );
+
+  // Fetch the remaining result pages concurrently in small batches. This
+  // avoids one round-trip per 1,000 timesteps without overwhelming the API.
+  const concurrency = 3;
+  for (let index = 0; index < offsets.length; index += concurrency) {
+    pages.push(
+      ...(await Promise.all(
+        offsets.slice(index, index + concurrency).map(fetchPage),
+      )),
+    );
+  }
+
+  const timesteps = pages
+    .sort((left, right) => left.offset - right.offset)
+    .flatMap(({ data }) => data.timesteps ?? []);
+  if (timesteps.length < total) {
+    throw new Error("Simulation results stopped loading before all timesteps were received.");
+  }
   return { simulationId, offset: 0, total, returned: timesteps.length, timesteps };
 }
 
