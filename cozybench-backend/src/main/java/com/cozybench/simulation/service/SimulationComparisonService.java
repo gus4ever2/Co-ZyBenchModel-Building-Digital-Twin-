@@ -17,6 +17,19 @@ public class SimulationComparisonService {
     }
 
     public Map<String, Object> compare(String ownerId, String email, SimulationComparisonRequest request) {
+        return compare(ownerId, email, null, request);
+    }
+
+    public Map<String, Object> compareGuest(String guestSessionId, SimulationComparisonRequest request) {
+        return compare(guestSessionId, null, guestSessionId, request);
+    }
+
+    private Map<String, Object> compare(
+            String ownerId,
+            String email,
+            String guestSessionId,
+            SimulationComparisonRequest request
+    ) {
         if (request.analysisStart() != null && request.analysisEnd() != null
                 && request.analysisStart().isAfter(request.analysisEnd())) {
             throw new IllegalArgumentException("analysisStart must not be after analysisEnd");
@@ -31,6 +44,7 @@ public class SimulationComparisonService {
         }).toList();
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("user_email", email);
+        body.put("guest_session_id", guestSessionId);
         body.put("simulationIds", request.simulationIds());
         body.put("analysisStart", request.analysisStart() == null ? null : request.analysisStart().toString());
         body.put("analysisEnd", request.analysisEnd() == null ? null : request.analysisEnd().toString());

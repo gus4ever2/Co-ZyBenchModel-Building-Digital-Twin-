@@ -9,9 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as GuestRouteRouteImport } from './routes/guest/route'
 import { Route as appAuthenticatedRouteRouteImport } from './routes/(app)/_authenticated/route'
 import { Route as authAuthRouteRouteImport } from './routes/(auth)/_auth/route'
 import { Route as publicPublicRouteRouteImport } from './routes/(public)/_public/route'
+import { Route as GuestIndexRouteImport } from './routes/guest/index'
+import { Route as GuestAboutRouteImport } from './routes/guest/about'
+import { Route as GuestCurrentSimulationRouteImport } from './routes/guest/current-simulation'
+import { Route as GuestHistoryRouteImport } from './routes/guest/history'
+import { Route as GuestNewSimulationRouteRouteImport } from './routes/guest/new-simulation/route'
+import { Route as GuestSimulationsRouteImport } from './routes/guest/simulations'
 import { Route as appAuthenticatedAboutRouteImport } from './routes/(app)/_authenticated/about'
 import { Route as appAuthenticatedCreateBuildingDtRouteRouteImport } from './routes/(app)/_authenticated/create-building-dt/route'
 import { Route as appAuthenticatedCreatePlantDtRouteRouteImport } from './routes/(app)/_authenticated/create-plant-dt/route'
@@ -23,6 +30,9 @@ import { Route as appAuthenticatedSimulationsRouteImport } from './routes/(app)/
 import { Route as authAuthSignInRouteImport } from './routes/(auth)/_auth/sign-in'
 import { Route as authAuthSignUpRouteImport } from './routes/(auth)/_auth/sign-up'
 import { Route as publicPublicIndexRouteImport } from './routes/(public)/_public/index'
+import { Route as GuestNewSimulationIndexRouteImport } from './routes/guest/new-simulation/index'
+import { Route as GuestNewSimulationCustomizedRouteImport } from './routes/guest/new-simulation/customized'
+import { Route as GuestNewSimulationReferenceRouteImport } from './routes/guest/new-simulation/reference'
 import { Route as appAuthenticatedCreateBuildingDtIndexRouteImport } from './routes/(app)/_authenticated/create-building-dt/index'
 import { Route as appAuthenticatedCreateBuildingDtConstructionsRouteRouteImport } from './routes/(app)/_authenticated/create-building-dt/constructions/route'
 import { Route as appAuthenticatedCreateBuildingDtFloorplanRouteImport } from './routes/(app)/_authenticated/create-building-dt/floorplan'
@@ -37,6 +47,11 @@ import { Route as appAuthenticatedCreateBuildingDtConstructionsConstructionEdito
 import { Route as appAuthenticatedCreateBuildingDtConstructionsConstructionSetsRouteImport } from './routes/(app)/_authenticated/create-building-dt/constructions/construction-sets'
 import { Route as appAuthenticatedCreateBuildingDtConstructionsMaterialsRouteImport } from './routes/(app)/_authenticated/create-building-dt/constructions/materials'
 
+const GuestRouteRoute = GuestRouteRouteImport.update({
+  id: '/guest',
+  path: '/guest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const appAuthenticatedRouteRoute = appAuthenticatedRouteRouteImport.update({
   id: '/(app)/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -48,6 +63,36 @@ const authAuthRouteRoute = authAuthRouteRouteImport.update({
 const publicPublicRouteRoute = publicPublicRouteRouteImport.update({
   id: '/(public)/_public',
   getParentRoute: () => rootRouteImport,
+} as any)
+const GuestIndexRoute = GuestIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GuestRouteRoute,
+} as any)
+const GuestAboutRoute = GuestAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => GuestRouteRoute,
+} as any)
+const GuestCurrentSimulationRoute = GuestCurrentSimulationRouteImport.update({
+  id: '/current-simulation',
+  path: '/current-simulation',
+  getParentRoute: () => GuestRouteRoute,
+} as any)
+const GuestHistoryRoute = GuestHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => GuestRouteRoute,
+} as any)
+const GuestNewSimulationRouteRoute = GuestNewSimulationRouteRouteImport.update({
+  id: '/new-simulation',
+  path: '/new-simulation',
+  getParentRoute: () => GuestRouteRoute,
+} as any)
+const GuestSimulationsRoute = GuestSimulationsRouteImport.update({
+  id: '/simulations',
+  path: '/simulations',
+  getParentRoute: () => GuestRouteRoute,
 } as any)
 const appAuthenticatedAboutRoute = appAuthenticatedAboutRouteImport.update({
   id: '/about',
@@ -110,6 +155,23 @@ const publicPublicIndexRoute = publicPublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => publicPublicRouteRoute,
 } as any)
+const GuestNewSimulationIndexRoute = GuestNewSimulationIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GuestNewSimulationRouteRoute,
+} as any)
+const GuestNewSimulationCustomizedRoute =
+  GuestNewSimulationCustomizedRouteImport.update({
+    id: '/customized',
+    path: '/customized',
+    getParentRoute: () => GuestNewSimulationRouteRoute,
+  } as any)
+const GuestNewSimulationReferenceRoute =
+  GuestNewSimulationReferenceRouteImport.update({
+    id: '/reference',
+    path: '/reference',
+    getParentRoute: () => GuestNewSimulationRouteRoute,
+  } as any)
 const appAuthenticatedCreateBuildingDtIndexRoute =
   appAuthenticatedCreateBuildingDtIndexRouteImport.update({
     id: '/',
@@ -198,6 +260,13 @@ const appAuthenticatedCreateBuildingDtConstructionsMaterialsRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/guest': typeof GuestRouteRouteWithChildren
+  '/guest/new-simulation': typeof GuestNewSimulationRouteRouteWithChildren
+  '/guest/about': typeof GuestAboutRoute
+  '/guest/current-simulation': typeof GuestCurrentSimulationRoute
+  '/guest/history': typeof GuestHistoryRoute
+  '/guest/simulations': typeof GuestSimulationsRoute
+  '/guest/': typeof GuestIndexRoute
   '/create-building-dt': typeof appAuthenticatedCreateBuildingDtRouteRouteWithChildren
   '/create-plant-dt': typeof appAuthenticatedCreatePlantDtRouteRouteWithChildren
   '/new-simulation': typeof appAuthenticatedNewSimulationRouteRouteWithChildren
@@ -208,7 +277,10 @@ export interface FileRoutesByFullPath {
   '/simulations': typeof appAuthenticatedSimulationsRoute
   '/sign-in': typeof authAuthSignInRoute
   '/sign-up': typeof authAuthSignUpRoute
+  '/guest/new-simulation/customized': typeof GuestNewSimulationCustomizedRoute
+  '/guest/new-simulation/reference': typeof GuestNewSimulationReferenceRoute
   '/': typeof publicPublicIndexRoute
+  '/guest/new-simulation/': typeof GuestNewSimulationIndexRoute
   '/create-building-dt/constructions': typeof appAuthenticatedCreateBuildingDtConstructionsRouteRouteWithChildren
   '/create-building-dt/floorplan': typeof appAuthenticatedCreateBuildingDtFloorplanRoute
   '/create-plant-dt/create': typeof appAuthenticatedCreatePlantDtCreateRoute
@@ -224,6 +296,11 @@ export interface FileRoutesByFullPath {
   '/create-building-dt/constructions/': typeof appAuthenticatedCreateBuildingDtConstructionsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/guest/about': typeof GuestAboutRoute
+  '/guest/current-simulation': typeof GuestCurrentSimulationRoute
+  '/guest/history': typeof GuestHistoryRoute
+  '/guest/simulations': typeof GuestSimulationsRoute
+  '/guest': typeof GuestIndexRoute
   '/about': typeof appAuthenticatedAboutRoute
   '/current-simulation': typeof appAuthenticatedCurrentSimulationRoute
   '/dashboard': typeof appAuthenticatedDashboardRoute
@@ -231,7 +308,10 @@ export interface FileRoutesByTo {
   '/simulations': typeof appAuthenticatedSimulationsRoute
   '/sign-in': typeof authAuthSignInRoute
   '/sign-up': typeof authAuthSignUpRoute
+  '/guest/new-simulation/customized': typeof GuestNewSimulationCustomizedRoute
+  '/guest/new-simulation/reference': typeof GuestNewSimulationReferenceRoute
   '/': typeof publicPublicIndexRoute
+  '/guest/new-simulation': typeof GuestNewSimulationIndexRoute
   '/create-building-dt/floorplan': typeof appAuthenticatedCreateBuildingDtFloorplanRoute
   '/create-plant-dt/create': typeof appAuthenticatedCreatePlantDtCreateRoute
   '/create-plant-dt/library': typeof appAuthenticatedCreatePlantDtLibraryRoute
@@ -247,9 +327,16 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/guest': typeof GuestRouteRouteWithChildren
   '/(app)/_authenticated': typeof appAuthenticatedRouteRouteWithChildren
   '/(auth)/_auth': typeof authAuthRouteRouteWithChildren
   '/(public)/_public': typeof publicPublicRouteRouteWithChildren
+  '/guest/new-simulation': typeof GuestNewSimulationRouteRouteWithChildren
+  '/guest/about': typeof GuestAboutRoute
+  '/guest/current-simulation': typeof GuestCurrentSimulationRoute
+  '/guest/history': typeof GuestHistoryRoute
+  '/guest/simulations': typeof GuestSimulationsRoute
+  '/guest/': typeof GuestIndexRoute
   '/(app)/_authenticated/create-building-dt': typeof appAuthenticatedCreateBuildingDtRouteRouteWithChildren
   '/(app)/_authenticated/create-plant-dt': typeof appAuthenticatedCreatePlantDtRouteRouteWithChildren
   '/(app)/_authenticated/new-simulation': typeof appAuthenticatedNewSimulationRouteRouteWithChildren
@@ -260,7 +347,10 @@ export interface FileRoutesById {
   '/(app)/_authenticated/simulations': typeof appAuthenticatedSimulationsRoute
   '/(auth)/_auth/sign-in': typeof authAuthSignInRoute
   '/(auth)/_auth/sign-up': typeof authAuthSignUpRoute
+  '/guest/new-simulation/customized': typeof GuestNewSimulationCustomizedRoute
+  '/guest/new-simulation/reference': typeof GuestNewSimulationReferenceRoute
   '/(public)/_public/': typeof publicPublicIndexRoute
+  '/guest/new-simulation/': typeof GuestNewSimulationIndexRoute
   '/(app)/_authenticated/create-building-dt/constructions': typeof appAuthenticatedCreateBuildingDtConstructionsRouteRouteWithChildren
   '/(app)/_authenticated/create-building-dt/floorplan': typeof appAuthenticatedCreateBuildingDtFloorplanRoute
   '/(app)/_authenticated/create-plant-dt/create': typeof appAuthenticatedCreatePlantDtCreateRoute
@@ -278,6 +368,13 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/guest'
+    | '/guest/new-simulation'
+    | '/guest/about'
+    | '/guest/current-simulation'
+    | '/guest/history'
+    | '/guest/simulations'
+    | '/guest/'
     | '/create-building-dt'
     | '/create-plant-dt'
     | '/new-simulation'
@@ -288,7 +385,10 @@ export interface FileRouteTypes {
     | '/simulations'
     | '/sign-in'
     | '/sign-up'
+    | '/guest/new-simulation/customized'
+    | '/guest/new-simulation/reference'
     | '/'
+    | '/guest/new-simulation/'
     | '/create-building-dt/constructions'
     | '/create-building-dt/floorplan'
     | '/create-plant-dt/create'
@@ -304,6 +404,11 @@ export interface FileRouteTypes {
     | '/create-building-dt/constructions/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/guest/about'
+    | '/guest/current-simulation'
+    | '/guest/history'
+    | '/guest/simulations'
+    | '/guest'
     | '/about'
     | '/current-simulation'
     | '/dashboard'
@@ -311,7 +416,10 @@ export interface FileRouteTypes {
     | '/simulations'
     | '/sign-in'
     | '/sign-up'
+    | '/guest/new-simulation/customized'
+    | '/guest/new-simulation/reference'
     | '/'
+    | '/guest/new-simulation'
     | '/create-building-dt/floorplan'
     | '/create-plant-dt/create'
     | '/create-plant-dt/library'
@@ -326,9 +434,16 @@ export interface FileRouteTypes {
     | '/create-building-dt/constructions'
   id:
     | '__root__'
+    | '/guest'
     | '/(app)/_authenticated'
     | '/(auth)/_auth'
     | '/(public)/_public'
+    | '/guest/new-simulation'
+    | '/guest/about'
+    | '/guest/current-simulation'
+    | '/guest/history'
+    | '/guest/simulations'
+    | '/guest/'
     | '/(app)/_authenticated/create-building-dt'
     | '/(app)/_authenticated/create-plant-dt'
     | '/(app)/_authenticated/new-simulation'
@@ -339,7 +454,10 @@ export interface FileRouteTypes {
     | '/(app)/_authenticated/simulations'
     | '/(auth)/_auth/sign-in'
     | '/(auth)/_auth/sign-up'
+    | '/guest/new-simulation/customized'
+    | '/guest/new-simulation/reference'
     | '/(public)/_public/'
+    | '/guest/new-simulation/'
     | '/(app)/_authenticated/create-building-dt/constructions'
     | '/(app)/_authenticated/create-building-dt/floorplan'
     | '/(app)/_authenticated/create-plant-dt/create'
@@ -356,6 +474,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  GuestRouteRoute: typeof GuestRouteRouteWithChildren
   appAuthenticatedRouteRoute: typeof appAuthenticatedRouteRouteWithChildren
   authAuthRouteRoute: typeof authAuthRouteRouteWithChildren
   publicPublicRouteRoute: typeof publicPublicRouteRouteWithChildren
@@ -363,6 +482,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/solid-router' {
   interface FileRoutesByPath {
+    '/guest': {
+      id: '/guest'
+      path: '/guest'
+      fullPath: '/guest'
+      preLoaderRoute: typeof GuestRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(app)/_authenticated': {
       id: '/(app)/_authenticated'
       path: ''
@@ -383,6 +509,48 @@ declare module '@tanstack/solid-router' {
       fullPath: ''
       preLoaderRoute: typeof publicPublicRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/guest/': {
+      id: '/guest/'
+      path: '/'
+      fullPath: '/guest/'
+      preLoaderRoute: typeof GuestIndexRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/guest/about': {
+      id: '/guest/about'
+      path: '/about'
+      fullPath: '/guest/about'
+      preLoaderRoute: typeof GuestAboutRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/guest/current-simulation': {
+      id: '/guest/current-simulation'
+      path: '/current-simulation'
+      fullPath: '/guest/current-simulation'
+      preLoaderRoute: typeof GuestCurrentSimulationRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/guest/history': {
+      id: '/guest/history'
+      path: '/history'
+      fullPath: '/guest/history'
+      preLoaderRoute: typeof GuestHistoryRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/guest/new-simulation': {
+      id: '/guest/new-simulation'
+      path: '/new-simulation'
+      fullPath: '/guest/new-simulation'
+      preLoaderRoute: typeof GuestNewSimulationRouteRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/guest/simulations': {
+      id: '/guest/simulations'
+      path: '/simulations'
+      fullPath: '/guest/simulations'
+      preLoaderRoute: typeof GuestSimulationsRouteImport
+      parentRoute: typeof GuestRouteRoute
     }
     '/(app)/_authenticated/about': {
       id: '/(app)/_authenticated/about'
@@ -460,6 +628,27 @@ declare module '@tanstack/solid-router' {
       fullPath: '/'
       preLoaderRoute: typeof publicPublicIndexRouteImport
       parentRoute: typeof publicPublicRouteRoute
+    }
+    '/guest/new-simulation/': {
+      id: '/guest/new-simulation/'
+      path: '/'
+      fullPath: '/guest/new-simulation/'
+      preLoaderRoute: typeof GuestNewSimulationIndexRouteImport
+      parentRoute: typeof GuestNewSimulationRouteRoute
+    }
+    '/guest/new-simulation/customized': {
+      id: '/guest/new-simulation/customized'
+      path: '/customized'
+      fullPath: '/guest/new-simulation/customized'
+      preLoaderRoute: typeof GuestNewSimulationCustomizedRouteImport
+      parentRoute: typeof GuestNewSimulationRouteRoute
+    }
+    '/guest/new-simulation/reference': {
+      id: '/guest/new-simulation/reference'
+      path: '/reference'
+      fullPath: '/guest/new-simulation/reference'
+      preLoaderRoute: typeof GuestNewSimulationReferenceRouteImport
+      parentRoute: typeof GuestNewSimulationRouteRoute
     }
     '/(app)/_authenticated/create-building-dt/': {
       id: '/(app)/_authenticated/create-building-dt/'
@@ -554,6 +743,46 @@ declare module '@tanstack/solid-router' {
     }
   }
 }
+
+interface GuestNewSimulationRouteRouteChildren {
+  GuestNewSimulationCustomizedRoute: typeof GuestNewSimulationCustomizedRoute
+  GuestNewSimulationReferenceRoute: typeof GuestNewSimulationReferenceRoute
+  GuestNewSimulationIndexRoute: typeof GuestNewSimulationIndexRoute
+}
+
+const GuestNewSimulationRouteRouteChildren: GuestNewSimulationRouteRouteChildren =
+  {
+    GuestNewSimulationCustomizedRoute: GuestNewSimulationCustomizedRoute,
+    GuestNewSimulationReferenceRoute: GuestNewSimulationReferenceRoute,
+    GuestNewSimulationIndexRoute: GuestNewSimulationIndexRoute,
+  }
+
+const GuestNewSimulationRouteRouteWithChildren =
+  GuestNewSimulationRouteRoute._addFileChildren(
+    GuestNewSimulationRouteRouteChildren,
+  )
+
+interface GuestRouteRouteChildren {
+  GuestNewSimulationRouteRoute: typeof GuestNewSimulationRouteRouteWithChildren
+  GuestAboutRoute: typeof GuestAboutRoute
+  GuestCurrentSimulationRoute: typeof GuestCurrentSimulationRoute
+  GuestHistoryRoute: typeof GuestHistoryRoute
+  GuestSimulationsRoute: typeof GuestSimulationsRoute
+  GuestIndexRoute: typeof GuestIndexRoute
+}
+
+const GuestRouteRouteChildren: GuestRouteRouteChildren = {
+  GuestNewSimulationRouteRoute: GuestNewSimulationRouteRouteWithChildren,
+  GuestAboutRoute: GuestAboutRoute,
+  GuestCurrentSimulationRoute: GuestCurrentSimulationRoute,
+  GuestHistoryRoute: GuestHistoryRoute,
+  GuestSimulationsRoute: GuestSimulationsRoute,
+  GuestIndexRoute: GuestIndexRoute,
+}
+
+const GuestRouteRouteWithChildren = GuestRouteRoute._addFileChildren(
+  GuestRouteRouteChildren,
+)
 
 interface appAuthenticatedCreateBuildingDtConstructionsRouteRouteChildren {
   appAuthenticatedCreateBuildingDtConstructionsConstructionEditorRoute: typeof appAuthenticatedCreateBuildingDtConstructionsConstructionEditorRoute
@@ -699,6 +928,7 @@ const publicPublicRouteRouteWithChildren =
   publicPublicRouteRoute._addFileChildren(publicPublicRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  GuestRouteRoute: GuestRouteRouteWithChildren,
   appAuthenticatedRouteRoute: appAuthenticatedRouteRouteWithChildren,
   authAuthRouteRoute: authAuthRouteRouteWithChildren,
   publicPublicRouteRoute: publicPublicRouteRouteWithChildren,

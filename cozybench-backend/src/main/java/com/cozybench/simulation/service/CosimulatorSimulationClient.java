@@ -46,10 +46,11 @@ public class CosimulatorSimulationClient {
         this.defaultPlants = defaultPlants;
     }
 
-    public String start(String userEmail, String constructionSetName, StartSimulationRequest request,
+    public String start(String userEmail, String guestSessionId, String constructionSetName, StartSimulationRequest request,
                         com.cozybench.simulation.dto.ConstructionSetSnapshot snapshot) {
+        String plantOwner = userEmail == null ? "guest:" + guestSessionId : userEmail;
         String preparedPlantId = request.plantSimulation() == null ? null
-                : defaultPlants.prepare(userEmail, request.plantSimulation().plantId());
+                : defaultPlants.prepare(plantOwner, request.plantSimulation().plantId());
         Map<String, Object> context = new LinkedHashMap<>();
         context.put("city", request.city().trim());
         context.put("construction_set", constructionSetName);
@@ -68,11 +69,11 @@ public class CosimulatorSimulationClient {
             context.put("thermostat_setpoints", thermostatMap(request.thermostatSetpoints()));
         }
 
-        Map<String, Object> requestBody = Map.of(
-                "user_email", userEmail,
-                "simulation_context", context,
-                "construction_set_snapshot", snapshot
-        );
+        Map<String, Object> requestBody = new LinkedHashMap<>();
+        requestBody.put("user_email", userEmail);
+        requestBody.put("guest_session_id", guestSessionId);
+        requestBody.put("simulation_context", context);
+        requestBody.put("construction_set_snapshot", snapshot);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -88,7 +89,7 @@ public class CosimulatorSimulationClient {
             );
             response = exchange.getBody();
         } catch (RestClientResponseException error) {
-            defaultPlants.release(userEmail, preparedPlantId);
+            defaultPlants.release(plantOwner, preparedPlantId);
             throw new IllegalArgumentException(
                     "The co-simulator rejected the simulation request: "
                             + error.getResponseBodyAsString(),
@@ -96,15 +97,21 @@ public class CosimulatorSimulationClient {
             );
         }
         catch (RuntimeException error) {
-            defaultPlants.release(userEmail, preparedPlantId);
+            defaultPlants.release(plantOwner, preparedPlantId);
             throw error;
         }
         String id = response == null ? null : String.valueOf(response.get("simulation_id"));
         if (id == null || id.isBlank() || "null".equals(id)) {
-            defaultPlants.release(userEmail, preparedPlantId);
+            defaultPlants.release(plantOwner, preparedPlantId);
             throw new IllegalStateException("The co-simulator did not return a simulation id");
         }
         return id;
+    }
+
+    /** Backward-compatible signed-user overload used by existing callers and tests. */
+    public String start(String userEmail, String constructionSetName, StartSimulationRequest request,
+                        com.cozybench.simulation.dto.ConstructionSetSnapshot snapshot) {
+        return start(userEmail, null, constructionSetName, request, snapshot);
     }
 
     public void cancel(String simulationId) {
@@ -118,10 +125,11 @@ public class CosimulatorSimulationClient {
     }
 
     /** Removes the simulation's local EnergyPlus files from the co-simulator workspace. */
-    public void deleteWorkspace(String simulationId, String userEmail) {
+    public void deleteWorkspace(String simulationId, String userEmail, String guestSessionId) {
         var uri = org.springframework.web.util.UriComponentsBuilder
                 .fromUriString(baseUrl + "/simulations/{simulationId}")
-                .queryParam("user_email", userEmail)
+                .queryParamIfPresent("user_email", java.util.Optional.ofNullable(userEmail))
+                .queryParamIfPresent("guest_session_id", java.util.Optional.ofNullable(guestSessionId))
                 .buildAndExpand(simulationId)
                 .encode()
                 .toUri();
@@ -136,9 +144,15 @@ public class CosimulatorSimulationClient {
     }
 
     public Map<String, Object> analytics(String email, String id, int start, Integer end) {
+        return analytics(email, null, id, start, end);
+    }
+
+    public Map<String, Object> analytics(String email, String guestSessionId, String id, int start, Integer end) {
         var uri = org.springframework.web.util.UriComponentsBuilder
                 .fromUriString(baseUrl + "/simulations/{id}/analytics")
-                .queryParam("user_email", email).queryParam("startIndex", start);
+                .queryParamIfPresent("user_email", java.util.Optional.ofNullable(email))
+                .queryParamIfPresent("guest_session_id", java.util.Optional.ofNullable(guestSessionId))
+                .queryParam("startIndex", start);
         if (end != null) uri.queryParam("endIndex", end);
         var response = analyticsHttp.exchange(uri.buildAndExpand(id).encode().toUri(),
                 HttpMethod.GET, HttpEntity.EMPTY, MAP_TYPE).getBody();
@@ -171,9 +185,15 @@ public class CosimulatorSimulationClient {
     }
 
     public Map<String, Object> selectedAnalytics(String email, String id, Map<String, Object> options) {
+        return selectedAnalytics(email, null, id, options);
+    }
+
+    public Map<String, Object> selectedAnalytics(String email, String guestSessionId, String id, Map<String, Object> options) {
         var uri = org.springframework.web.util.UriComponentsBuilder
                 .fromUriString(baseUrl + "/simulations/{id}/analytics")
-                .queryParam("user_email", email).buildAndExpand(id).encode().toUri();
+                .queryParamIfPresent("user_email", java.util.Optional.ofNullable(email))
+                .queryParamIfPresent("guest_session_id", java.util.Optional.ofNullable(guestSessionId))
+                .buildAndExpand(id).encode().toUri();
         return analyticsHttp.exchange(uri, HttpMethod.POST, new HttpEntity<>(options), MAP_TYPE).getBody();
     }
 
