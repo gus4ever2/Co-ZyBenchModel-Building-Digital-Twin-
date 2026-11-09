@@ -48,7 +48,9 @@ public class CosimulatorSimulationClient {
 
     public String start(String userEmail, String guestSessionId, String constructionSetName, StartSimulationRequest request,
                         com.cozybench.simulation.dto.ConstructionSetSnapshot snapshot) {
-        String plantOwner = userEmail == null ? "guest:" + guestSessionId : userEmail;
+        // Temporary plant copies are looked up by the same owner field that
+        // Python receives for this run. Guest runs deliberately use null email.
+        String plantOwner = userEmail;
         String preparedPlantId = request.plantSimulation() == null ? null
                 : defaultPlants.prepare(plantOwner, request.plantSimulation().plantId());
         Map<String, Object> context = new LinkedHashMap<>();
