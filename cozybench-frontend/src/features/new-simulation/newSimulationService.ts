@@ -1,4 +1,4 @@
-import api, { buildingDtApi } from "../../lib/api";
+import api, { buildingDtApi, GUEST_MODE_KEY } from "../../lib/api";
 import type { Descriptor } from "../construction-sets/constructionSetService";
 import type { SimulationListItem } from "../simulations/simulationsService";
 
@@ -77,10 +77,13 @@ export function constructionSetClimateDescription(name: string): string {
 }
 
 export async function loadSimulationPlants() {
-  const [defaults, personal] = await Promise.all([
-    api.get<PlantListResponse>("/v1/plants/defaults"),
-    api.get<PlantListResponse>("/v1/plants"),
-  ]);
+  const guestMode = typeof window !== "undefined"
+    && sessionStorage.getItem(GUEST_MODE_KEY) === "true";
+  const defaultsRequest = api.get<PlantListResponse>("/v1/plants/defaults");
+  const personalRequest = guestMode
+    ? Promise.resolve({ data: { plants: [] } })
+    : api.get<PlantListResponse>("/v1/plants");
+  const [defaults, personal] = await Promise.all([defaultsRequest, personalRequest]);
   return [
     ...(defaults.data.plants ?? []).map(plant => ({ ...plant, defaultOption: true })),
     ...(personal.data.plants ?? []).map(plant => ({ ...plant, defaultOption: false })),

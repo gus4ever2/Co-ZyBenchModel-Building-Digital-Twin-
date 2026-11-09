@@ -83,6 +83,19 @@ public class SimulationService {
             String userEmail,
             StartSimulationRequest request
     ) {
+        return start(ownerId, userEmail, null, request);
+    }
+
+    public SimulationSummaryResponse startGuest(String guestSessionId, StartSimulationRequest request) {
+        return start(guestSessionId, null, guestSessionId, request);
+    }
+
+    private SimulationSummaryResponse start(
+            String ownerId,
+            String userEmail,
+            String guestSessionId,
+            StartSimulationRequest request
+    ) {
         ConstructionSetSnapshot snapshot = snapshotService.snapshot(
                 ownerId,
                 request.constructionSet()
@@ -92,10 +105,12 @@ public class SimulationService {
 
         String simulationId;
         if (request.scenarioType() == ScenarioType.REFERENCE) {
-            simulationId = cosimulator.start(userEmail, constructionSetName, request, snapshot);
+            simulationId = cosimulator.start(userEmail, guestSessionId, constructionSetName, request, snapshot);
             Query query = idQuery(simulationId);
             Update update = metadataUpdate(
                     ownerId,
+                    userEmail,
+                    guestSessionId,
                     request,
                     snapshot,
                     requestedAt
@@ -119,6 +134,7 @@ public class SimulationService {
                     .append("construction_set_snapshot", snapshotMap(snapshot))
                     .append("custom_scenario", new Document(request.customScenario()))
                     .append("error", null);
+            if (guestSessionId != null) document.append("guest_session_id", guestSessionId);
             mongoTemplate.insert(document, SIMULATIONS);
             simulationId = id.toHexString();
         }
@@ -218,7 +234,11 @@ public class SimulationService {
 
         // The Python co-simulator owns the local EnergyPlus files; remove them before Mongo records.
         if (scenario(simulation) == ScenarioType.REFERENCE) {
-            cosimulator.deleteWorkspace(simulationId, userEmail);
+            cosimulator.deleteWorkspace(
+                    simulationId,
+                    userEmail,
+                    string(simulation.get("guest_session_id"))
+            );
         }
 
         Query timesteps = new Query(
@@ -319,6 +339,11 @@ public class SimulationService {
         return cosimulator.analytics(email, id, start, end);
     }
 
+    public Map<String, Object> analyticsGuest(String guestSessionId, String id, int start, Integer end) {
+        requireOwned(guestSessionId, null, id);
+        return cosimulator.analytics(null, guestSessionId, id, start, end);
+    }
+
     public Map<String, Object> availableAnalytics() {
         return cosimulator.availableAnalytics();
     }
@@ -326,6 +351,32 @@ public class SimulationService {
     public Map<String, Object> selectedAnalytics(String ownerId, String email, String id, Map<String, Object> options) {
         requireOwned(ownerId, email, id);
         return cosimulator.selectedAnalytics(email, id, options);
+    }
+
+    public Map<String, Object> selectedAnalyticsGuest(String guestSessionId, String id, Map<String, Object> options) {
+        requireOwned(guestSessionId, null, id);
+        return cosimulator.selectedAnalytics(null, guestSessionId, id, options);
+    }
+
+    /** Deletes an ownerless guest simulation during scheduled cleanup. */
+    public void deleteUnownedSimulation(String simulationId) {
+        Document document = mongoTemplate.findOne(
+                new Query(new Criteria().andOperator(
+                        idCriteria(simulationId),
+                        Criteria.where("user_email").is(null)
+                )),
+                Document.class,
+                SIMULATIONS
+        );
+        if (document == null) return;
+        String guestSessionId = string(document.get("guest_session_id"));
+        if (guestSessionId == null || guestSessionId.isBlank()) {
+            throw new IllegalStateException("Ownerless simulation has no guest session id");
+        }
+        if (ACTIVE_STATUSES.contains(string(document.get("status")))) {
+            cancel(guestSessionId, null, simulationId);
+        }
+        delete(guestSessionId, null, simulationId);
     }
 
     public DashboardSummaryResponse dashboard(String ownerId, String userEmail) {
@@ -399,16 +450,20 @@ public class SimulationService {
 
     private Update metadataUpdate(
             String ownerId,
+            String userEmail,
+            String guestSessionId,
             StartSimulationRequest request,
             ConstructionSetSnapshot snapshot,
             Instant requestedAt
     ) {
         Update update = new Update()
                 .set("owner_id", ownerId)
+                .set("user_email", userEmail)
                 .set("display_name", request.name().trim())
                 .set("scenario_type", request.scenarioType().name())
                 .set("requested_at", Date.from(requestedAt))
                 .set("construction_set_snapshot", snapshotMap(snapshot));
+        if (guestSessionId != null) update.set("guest_session_id", guestSessionId);
         // The engine may use a temporary copy, but previews need the selected plant's stable ID.
         if (request.plantSimulation() != null && request.plantSimulation().plantId() != null) {
             update.set("plant_preview_id", request.plantSimulation().plantId());
@@ -495,6 +550,12 @@ public class SimulationService {
     }
 
     private Criteria ownerCriteria(String ownerId, String userEmail) {
+        if (userEmail == null) {
+            return new Criteria().orOperator(
+                    Criteria.where("owner_id").is(ownerId),
+                    Criteria.where("guest_session_id").is(ownerId)
+            );
+        }
         return new Criteria().orOperator(
                 Criteria.where("owner_id").is(ownerId),
                 Criteria.where("user_email").is(userEmail)

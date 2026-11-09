@@ -116,7 +116,7 @@ const HeroSection = () => {
                             "
             >
               <Link
-                to="/sign-up"
+                to="/guest/new-simulation"
                 class="
                                     rounded-xl
                                     bg-cloud-white
