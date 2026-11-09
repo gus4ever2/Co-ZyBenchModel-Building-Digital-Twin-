@@ -7,6 +7,10 @@ from cosimulator.schemas.documents.simulation_process import (
     build_base_process_document,
 )
 from cosimulator.schemas.simulation_context import SimulationContext
+from cosimulator.services.simulation_owner_middleware import (
+    SimulationOwner,
+    SimulationOwnerMiddleware,
+)
 
 
 class SimulationProcessService:
@@ -21,14 +25,22 @@ class SimulationProcessService:
     def initialize_process(
             self,
             *,
-            user_email: str,
+            owner: SimulationOwner | None = None,
+            user_email: str | None = None,
+            guest_session_id: str | None = None,
             parameters: SimulationContext,
             construction_set_snapshot: dict[str, Any],
     ) -> str:
+        if owner is None:
+            owner = SimulationOwnerMiddleware.resolve(
+                user_email=user_email,
+                guest_session_id=guest_session_id,
+            )
         # The process record exists before the child worker starts, allowing
         # Spring to show PENDING immediately after the start request.
         document: dict[str, Any] = build_base_process_document(
-            user_email=user_email,
+            user_email=owner.user_email,
+            guest_session_id=owner.guest_session_id,
             parameters=parameters,
         )
         # Save the immutable input before the worker can start reading it.
@@ -103,12 +115,12 @@ class SimulationProcessService:
     def get_available_simulations(
             self,
             *,
-            user_email: str,
+            owner: SimulationOwner,
     ) -> list[dict]:
 
 
         # Ownership is enforced in the DAO query, before documents are shaped.
-        cursor = self.dao.find_by_user_email(user_email=user_email)
+        cursor = self.dao.find_by_owner(owner=owner)
 
 
         simulations = []  # Lightweight summaries, not full snapshots/results.
