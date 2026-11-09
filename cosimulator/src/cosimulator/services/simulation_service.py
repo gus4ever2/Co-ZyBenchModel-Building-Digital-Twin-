@@ -17,6 +17,7 @@ from cosimulator.services.simulation_process_registry import (
     remove_simulation_process,
 )
 from cosimulator.services.simulation_process_service import simulation_process_service
+from cosimulator.services.simulation_owner_middleware import SimulationOwner
 from cosimulator.services.simulation_worker import run_simulation_worker
 from cosimulator.services.temporary_plant_cleanup import (
     delete_temporary_plant_if_owned,
@@ -27,7 +28,7 @@ def _remove_finished_process(
     *,
     simulation_id: str,
     process: BaseProcess,
-    user_email: str,
+    user_email: str | None,
     temporary_plant_id: str | None,
 ) -> None:
     """Wait in a monitor thread, then clean local process-only resources."""
@@ -44,7 +45,7 @@ def _remove_finished_process(
 def launch_simulation(
     *,
     simulation_id: str,
-    user_email: str,
+    user_email: str | None,
     simulation_context: SimulationContext,
 ) -> None:
     """Start one isolated Windows EnergyPlus worker and its monitor thread."""
@@ -103,32 +104,34 @@ def stop_simulation(*, simulation_id: str) -> bool:
 
 def prepare_simulation(
     *,
-    user_email: str,
+    owner: SimulationOwner,
     simulation_context: SimulationContext,
     construction_set_snapshot: dict[str, Any],
 ) -> str:
     """Persist immutable inputs first, then launch the separate worker."""
     simulation_id = simulation_process_service.initialize_process(
-        user_email=user_email,
+        owner=owner,
         parameters=simulation_context,
         construction_set_snapshot=construction_set_snapshot,
     )
     launch_simulation(
         simulation_id=simulation_id,
-        user_email=user_email,
+        user_email=owner.user_email,
         simulation_context=simulation_context,
     )
     return simulation_id
 
 
-def delete_simulation_workspace(*, simulation_id: str, user_email: str) -> None:
+def delete_simulation_workspace(
+    *, simulation_id: str, owner: SimulationOwner
+) -> None:
     """Remove one finished simulation's local files after confirming its owner."""
     if not ObjectId.is_valid(simulation_id):
         raise ValueError("Invalid simulation ID")
 
-    simulation = simulation_process_service.dao.find_by_id_and_user_email(
+    simulation = simulation_process_service.dao.find_by_id_and_owner(
         document_id=simulation_id,
-        user_email=user_email,
+        owner=owner,
     )
     if simulation is None:
         raise LookupError("Simulation was not found for this user")
