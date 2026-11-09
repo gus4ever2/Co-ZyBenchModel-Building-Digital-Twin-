@@ -15,6 +15,7 @@ from cosimulator.analytics.data import enrich
 from cosimulator.analytics.registry import available, comparison_ids, select
 from cosimulator.analytics.runner import create_comparison_states, run
 from cosimulator.database.mongo_config.mongo_config import MongoConfig
+from cosimulator.services.simulation_owner_middleware import SimulationOwner
 
 
 class AnalyticsServiceError(ValueError):
@@ -38,7 +39,7 @@ class AnalyticsService:
     def analyse(
         self,
         simulation_id: str,
-        user_email: str,
+        owner: SimulationOwner,
         analysis_start: datetime | None = None,
         analysis_end: datetime | None = None,
         start_index: int = 0,
@@ -54,7 +55,7 @@ class AnalyticsService:
 
         with self._timesteps(
             simulation_id,
-            user_email,
+            owner,
             analysis_start,
             analysis_end,
         ) as rows:
@@ -65,7 +66,7 @@ class AnalyticsService:
 
     def compare(
         self,
-        user_email: str,
+        owner: SimulationOwner,
         simulation_ids: list[str],
         analysis_start: datetime | None,
         analysis_end: datetime | None,
@@ -76,7 +77,7 @@ class AnalyticsService:
 
         baseline_id = simulation_ids[0]
         analytics_by_simulation, result = self._run_comparison_analytics(
-            user_email,
+            owner,
             simulation_ids,
             analysis_start,
             analysis_end,
@@ -96,20 +97,20 @@ class AnalyticsService:
     def latest_timestep(
         self,
         simulation_id: str,
-        user_email: str,
+        owner: SimulationOwner,
     ) -> dict[str, Any] | None:
         """Read and enrich the newest saved timestep for one simulation."""
-        self._assert_owned(simulation_id, user_email)
+        self._assert_owned(simulation_id, owner)
 
         row = MongoConfig("simulation_timesteps").collection.find_one(
-            {"simulation_id": simulation_id, "user_email": user_email},
+            {"simulation_id": simulation_id, "user_email": owner.user_email},
             sort=[("timestep_number", -1)],
         )
         return enrich(row) if row is not None else None
 
     def _run_comparison_analytics(
         self,
-        user_email: str,
+        owner: SimulationOwner,
         simulation_ids: list[str],
         analysis_start: datetime | None,
         analysis_end: datetime | None,
@@ -125,7 +126,7 @@ class AnalyticsService:
         for simulation_id in simulation_ids:
             with self._timesteps(
                 simulation_id,
-                user_email,
+                owner,
                 analysis_start,
                 analysis_end,
             ) as rows:
@@ -155,16 +156,16 @@ class AnalyticsService:
     def _timesteps(
         self,
         simulation_id: str,
-        user_email: str,
+        owner: SimulationOwner,
         analysis_start: datetime | None,
         analysis_end: datetime | None,
     ):
         """Open a sorted cursor only after ownership has been verified."""
-        self._assert_owned(simulation_id, user_email)
+        self._assert_owned(simulation_id, owner)
 
         query: dict[str, Any] = {
             "simulation_id": simulation_id,
-            "user_email": user_email,
+            "user_email": owner.user_email,
         }
         if analysis_start or analysis_end:
             query["simulation_timestamp"] = {
@@ -377,13 +378,13 @@ class AnalyticsService:
         return format(Decimal(str(ppfd)).normalize(), "f").replace("-", "m").replace(".", "p")
 
     @staticmethod
-    def _assert_owned(simulation_id: str, user_email: str) -> None:
+    def _assert_owned(simulation_id: str, owner: SimulationOwner) -> None:
         """Validate id syntax and verify the simulation belongs to the requester."""
         if not ObjectId.is_valid(simulation_id):
             raise AnalyticsServiceError("Invalid simulation id")
 
         simulation = MongoConfig("simulations").collection.find_one(
-            {"_id": ObjectId(simulation_id), "user_email": user_email}
+            {"_id": ObjectId(simulation_id), **owner.mongo_filter()}
         )
         if simulation is None:
             raise SimulationNotFoundError("Simulation not found")
