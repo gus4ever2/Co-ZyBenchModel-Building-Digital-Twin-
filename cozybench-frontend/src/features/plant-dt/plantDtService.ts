@@ -1,4 +1,4 @@
-import api from "../../lib/api";
+import api, { guestApi } from "../../lib/api";
 
 export type PlantCreationEvent = {
   id: string;
@@ -58,8 +58,12 @@ export async function createPlantDigitalTwin(
   return data.plantId;
 }
 
-export async function loadPlant(plantId: string) {
-  const { data } = await api.get<PlantCreationEvent>(`/v1/plants/${plantId}`);
+export async function loadPlant(plantId: string, guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const path = guestMode
+    ? `/v1/guest/plants/${plantId}`
+    : `/v1/plants/${plantId}`;
+  const { data } = await client.get<PlantCreationEvent>(path);
   return data;
 }
 
@@ -77,10 +81,12 @@ export async function downloadPlantJson(plantId: string) {
   URL.revokeObjectURL(url);
 }
 
-export async function loadPlantModelFiles(plantId: string) {
+export async function loadPlantModelFiles(plantId: string, guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const basePath = guestMode ? `/v1/guest/plants/${plantId}` : `/v1/plants/${plantId}`;
   const [obj, mtl] = await Promise.all([
-    api.get<string>(`/v1/plants/${plantId}/obj`, { responseType: "text" }),
-    api.get<string>(`/v1/plants/${plantId}/mtl`, { responseType: "text" }),
+    client.get<string>(`${basePath}/obj`, { responseType: "text" }),
+    client.get<string>(`${basePath}/mtl`, { responseType: "text" }),
   ]);
   return { obj: obj.data, mtl: mtl.data };
 }
