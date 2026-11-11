@@ -1,4 +1,4 @@
-import api, { buildingDtApi, GUEST_MODE_KEY } from "../../lib/api";
+import api, { buildingDtApi, guestApi } from "../../lib/api";
 import type { Descriptor } from "../construction-sets/constructionSetService";
 import type { SimulationListItem } from "../simulations/simulationsService";
 
@@ -76,10 +76,9 @@ export function constructionSetClimateDescription(name: string): string {
   return (zone && descriptions[zone]) || "Standard office construction set";
 }
 
-export async function loadSimulationPlants() {
-  const guestMode = typeof window !== "undefined"
-    && sessionStorage.getItem(GUEST_MODE_KEY) === "true";
-  const defaultsRequest = api.get<PlantListResponse>("/v1/plants/defaults");
+export async function loadSimulationPlants(guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const defaultsRequest = client.get<PlantListResponse>("/v1/plants/defaults");
   const personalRequest = guestMode
     ? Promise.resolve({ data: { plants: [] } })
     : api.get<PlantListResponse>("/v1/plants");
@@ -92,8 +91,13 @@ export async function loadSimulationPlants() {
     .map((plant) => ({ id: plant.id, name: plant.name, type: "PLANT", defaultOption: plant.defaultOption }));
 }
 
-export async function startSimulation(payload: NewSimulationPayload) {
-  const { data } = await api.post<SimulationListItem>("/v1/simulations", {
+export async function startSimulation(
+  payload: NewSimulationPayload,
+  guestMode = false,
+) {
+  const client = guestMode ? guestApi : api;
+  const endpoint = guestMode ? "/v1/guest/simulations" : "/v1/simulations";
+  const { data } = await client.post<SimulationListItem>(endpoint, {
     name: payload.name.trim(),
     scenarioType: "REFERENCE",
     city: payload.location,
@@ -129,9 +133,13 @@ export async function startSimulation(payload: NewSimulationPayload) {
   return data;
 }
 
-export async function checkSimulationName(name: string) {
-  const { data } = await api.get<{ available: boolean }>(
-    "/v1/simulations/name-availability",
+export async function checkSimulationName(name: string, guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const endpoint = guestMode
+    ? "/v1/guest/simulations/name-availability"
+    : "/v1/simulations/name-availability";
+  const { data } = await client.get<{ available: boolean }>(
+    endpoint,
     { params: { name: name.trim() } },
   );
   return data.available;
