@@ -3,15 +3,18 @@ import * as THREE from "three";
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { useGuestMode } from "../../context/GuestModeContext";
 import { loadPlantModelFiles } from "./plantDtService";
 
 export default function PlantThreeViewer(props: { plantId: string }) {
     let host!: HTMLDivElement;
+    const guest = useGuestMode();
 
     const [error, setError] = createSignal("");
 
     createEffect(() => {
         const plantId = props.plantId;
+        const guestMode = guest();
 
         if (!plantId || !host) {
             return;
@@ -96,7 +99,7 @@ export default function PlantThreeViewer(props: { plantId: string }) {
         let disposed = false;
         let model: THREE.Group | undefined;
 
-        void loadPlantModelFiles(plantId)
+        void loadPlantModelFiles(plantId, guestMode)
             .then(({ obj, mtl }) => {
                 if (disposed) {
                     return;

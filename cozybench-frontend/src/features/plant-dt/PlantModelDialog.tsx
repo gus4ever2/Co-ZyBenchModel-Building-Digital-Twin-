@@ -2,14 +2,16 @@ import { createQuery } from "@tanstack/solid-query";
 import { LoaderCircle, X } from "lucide-solid";
 import { Show, onMount } from "solid-js";
 import { Portal } from "solid-js/web";
+import { useGuestMode } from "../../context/GuestModeContext";
 import { loadPlant } from "./plantDtService";
 import PlantModelPanel from "./PlantModelPanel";
 
 export default function PlantModelDialog(props: { plantId: string; onClose: () => void }) {
   let dialog!: HTMLDialogElement;
+  const guest = useGuestMode();
   const plant = createQuery(() => ({
-    queryKey: ["plant-dt", "preview", props.plantId],
-    queryFn: () => loadPlant(props.plantId),
+    queryKey: ["plant-dt", "preview", props.plantId, guest()],
+    queryFn: () => loadPlant(props.plantId, guest()),
   }));
   onMount(() => dialog.showModal());
   return (
