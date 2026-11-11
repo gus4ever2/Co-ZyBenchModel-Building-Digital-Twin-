@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/solid-router";
 import {
   ChartNoAxesCombined,
+  ChartLine,
   History,
   Info,
   Menu,
@@ -11,6 +12,7 @@ import { For, Show, createSignal } from "solid-js";
 
 const links = [
   { label: "Compare simulations", to: "/guest/simulations", icon: ChartNoAxesCombined },
+  { label: "Current simulation", to: "/guest/current-simulation", icon: ChartLine },
   { label: "New simulation", to: "/guest/new-simulation", icon: PlayCircle },
   { label: "History", to: "/guest/history", icon: History },
   { label: "About", to: "/guest/about", icon: Info },
