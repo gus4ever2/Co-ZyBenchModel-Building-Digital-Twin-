@@ -80,6 +80,13 @@ api.interceptors.request.use((config) => {
 });
 
 buildingDtApi.interceptors.request.use((config) => {
+  const guestMode = typeof window !== "undefined"
+    && sessionStorage.getItem(GUEST_MODE_KEY) === "true";
+  if (guestMode) {
+    delete config.headers.Authorization;
+    return config;
+  }
+
   const token = getAccessToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
