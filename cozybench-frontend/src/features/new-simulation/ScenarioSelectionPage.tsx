@@ -10,19 +10,21 @@ import CustomizedScenarioInfo from "./info/CustomizedScenarioInfo";
 const scenarios = [
   {
     to: "/new-simulation/reference" as const,
+    guestTo: "/guest/new-simulation/reference" as const,
     title: "Reference scenario",
     description: "Configure and run the CozyBench reference experiment.",
     icon: Building2,
   },
   {
     to: "/new-simulation/customized" as const,
+    guestTo: "/guest/new-simulation/customized" as const,
     title: "Customized scenario",
     description: "Define your own building, occupants and HVAC configuration instead of using the reference office.",
     icon: SlidersHorizontal,
   },
 ];
 
-export default function ScenarioSelectionPage() {
+export default function ScenarioSelectionPage(props: { guestMode?: boolean }) {
   const infoModal = useContext(InfoModalContext);
   const openInfo = () => {
     if (!infoModal) return;
@@ -44,7 +46,7 @@ export default function ScenarioSelectionPage() {
           {scenarios.map((scenario) => (
             <div class="relative">
               <Link
-                to={scenario.to}
+                to={props.guestMode ? scenario.guestTo : scenario.to}
                 class="group flex min-h-40 h-full items-start gap-4 rounded-2xl border border-warm-stone/25 bg-cloud-white p-5 text-left shadow-sm hover:border-citadel-blue/50 hover:bg-sky-mist/12 hover:shadow-md"
               >
                 <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-sky-mist/25 text-citadel-blue group-hover:bg-citadel-blue group-hover:text-cloud-white">

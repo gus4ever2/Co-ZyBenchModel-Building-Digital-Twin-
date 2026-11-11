@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const ACCESS_TOKEN_KEY = "cozybench_access_token";
+export const GUEST_MODE_KEY = "cozybench_guest_mode";
 
 export function getAccessToken() {
   return sessionStorage.getItem(ACCESS_TOKEN_KEY);
@@ -45,6 +46,13 @@ const api = axios.create({
   },
 });
 
+// Guest routes use the Spring HttpSession cookie and intentionally omit JWT auth.
+export const guestApi = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
+  withCredentials: true,
+  headers: { "Content-Type": "application/json" },
+});
+
 export const buildingDtApi = axios.create({
   baseURL:
     import.meta.env.VITE_BUILDING_DT_API_BASE_URL ||
@@ -53,6 +61,15 @@ export const buildingDtApi = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  const guestMode = typeof window !== "undefined"
+    && sessionStorage.getItem(GUEST_MODE_KEY) === "true";
+  if (guestMode && config.url?.startsWith("/v1/simulations")) {
+    config.url = config.url.replace("/v1/simulations", "/v1/guest/simulations");
+    config.withCredentials = true;
+    delete config.headers.Authorization;
+    return config;
+  }
+
   const token = getAccessToken();
 
   if (token) {

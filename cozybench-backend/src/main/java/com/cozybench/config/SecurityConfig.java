@@ -42,6 +42,11 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/guest/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/building-dt/components/loadConstructionSetsData",
+                                "/api/v1/plants/defaults"
+                        ).permitAll()
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
@@ -90,6 +95,7 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(
                 List.of("Authorization", "Content-Type")
         );
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();

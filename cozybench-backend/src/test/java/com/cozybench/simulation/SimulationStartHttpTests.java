@@ -20,6 +20,43 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class SimulationStartHttpTests {
+    @org.junit.jupiter.api.Test
+    void sendsGuestOwnerAndKeepsTemporaryPlantLookupEmailNull() throws Exception {
+        var requestBody = new AtomicReference<String>();
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/simulations/start-simulation", exchange -> {
+            requestBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+            byte[] response = "{\"simulation_id\":\"guest-run\"}".getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(201, response.length);
+            try (var output = exchange.getResponseBody()) { output.write(response); }
+        });
+        server.start();
+        try {
+            var library = mock(com.cozybench.plant.service.DefaultPlantLibrary.class);
+            when(library.prepare(null, "plant-id")).thenReturn("prepared-plant-id");
+            var client = new CosimulatorSimulationClient("http://127.0.0.1:" + server.getAddress().getPort(), library);
+            var set = new ComponentSnapshot("set-id", "Set", "construction_set", Map.of("Name", "Set"));
+            var snapshot = new ConstructionSetSnapshot(set, List.of(), List.of());
+            var request = new StartSimulationRequest("Guest run", ScenarioType.REFERENCE, "paris", "set-id",
+                    new com.cozybench.simulation.dto.PlantSimulationRequest(
+                            "plant-id", "Spathiphyllum",
+                            com.cozybench.simulation.model.GreenWallSize.VERY_SMALL,
+                            com.cozybench.simulation.model.PlantLightingLevel.HIGH,
+                            com.cozybench.simulation.model.PlantCo2ExchangeMode.FULL_EXCHANGE),
+                    null, null, null, Map.of());
+
+            assertEquals("guest-run", client.start(null, "guest-session-id", "Set", request, snapshot));
+
+            assertTrue(requestBody.get().contains("\"user_email\":null"));
+            assertTrue(requestBody.get().contains("\"guest_session_id\":\"guest-session-id\""));
+            assertTrue(requestBody.get().contains("\"plant_id\":\"prepared-plant-id\""));
+            verify(library).prepare(null, "plant-id");
+        } finally {
+            server.stop(0);
+        }
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void sendsTheSnapshotAndOptionalThermostatSettings(boolean thermostatEnabled) throws Exception {

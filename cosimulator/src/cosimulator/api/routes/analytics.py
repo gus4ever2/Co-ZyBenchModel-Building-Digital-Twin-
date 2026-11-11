@@ -16,6 +16,9 @@ from cosimulator.analytics.service import (
     SimulationNotFoundError,
     analytics_service,
 )
+from cosimulator.services.simulation_owner_middleware import (
+    SimulationOwnerMiddleware,
+)
 
 
 analytics_router = APIRouter(
@@ -37,7 +40,8 @@ class AnalyticsOptions(BaseModel):
 class ComparisonRequest(BaseModel):
     """Body accepted by the comparison endpoint."""
 
-    user_email: str  # Ownership check for every simulation in the request.
+    user_email: str | None = None
+    guest_session_id: str | None = None
     simulationIds: list[str] = Field(min_length=2, max_length=6)  # Baseline + peers.
     analysisStart: datetime | None = None  # Optional common time-range start.
     analysisEnd: datetime | None = None  # Optional common time-range end.
@@ -66,7 +70,8 @@ def available() -> dict:
 @analytics_router.get("/{simulation_id}/analytics")
 def analytics(
     simulation_id: str,
-    user_email: str,
+    user_email: str | None = None,
+    guest_session_id: str | None = None,
     analysisStart: datetime | None = None,
     analysisEnd: datetime | None = None,
     startIndex: int = Query(0, ge=0),
@@ -74,23 +79,38 @@ def analytics(
 ):
     """Return the default analytics for one owned simulation."""
     try:
+        owner = SimulationOwnerMiddleware.resolve(
+            user_email=user_email,
+            guest_session_id=guest_session_id,
+        )
         # The service owns MongoDB reads and calculation orchestration.
         return analytics_service.analyse(
-            simulation_id, user_email, analysisStart, analysisEnd, startIndex, endIndex
+            simulation_id, owner, analysisStart, analysisEnd, startIndex, endIndex
         )
     except SimulationNotFoundError as error:
         raise HTTPException(404, str(error)) from error
     except AnalyticsServiceError as error:
         raise HTTPException(400, str(error)) from error
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from error
 
 
 @analytics_router.post("/{simulation_id}/analytics")
-def selected_analytics(simulation_id: str, user_email: str, request: AnalyticsOptions):
+def selected_analytics(
+    simulation_id: str,
+    request: AnalyticsOptions,
+    user_email: str | None = None,
+    guest_session_id: str | None = None,
+):
     """Return only the requested analytics for one owned simulation."""
     try:
+        owner = SimulationOwnerMiddleware.resolve(
+            user_email=user_email,
+            guest_session_id=guest_session_id,
+        )
         return analytics_service.analyse(
             simulation_id,
-            user_email,
+            owner,
             start_index=request.startIndex,
             end_index=request.endIndex,
             selected=request.selected,
@@ -98,6 +118,8 @@ def selected_analytics(simulation_id: str, user_email: str, request: AnalyticsOp
     except SimulationNotFoundError as error:
         raise HTTPException(404, str(error)) from error
     except AnalyticsServiceError as error:
+        raise HTTPException(422, str(error)) from error
+    except ValueError as error:
         raise HTTPException(422, str(error)) from error
 
 
@@ -107,7 +129,10 @@ def comparison(request: ComparisonRequest) -> ComparisonResponse:
     try:
         # The service treats the first selected simulation as the baseline.
         result = analytics_service.compare(
-            request.user_email,
+            SimulationOwnerMiddleware.resolve(
+                user_email=request.user_email,
+                guest_session_id=request.guest_session_id,
+            ),
             request.simulationIds,
             request.analysisStart,
             request.analysisEnd,
@@ -119,16 +144,28 @@ def comparison(request: ComparisonRequest) -> ComparisonResponse:
         raise HTTPException(404, str(error)) from error
     except AnalyticsServiceError as error:
         raise HTTPException(400, str(error)) from error
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from error
 
 
 @analytics_router.get("/{simulation_id}/results/latest")
-def latest(simulation_id: str, user_email: str):
+def latest(
+    simulation_id: str,
+    user_email: str | None = None,
+    guest_session_id: str | None = None,
+):
     """Return the latest timestep in a JSON-safe representation."""
     try:
         # This is a normal MongoDB read, not a Python-side SSE mechanism.
-        timestep = analytics_service.latest_timestep(simulation_id, user_email)
+        owner = SimulationOwnerMiddleware.resolve(
+            user_email=user_email,
+            guest_session_id=guest_session_id,
+        )
+        timestep = analytics_service.latest_timestep(simulation_id, owner)
         return jsonable_encoder(timestep, custom_encoder={ObjectId: str})
     except SimulationNotFoundError as error:
         raise HTTPException(404, str(error)) from error
     except AnalyticsServiceError as error:
         raise HTTPException(400, str(error)) from error
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from error
