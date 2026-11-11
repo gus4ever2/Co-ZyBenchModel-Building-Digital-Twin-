@@ -67,6 +67,11 @@ public class GuestSimulationController {
         return ResponseEntity.status(201).body(started);
     }
 
+    @GetMapping
+    public SimulationListResponse all(HttpServletRequest request) {
+        return simulations.all(guest(request).guestSessionId(), null);
+    }
+
     @PostMapping("/comparison")
     public Map<String, Object> compare(
             HttpServletRequest request,
