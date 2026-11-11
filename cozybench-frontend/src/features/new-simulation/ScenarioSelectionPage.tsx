@@ -4,7 +4,6 @@ import { useContext } from "solid-js";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
 import WorkspaceIntroPanel from "../../components/layout/WorkspaceIntroPanel";
 import { InfoModalContext } from "../../context/InfoModalContext";
-import { useGuestMode } from "../../context/GuestModeContext";
 import ReferenceScenarioInfo from "./info/ReferenceScenarioInfo";
 import CustomizedScenarioInfo from "./info/CustomizedScenarioInfo";
 
@@ -25,9 +24,8 @@ const scenarios = [
   },
 ];
 
-export default function ScenarioSelectionPage() {
+export default function ScenarioSelectionPage(props: { guestMode?: boolean }) {
   const infoModal = useContext(InfoModalContext);
-  const guestMode = useGuestMode();
   const openInfo = () => {
     if (!infoModal) return;
     infoModal.setInfoModalContent(() => ScenarioHelp);
@@ -48,7 +46,7 @@ export default function ScenarioSelectionPage() {
           {scenarios.map((scenario) => (
             <div class="relative">
               <Link
-                to={guestMode() ? scenario.guestTo : scenario.to}
+                to={props.guestMode ? scenario.guestTo : scenario.to}
                 class="group flex min-h-40 h-full items-start gap-4 rounded-2xl border border-warm-stone/25 bg-cloud-white p-5 text-left shadow-sm hover:border-citadel-blue/50 hover:bg-sky-mist/12 hover:shadow-md"
               >
                 <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-sky-mist/25 text-citadel-blue group-hover:bg-citadel-blue group-hover:text-cloud-white">
