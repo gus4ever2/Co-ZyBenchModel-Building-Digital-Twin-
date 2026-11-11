@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/building-dt/components", produces = "application/json")
 public class BuildingComponentQueryController {
 
+    private static final String PUBLIC_CATALOG_OWNER_ID = "__guest_public_catalog__";
+
     private final BuildingComponentQueryService queryService;
 
     public BuildingComponentQueryController(BuildingComponentQueryService queryService) {
@@ -43,6 +45,12 @@ public class BuildingComponentQueryController {
             Authentication authentication,
             @RequestParam(defaultValue = "0") String id
     ) {
-        return queryService.constructionSets(authentication.getName(), id);
+        // This catalog endpoint is public for guest simulations. Anonymous requests
+        // have no Authentication object, so use an isolated owner key that cannot
+        // expose any user's workspace construction sets.
+        String ownerId = authentication == null
+                ? PUBLIC_CATALOG_OWNER_ID
+                : authentication.getName();
+        return queryService.constructionSets(ownerId, id);
     }
 }
