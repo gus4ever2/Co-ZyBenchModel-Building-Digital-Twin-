@@ -134,7 +134,7 @@ type Step = {
   info?: Component;
 };
 
-export default function NewSimulationWizard() {
+export default function NewSimulationWizard(props: { guestMode?: boolean }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [stepIndex, setStepIndex] = createSignal(0);
@@ -246,19 +246,25 @@ export default function NewSimulationWizard() {
     queryFn: loadSimulationConstructionSets,
   }));
   const plantsQuery = createQuery(() => ({
-    queryKey: ["new-simulation", "plants"],
-    queryFn: loadSimulationPlants,
+    queryKey: ["new-simulation", "plants", props.guestMode === true],
+    queryFn: () => loadSimulationPlants(props.guestMode === true),
     enabled: form().plantsEnabled,
   }));
   const startAction = createMutation(() => ({
-    mutationFn: startSimulation,
+    mutationFn: (payload: NewSimulationPayload) =>
+      startSimulation(payload, props.guestMode === true),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["simulations", "current"] });
-      void navigate({ to: "/current-simulation" });
+      void navigate({
+        to: props.guestMode ? "/guest/current-simulation" : "/current-simulation",
+      });
     },
   }));
   const nameCheck = createMutation(() => ({
-    mutationFn: async (name: string) => ({ name, available: await checkSimulationName(name) }),
+    mutationFn: async (name: string) => ({
+      name,
+      available: await checkSimulationName(name, props.guestMode === true),
+    }),
   }));
 
   const startError = () => {
