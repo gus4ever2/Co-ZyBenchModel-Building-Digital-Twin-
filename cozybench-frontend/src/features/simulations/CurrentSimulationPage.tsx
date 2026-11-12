@@ -11,7 +11,7 @@ import CurrentSimulationDataView from "./CurrentSimulationDataView";
 import SimulationSetupCard from "./SimulationSetupCard";
 import { cancelSimulation, loadCurrentSimulation } from "./simulationsService";
 
-export default function CurrentSimulationPage() {
+export default function CurrentSimulationPage(props: { guestMode?: boolean } = {}) {
   const queryClient = useQueryClient();
   const current = createQuery(() => ({
     queryKey: ["simulations", "current"],
@@ -72,7 +72,11 @@ export default function CurrentSimulationPage() {
                       Start a reference simulation to monitor live timesteps.
                     </p>
                     <Link
-                      to="/new-simulation/reference"
+                      to={
+                        props.guestMode
+                          ? "/guest/new-simulation/reference"
+                          : "/new-simulation/reference"
+                      }
                       class="mt-4 inline-flex rounded-xl bg-citadel-blue px-4 py-2.5 text-sm font-bold text-cloud-white"
                     >
                       New simulation
