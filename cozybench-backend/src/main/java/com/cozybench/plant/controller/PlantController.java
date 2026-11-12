@@ -47,7 +47,7 @@ public class PlantController {
             @RequestParam MultipartFile objFile
     ) {
         String id = plantService.create(
-                jwt.getClaimAsString("email"),
+                jwt.getSubject(),
                 plantName,
                 reflectance,
                 transmittance,
@@ -66,7 +66,7 @@ public class PlantController {
 
     @GetMapping
     public PlantListResponse list(@AuthenticationPrincipal Jwt jwt) {
-        return plantService.list(jwt.getClaimAsString("email"));
+        return plantService.list(jwt.getSubject());
     }
 
     @GetMapping("/{plantId}")
@@ -74,7 +74,7 @@ public class PlantController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String plantId
     ) {
-        return plantService.get(jwt.getClaimAsString("email"), plantId);
+        return plantService.get(jwt.getSubject(), plantId);
     }
 
     @GetMapping(value = "/{plantId}/obj", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -82,12 +82,12 @@ public class PlantController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String plantId
     ) {
-        return plantService.modelFile(jwt.getClaimAsString("email"), plantId, "obj");
+        return plantService.modelFile(jwt.getSubject(), plantId, "obj");
     }
 
     @GetMapping(value = "/{plantId}/export", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<byte[]> exportPlant(@AuthenticationPrincipal Jwt jwt, @PathVariable String plantId) {
-        byte[] json = plantService.exportJson(jwt.getClaimAsString("email"), plantId);
+        byte[] json = plantService.exportJson(jwt.getSubject(), plantId);
         String filename = "plant-" + plantId + ".json";
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,7 +101,7 @@ public class PlantController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String plantId
     ) {
-        return plantService.modelFile(jwt.getClaimAsString("email"), plantId, "mtl");
+        return plantService.modelFile(jwt.getSubject(), plantId, "mtl");
     }
 
     @DeleteMapping("/{plantId}")
@@ -109,7 +109,7 @@ public class PlantController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String plantId
     ) {
-        plantService.delete(jwt.getClaimAsString("email"), plantId);
+        plantService.delete(jwt.getSubject(), plantId);
         return ResponseEntity.noContent().build();
     }
 }

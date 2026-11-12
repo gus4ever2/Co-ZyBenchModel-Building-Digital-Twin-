@@ -22,7 +22,6 @@ from cosimulator.simulation_variables.variables.zone_air_nodes import find_zone_
 
 def run_simulation(
     *,
-    user_email: str,
     simulation_id: str,
     simulation_context: SimulationContext,
 ) -> int:
@@ -56,7 +55,6 @@ def run_simulation(
     )
     callbacks = SimulationCallbacks(
         ep=ep,
-        user_email=user_email,
         simulation_id=simulation_id,
         zone_names=zone_names,
         air_loop_names=air_loop_names,

@@ -17,7 +17,6 @@ class SimulationTimestepService:
     def find_results_by_simulation_id(
             self,
             *,
-            user_email: str,
             simulation_id: str,
             offset: int = 0,
             limit: int = 1000,
@@ -25,7 +24,6 @@ class SimulationTimestepService:
         # Legacy cursor-based helper retained for callers that need a raw DAO
         # cursor shape rather than the normalized paginated method below.
         query = {
-            "user_email": user_email,
             "simulation_id": simulation_id,
         }
 
@@ -43,7 +41,6 @@ class SimulationTimestepService:
     def save_timestep(
             self,
             *,
-            user_email: str,
             simulation_id: str,
             timestep_number: int,
             simulation_timestamp: datetime,
@@ -57,7 +54,6 @@ class SimulationTimestepService:
 
         # The builder serializes dataclasses and merges case-study fragments.
         document = build_base_timestep_document(
-            user_email=user_email,
             simulation_id=simulation_id,
             timestep_number=timestep_number,
             simulation_timestamp=simulation_timestamp,
@@ -70,12 +66,10 @@ class SimulationTimestepService:
     def get_timestep(
             self,
             *,
-            user_email: str,
             simulation_id: str,
             timestep_number: int,
     ) -> dict[str, Any] | None:
         return self.dao.find_by_simulation_and_number(
-            user_email=user_email,
             simulation_id=simulation_id,
             timestep_number=timestep_number,
         )
@@ -83,12 +77,10 @@ class SimulationTimestepService:
     def get_next_timestep(
             self,
             *,
-            user_email: str,
             simulation_id: str,
             current_timestep_number: int,
     ) -> dict[str, Any] | None:
         return self.dao.find_next(
-            user_email=user_email,
             simulation_id=simulation_id,
             current_timestep_number=current_timestep_number,
         )
@@ -96,12 +88,10 @@ class SimulationTimestepService:
     def get_previous_timestep(
             self,
             *,
-            user_email: str,
             simulation_id: str,
             current_timestep_number: int,
     ) -> dict[str, Any] | None:
         return self.dao.find_previous(
-            user_email=user_email,
             simulation_id=simulation_id,
             current_timestep_number=current_timestep_number,
         )
@@ -109,7 +99,6 @@ class SimulationTimestepService:
     def get_all_timesteps(
             self,
             *,
-            user_email: str,
             simulation_id: str,
             limit: int | None = None,
             offset: int = 0,
@@ -118,7 +107,6 @@ class SimulationTimestepService:
         normalized_offset = max(0, offset)  # Negative pages have no meaning.
 
         return self.dao.find_all_by_simulation(
-            user_email=user_email,
             simulation_id=simulation_id,
             limit=normalized_limit,
             offset=normalized_offset,
@@ -127,12 +115,10 @@ class SimulationTimestepService:
     def delete_all_timesteps(
             self,
             *,
-            user_email: str,
             simulation_id: str,
     ) -> int:
         # Used when a simulation is deleted or intentionally reset.
         result: DeleteResult = self.dao.delete_all_by_simulation(
-            user_email=user_email,
             simulation_id=simulation_id,
         )
 

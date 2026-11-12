@@ -46,7 +46,7 @@ public class PlantService {
     }
 
     public String create(
-            String userEmail,
+            String ownerId,
             String plantName,
             double reflectance,
             double transmittance,
@@ -60,7 +60,8 @@ public class PlantService {
         }
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("user_email", userEmail);
+        body.add("owner_type", "USER");
+        body.add("owner_id", ownerId);
         body.add("plant_name", plantName.trim());
         body.add("reflectance", reflectance);
         body.add("transmittance", transmittance);
@@ -91,10 +92,11 @@ public class PlantService {
         return plantId;
     }
 
-    public PlantListResponse list(String userEmail) {
+    public PlantListResponse list(String ownerId) {
         Map<String, Object> response = cosimulator.get()
                 .uri(uri -> uri.path("/plants")
-                        .queryParam("user_email", userEmail)
+                        .queryParam("owner_type", "USER")
+                        .queryParam("owner_id", ownerId)
                         .build())
                 .retrieve()
                 .body(MAP_TYPE);
@@ -110,12 +112,13 @@ public class PlantService {
         return new PlantListResponse(plants.size(), plants);
     }
 
-    public PlantResponse get(String userEmail, String plantId) {
+    public PlantResponse get(String ownerId, String plantId) {
         PlantResponse defaultPlant = defaultPlants.detail(plantId);
         if (defaultPlant != null) return defaultPlant;
         Map<String, Object> document = cosimulator.get()
                 .uri(uri -> uri.path("/plants/{plantId}")
-                        .queryParam("user_email", userEmail)
+                        .queryParam("owner_type", "USER")
+                        .queryParam("owner_id", ownerId)
                         .build(plantId))
                 .retrieve()
                 .body(MAP_TYPE);
@@ -125,7 +128,7 @@ public class PlantService {
         return toResponse(document);
     }
 
-    public byte[] modelFile(String userEmail, String plantId, String extension) {
+    public byte[] modelFile(String ownerId, String plantId, String extension) {
         if (!extension.equals("obj") && !extension.equals("mtl")) {
             throw new IllegalArgumentException("Unsupported plant model extension: " + extension);
         }
@@ -133,7 +136,8 @@ public class PlantService {
         if (defaultFile != null) return defaultFile;
         byte[] body = cosimulator.get()
                 .uri(uri -> uri.path("/plants/{plantId}/{extension}")
-                        .queryParam("user_email", userEmail)
+                        .queryParam("owner_type", "USER")
+                        .queryParam("owner_id", ownerId)
                         .build(plantId, extension))
                 .retrieve()
                 .body(byte[].class);
@@ -143,10 +147,11 @@ public class PlantService {
         return body;
     }
 
-    public byte[] exportJson(String userEmail, String plantId) {
+    public byte[] exportJson(String ownerId, String plantId) {
         byte[] body = cosimulator.get()
                 .uri(uri -> uri.path("/plants/{plantId}/export")
-                        .queryParam("user_email", userEmail)
+                        .queryParam("owner_type", "USER")
+                        .queryParam("owner_id", ownerId)
                         .build(plantId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
@@ -157,10 +162,11 @@ public class PlantService {
         return body;
     }
 
-    public void delete(String userEmail, String plantId) {
+    public void delete(String ownerId, String plantId) {
         cosimulator.delete()
                 .uri(uri -> uri.path("/plants/{plantId}")
-                        .queryParam("user_email", userEmail)
+                        .queryParam("owner_type", "USER")
+                        .queryParam("owner_id", ownerId)
                         .build(plantId))
                 .retrieve()
                 .toBodilessEntity();

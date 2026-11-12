@@ -9,14 +9,16 @@ from cosimulator.plant.obj_caribu_plantecophys_grid import PlantParameters
 
 def build_base_plant_document(
     *,
-    user_email: str,
+    owner_type: str,
+    owner_id: str,
     plant_name: str,
     parameters: PlantParameters,
     grid_preset: str = "standard",
 ) -> dict[str, Any]:
     """Create the initial PENDING plant record before a worker starts."""
     return {
-        "user_email": user_email,
+        "owner_type": owner_type,
+        "owner_id": owner_id,
         "status": RunStatus.PENDING.value,
         "start_time": None,
         "end_time": None,

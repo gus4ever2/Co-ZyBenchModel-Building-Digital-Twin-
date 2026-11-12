@@ -40,8 +40,8 @@ class AnalyticsOptions(BaseModel):
 class ComparisonRequest(BaseModel):
     """Body accepted by the comparison endpoint."""
 
-    user_email: str | None = None
-    guest_session_id: str | None = None
+    owner_type: str
+    owner_id: str
     simulationIds: list[str] = Field(min_length=2, max_length=6)  # Baseline + peers.
     analysisStart: datetime | None = None  # Optional common time-range start.
     analysisEnd: datetime | None = None  # Optional common time-range end.
@@ -70,8 +70,8 @@ def available() -> dict:
 @analytics_router.get("/{simulation_id}/analytics")
 def analytics(
     simulation_id: str,
-    user_email: str | None = None,
-    guest_session_id: str | None = None,
+    owner_type: str,
+    owner_id: str,
     analysisStart: datetime | None = None,
     analysisEnd: datetime | None = None,
     startIndex: int = Query(0, ge=0),
@@ -80,8 +80,8 @@ def analytics(
     """Return the default analytics for one owned simulation."""
     try:
         owner = SimulationOwnerMiddleware.resolve(
-            user_email=user_email,
-            guest_session_id=guest_session_id,
+            owner_type=owner_type,
+            owner_id=owner_id,
         )
         # The service owns MongoDB reads and calculation orchestration.
         return analytics_service.analyse(
@@ -99,14 +99,14 @@ def analytics(
 def selected_analytics(
     simulation_id: str,
     request: AnalyticsOptions,
-    user_email: str | None = None,
-    guest_session_id: str | None = None,
+    owner_type: str,
+    owner_id: str,
 ):
     """Return only the requested analytics for one owned simulation."""
     try:
         owner = SimulationOwnerMiddleware.resolve(
-            user_email=user_email,
-            guest_session_id=guest_session_id,
+            owner_type=owner_type,
+            owner_id=owner_id,
         )
         return analytics_service.analyse(
             simulation_id,
@@ -130,8 +130,8 @@ def comparison(request: ComparisonRequest) -> ComparisonResponse:
         # The service treats the first selected simulation as the baseline.
         result = analytics_service.compare(
             SimulationOwnerMiddleware.resolve(
-                user_email=request.user_email,
-                guest_session_id=request.guest_session_id,
+                owner_type=request.owner_type,
+                owner_id=request.owner_id,
             ),
             request.simulationIds,
             request.analysisStart,
@@ -151,15 +151,15 @@ def comparison(request: ComparisonRequest) -> ComparisonResponse:
 @analytics_router.get("/{simulation_id}/results/latest")
 def latest(
     simulation_id: str,
-    user_email: str | None = None,
-    guest_session_id: str | None = None,
+    owner_type: str,
+    owner_id: str,
 ):
     """Return the latest timestep in a JSON-safe representation."""
     try:
         # This is a normal MongoDB read, not a Python-side SSE mechanism.
         owner = SimulationOwnerMiddleware.resolve(
-            user_email=user_email,
-            guest_session_id=guest_session_id,
+            owner_type=owner_type,
+            owner_id=owner_id,
         )
         timestep = analytics_service.latest_timestep(simulation_id, owner)
         return jsonable_encoder(timestep, custom_encoder={ObjectId: str})

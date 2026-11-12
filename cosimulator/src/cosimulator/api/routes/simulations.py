@@ -30,8 +30,8 @@ simulations_router = APIRouter(
 
 class StartSimulationRequest(BaseModel):
     """The Spring request includes the snapshot captured for this simulation."""
-    user_email: str | None = None
-    guest_session_id: str | None = None
+    owner_type: str
+    owner_id: str
     simulation_context: SimulationContext  # User-selected simulation options.
     # Immutable construction/material state captured when the user clicks start.
     construction_set_snapshot: ConstructionSetSnapshot
@@ -46,8 +46,8 @@ def start_simulation(
 ) -> dict[str, str]:
     try:
         owner = SimulationOwnerMiddleware.resolve(
-            user_email=request.user_email,
-            guest_session_id=request.guest_session_id,
+            owner_type=request.owner_type,
+            owner_id=request.owner_id,
         )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
@@ -95,14 +95,14 @@ def cancel_simulation(simulation_id: str) -> dict[str, str]:
 @simulations_router.delete("/{simulation_id}", status_code=204)
 def delete_simulation_workspace_files(
     simulation_id: str,
-    user_email: str | None = None,
-    guest_session_id: str | None = None,
+    owner_type: str,
+    owner_id: str,
 ) -> None:
     """Delete only the selected user's local files for a non-active simulation."""
     try:
         owner = SimulationOwnerMiddleware.resolve(
-            user_email=user_email,
-            guest_session_id=guest_session_id,
+            owner_type=owner_type,
+            owner_id=owner_id,
         )
         delete_simulation_workspace(
             simulation_id=simulation_id,
@@ -118,13 +118,13 @@ def delete_simulation_workspace_files(
 
 @simulations_router.get("/available")
 def send_available_simulations(
-    user_email: str | None = None,
-    guest_session_id: str | None = None,
+    owner_type: str,
+    owner_id: str,
 ):
     try:
         owner = SimulationOwnerMiddleware.resolve(
-            user_email=user_email,
-            guest_session_id=guest_session_id,
+            owner_type=owner_type,
+            owner_id=owner_id,
         )
         # The service applies the user ownership filter before returning rows.
         simulations = (
@@ -144,7 +144,7 @@ def send_available_simulations(
     except Exception as error:
         logger.exception(
             "Failed to retrieve simulations for owner type '%s'",
-            owner.field_name,
+            owner.owner_type.value,
         )
 
         raise HTTPException(
@@ -156,21 +156,25 @@ def send_available_simulations(
 @simulations_router.get("/{simulation_id}/results")
 def send_simulation_results(
     simulation_id: str,
-    user_email: str | None = None,
-    guest_session_id: str | None = None,
+    owner_type: str,
+    owner_id: str,
     offset: int = 0,
     limit: int | None = None,
 ):
     try:
         owner = SimulationOwnerMiddleware.resolve(
-            user_email=user_email,
-            guest_session_id=guest_session_id,
+            owner_type=owner_type,
+            owner_id=owner_id,
         )
+        if simulation_process_service.dao.find_by_id_and_owner(
+            document_id=simulation_id,
+            owner=owner,
+        ) is None:
+            raise HTTPException(status_code=404, detail="Simulation not found")
         # The service owns MongoDB access; this router only formats HTTP data.
         # ``offset`` and ``limit`` are forwarded so Spring can fetch results
         # page-by-page without Python constructing an SSE stream.
         results = simulation_timestep_service.get_all_timesteps(
-            user_email=owner.user_email,
             simulation_id=simulation_id,
             limit=limit,
             offset=offset,

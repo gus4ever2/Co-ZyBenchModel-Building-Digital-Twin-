@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from cosimulator.database.dto.idf_preparation_dto import ConstructionSetSnapshot
 from cosimulator.services.idf_objects_service import preparation_from_snapshot, start_idf_preparation
 from cosimulator.services.simulation_process_service import SimulationProcessService
+from cosimulator.services.simulation_owner_middleware import OwnerType, SimulationOwner
 
 
 def test_snapshot_produces_only_its_own_idf_objects():
@@ -43,7 +44,7 @@ def test_snapshot_is_saved_with_simulation_before_launch():
                 return "simulation-id"
 
         fake_dao = FakeDao()
-        assert service.initialize_process(user_email="user@example.com", parameters=None,
+        assert service.initialize_process(owner=SimulationOwner(OwnerType.USER, "user-1"), parameters=None,
                                           construction_set_snapshot=snapshot) == "simulation-id"
 
 
@@ -53,16 +54,18 @@ def test_preparation_uses_snapshot_not_live_workspace():
         "constructions": [],
         "materials": [],
     }
-    with patch("cosimulator.services.idf_objects_service.simulation_dao.find_by_id_and_user_email",
+    owner = SimulationOwner(OwnerType.USER, "user-1")
+    with patch("cosimulator.services.idf_objects_service.simulation_dao.find_by_id_and_owner",
                return_value={"construction_set_snapshot": snapshot}), \
             patch("cosimulator.services.idf_objects_service.build_idf") as build, \
             patch("cosimulator.services.idf_objects_service._archive_construction_set"):
-        start_idf_preparation(user_email="user@example.com", simulation_id="id", simulation_context=None)
+        start_idf_preparation(owner=owner, simulation_id="id", simulation_context=None)
         assert build.call_args.kwargs["idf_preparation_dto"].construction_set.name == "Set"
 
 
 def test_preparation_requires_a_snapshot():
-    with patch("cosimulator.services.idf_objects_service.simulation_dao.find_by_id_and_user_email",
+    with patch("cosimulator.services.idf_objects_service.simulation_dao.find_by_id_and_owner",
                return_value={}):
         with pytest.raises(ValueError, match="missing its construction set snapshot"):
-            start_idf_preparation(user_email="user@example.com", simulation_id="id", simulation_context=None)
+            start_idf_preparation(owner=SimulationOwner(OwnerType.USER, "user-1"),
+                                  simulation_id="id", simulation_context=None)

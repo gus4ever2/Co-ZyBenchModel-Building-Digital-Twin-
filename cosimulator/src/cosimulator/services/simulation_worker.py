@@ -4,13 +4,14 @@ from cosimulator.core.logger.logging import logger
 from cosimulator.schemas.simulation_context import SimulationContext
 from cosimulator.services.idf_objects_service import start_idf_preparation
 from cosimulator.services.simulation_process_service import simulation_process_service
+from cosimulator.services.simulation_owner_middleware import SimulationOwner
 from cosimulator.simulation.runner.run_simulation import run_simulation
 
 
 def run_simulation_worker(
     *,
     simulation_id: str,
-    user_email: str,
+    owner: SimulationOwner,
     simulation_context: SimulationContext,
 ) -> None:
     """Prepare the IDF, run EnergyPlus and persist the final process status."""
@@ -19,12 +20,11 @@ def run_simulation_worker(
         # The immutable snapshot belongs to this simulation record, rather
         # than to the user-editable construction workspace.
         start_idf_preparation(
-            user_email=user_email,
+            owner=owner,
             simulation_id=simulation_id,
             simulation_context=simulation_context,
         )
         timestep_count = run_simulation(
-            user_email=user_email,
             simulation_id=simulation_id,
             simulation_context=simulation_context,
         )

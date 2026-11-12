@@ -49,7 +49,7 @@ class SimulationResultsTests {
         verify(mongo, times(2)).exists(query.capture(), eq("simulations"));
         String criteria = query.getAllValues().getFirst().getQueryObject().toJson();
         assertTrue(criteria.contains("owner_id"));
-        assertTrue(criteria.contains("user_email"));
+        assertTrue(criteria.contains("owner_type"));
         assertTrue(criteria.contains("\\\\QTest.*\\\\E"));
     }
 
@@ -125,7 +125,6 @@ class SimulationResultsTests {
         assertEquals(2, query.getValue().getSkip());
         assertEquals(1, query.getValue().getLimit());
         assertEquals(1, query.getValue().getSortObject().getInteger("timestep_number"));
-        assertEquals("user@example.com", query.getValue().getQueryObject().getString("user_email"));
         assertEquals(id, query.getValue().getQueryObject().getString("simulation_id"));
         verifyNoInteractions(python);
     }

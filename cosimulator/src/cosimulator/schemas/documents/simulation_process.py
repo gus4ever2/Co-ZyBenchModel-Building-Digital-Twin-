@@ -7,14 +7,14 @@ from cosimulator.schemas.simulation.context import SimulationContext
 
 
 def build_base_process_document(
-    user_email: str | None,
-    guest_session_id: str | None,
+    owner_type: str,
+    owner_id: str,
     parameters: SimulationContext,
 ) -> dict[str, Any]:
     """Create the PENDING process document with its resolved owner."""
     return {
-        "user_email": user_email,
-        "guest_session_id": guest_session_id,
+        "owner_type": owner_type,
+        "owner_id": owner_id,
         "status": RunStatus.PENDING.value,
         "start_time": None,
         "end_time": None,

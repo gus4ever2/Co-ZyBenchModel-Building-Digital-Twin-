@@ -72,7 +72,7 @@ public class DefaultPlantLibrary {
     }
 
     /** Each run gets its own temporary plant and grid; model files remain shared. */
-    public String prepare(String userEmail, String id) {
+    public String prepare(String ownerType, String ownerId, String id) {
         if (id == null || !ObjectId.isValid(id)) return id;
         Document library = mongo.findOne(Query.query(Criteria.where("_id").is(new ObjectId(id))),
                 Document.class, "plantLibrary");
@@ -80,7 +80,8 @@ public class DefaultPlantLibrary {
         Document profile = Document.parse(library.get("profile", Document.class).toJson());
         ObjectId plantId = new ObjectId();
         String plantName = library.getString("name");
-        Document plant = new Document("_id", plantId).append("user_email", userEmail)
+        Document plant = new Document("_id", plantId)
+                .append("owner_type", ownerType).append("owner_id", ownerId)
                 .append("defaultLibraryId", id).append("status", "COMPLETED").append("progress", 100)
                 .append("created_at", new Date()).append("error", null)
                 .append("obj_file_id", library.get("obj_file_id")).append("mtl_file_id", library.get("mtl_file_id"))
@@ -94,16 +95,17 @@ public class DefaultPlantLibrary {
         try {
             mongo.insert(profile, "plant_profile_grids");
         } catch (RuntimeException error) {
-            release(userEmail, plantId.toHexString());
+            release(ownerType, ownerId, plantId.toHexString());
             throw error;
         }
         return plantId.toHexString();
     }
 
-    public void release(String userEmail, String id) {
+    public void release(String ownerType, String ownerId, String id) {
         if (id == null || !ObjectId.isValid(id)) return;
         Query query = Query.query(Criteria.where("_id").is(new ObjectId(id))
-                .and("user_email").is(userEmail).and("defaultLibraryId").exists(true));
+                .and("owner_type").is(ownerType).and("owner_id").is(ownerId)
+                .and("defaultLibraryId").exists(true));
         if (!mongo.exists(query, "plants")) return;
         mongo.remove(Query.query(Criteria.where("plant_id").is(id)), "plant_profile_grids");
         mongo.remove(query, "plants");

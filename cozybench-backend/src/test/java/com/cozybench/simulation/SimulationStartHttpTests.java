@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 class SimulationStartHttpTests {
     @org.junit.jupiter.api.Test
-    void sendsGuestOwnerAndKeepsTemporaryPlantLookupEmailNull() throws Exception {
+    void sendsGuestOwnerWithoutEmailAndScopesTemporaryPlantToGuestId() throws Exception {
         var requestBody = new AtomicReference<String>();
         var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/simulations/start-simulation", exchange -> {
@@ -34,7 +34,7 @@ class SimulationStartHttpTests {
         server.start();
         try {
             var library = mock(com.cozybench.plant.service.DefaultPlantLibrary.class);
-            when(library.prepare(null, "plant-id")).thenReturn("prepared-plant-id");
+            when(library.prepare("GUEST", "guest-session-id", "plant-id")).thenReturn("prepared-plant-id");
             var client = new CosimulatorSimulationClient("http://127.0.0.1:" + server.getAddress().getPort(), library);
             var set = new ComponentSnapshot("set-id", "Set", "construction_set", Map.of("Name", "Set"));
             var snapshot = new ConstructionSetSnapshot(set, List.of(), List.of());
@@ -46,12 +46,12 @@ class SimulationStartHttpTests {
                             com.cozybench.simulation.model.PlantCo2ExchangeMode.FULL_EXCHANGE),
                     null, null, null, Map.of());
 
-            assertEquals("guest-run", client.start(null, "guest-session-id", "Set", request, snapshot));
+            assertEquals("guest-run", client.start("GUEST", "guest-session-id", "Set", request, snapshot));
 
-            assertTrue(requestBody.get().contains("\"user_email\":null"));
-            assertTrue(requestBody.get().contains("\"guest_session_id\":\"guest-session-id\""));
+            assertTrue(requestBody.get().contains("\"owner_type\":\"GUEST\""));
+            assertTrue(requestBody.get().contains("\"owner_id\":\"guest-session-id\""));
             assertTrue(requestBody.get().contains("\"plant_id\":\"prepared-plant-id\""));
-            verify(library).prepare(null, "plant-id");
+            verify(library).prepare("GUEST", "guest-session-id", "plant-id");
         } finally {
             server.stop(0);
         }
@@ -72,7 +72,7 @@ class SimulationStartHttpTests {
         server.start();
         try {
             var library = mock(com.cozybench.plant.service.DefaultPlantLibrary.class);
-            when(library.prepare("user@example.com", "plant-id")).thenReturn("prepared-plant-id");
+            when(library.prepare("USER", "user-id", "plant-id")).thenReturn("prepared-plant-id");
             var client = new CosimulatorSimulationClient("http://127.0.0.1:" + server.getAddress().getPort(), library);
             var set = new ComponentSnapshot("set-id", "Set", "construction_set", Map.of("Name", "Set"));
             var snapshot = new ConstructionSetSnapshot(set, List.of(), List.of());
@@ -85,7 +85,7 @@ class SimulationStartHttpTests {
                     null, null,
                     thermostatEnabled ? new ThermostatSetpointsRequest(20.0, 26.0) : null,
                     Map.of());
-            assertEquals("example-id", client.start("user@example.com", "Set", request, snapshot));
+            assertEquals("example-id", client.start("USER", "user-id", "Set", request, snapshot));
             assertTrue(requestBody.get().contains("\"construction_set_snapshot\""));
             assertTrue(requestBody.get().contains("\"constructionSet\""));
             assertTrue(requestBody.get().contains("\"id\":\"set-id\""));
