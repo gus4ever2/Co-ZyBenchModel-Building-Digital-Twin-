@@ -34,16 +34,17 @@ class DefaultPlantLibraryTests {
         when(mongo.findOne(any(Query.class), eq(Document.class), eq("plantLibrary")))
                 .thenReturn(new Document("name", "Spathiphyllum").append("profile", profile)
                         .append("obj_file_id", obj).append("mtl_file_id", new ObjectId()));
-        String prepared = library.prepare("user@example.com", id);
+        String prepared = library.prepare("USER", "user-id", id);
         assertNotEquals(id, prepared);
         var capture = org.mockito.ArgumentCaptor.forClass(Document.class);
         verify(mongo).insert(capture.capture(), eq("plants"));
-        assertEquals("user@example.com", capture.getValue().getString("user_email"));
+        assertEquals("USER", capture.getValue().getString("owner_type"));
+        assertEquals("user-id", capture.getValue().getString("owner_id"));
         assertEquals(id, capture.getValue().getString("defaultLibraryId"));
         assertEquals(obj, capture.getValue().get("obj_file_id"));
         verify(mongo).insert(any(Document.class), eq("plant_profile_grids"));
         when(mongo.exists(any(Query.class), eq("plants"))).thenReturn(true);
-        library.release("user@example.com", prepared);
+        library.release("USER", "user-id", prepared);
         verify(mongo).remove(any(Query.class), eq("plants"));
         verify(mongo).remove(any(Query.class), eq("plant_profile_grids"));
         verifyNoInteractions(files);

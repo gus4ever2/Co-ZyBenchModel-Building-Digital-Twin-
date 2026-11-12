@@ -103,7 +103,7 @@ class AnalyticsService:
         self._assert_owned(simulation_id, owner)
 
         row = MongoConfig("simulation_timesteps").collection.find_one(
-            {"simulation_id": simulation_id, "user_email": owner.user_email},
+            {"simulation_id": simulation_id},
             sort=[("timestep_number", -1)],
         )
         return enrich(row) if row is not None else None
@@ -165,7 +165,6 @@ class AnalyticsService:
 
         query: dict[str, Any] = {
             "simulation_id": simulation_id,
-            "user_email": owner.user_email,
         }
         if analysis_start or analysis_end:
             query["simulation_timestamp"] = {

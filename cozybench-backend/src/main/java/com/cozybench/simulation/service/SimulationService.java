@@ -50,7 +50,7 @@ public class SimulationService {
     private static final long RESULT_COUNT_CACHE_MILLIS = 30_000;
 
     // Completed results are paged repeatedly; keep their count briefly, not their timesteps.
-    private record ResultKey(String userEmail, String simulationId) {}
+    private record ResultKey(String ownerId, String simulationId) {}
     private record CachedCount(long count, long expiresAt) {}
     private final Map<ResultKey, CachedCount> resultCounts = Collections.synchronizedMap(
             new LinkedHashMap<>(128, 0.75f, true) {
@@ -83,17 +83,17 @@ public class SimulationService {
             String userEmail,
             StartSimulationRequest request
     ) {
-        return start(ownerId, userEmail, null, request);
+        return start(ownerId, userEmail == null ? "GUEST" : "USER", userEmail, request);
     }
 
     public SimulationSummaryResponse startGuest(String guestSessionId, StartSimulationRequest request) {
-        return start(guestSessionId, null, guestSessionId, request);
+        return start(guestSessionId, "GUEST", null, request);
     }
 
     private SimulationSummaryResponse start(
             String ownerId,
+            String ownerType,
             String userEmail,
-            String guestSessionId,
             StartSimulationRequest request
     ) {
         ConstructionSetSnapshot snapshot = snapshotService.snapshot(
@@ -105,12 +105,11 @@ public class SimulationService {
 
         String simulationId;
         if (request.scenarioType() == ScenarioType.REFERENCE) {
-            simulationId = cosimulator.start(userEmail, guestSessionId, constructionSetName, request, snapshot);
+            simulationId = cosimulator.start(ownerType, ownerId, constructionSetName, request, snapshot);
             Query query = idQuery(simulationId);
             Update update = metadataUpdate(
                     ownerId,
-                    userEmail,
-                    guestSessionId,
+                    ownerType,
                     request,
                     snapshot,
                     requestedAt
@@ -122,7 +121,7 @@ public class SimulationService {
             Document document = new Document()
                     .append("_id", id)
                     .append("owner_id", ownerId)
-                    .append("user_email", userEmail)
+                    .append("owner_type", ownerType)
                     .append("display_name", request.name().trim())
                     .append("scenario_type", ScenarioType.CUSTOM.name())
                     .append("status", "CUSTOM_READY")
@@ -134,7 +133,6 @@ public class SimulationService {
                     .append("construction_set_snapshot", snapshotMap(snapshot))
                     .append("custom_scenario", new Document(request.customScenario()))
                     .append("error", null);
-            if (guestSessionId != null) document.append("guest_session_id", guestSessionId);
             mongoTemplate.insert(document, SIMULATIONS);
             simulationId = id.toHexString();
         }
@@ -197,7 +195,7 @@ public class SimulationService {
         String simulationId = objectId(document.get("_id"));
         return Optional.of(new CurrentSimulationResponse(
                 toSummary(document, userEmail),
-                latestTimestep(userEmail, simulationId).orElse(Map.of())
+                latestTimestep(simulationId).orElse(Map.of())
         ));
     }
 
@@ -236,17 +234,16 @@ public class SimulationService {
         if (scenario(simulation) == ScenarioType.REFERENCE) {
             cosimulator.deleteWorkspace(
                     simulationId,
-                    userEmail,
-                    string(simulation.get("guest_session_id"))
+                    ownerType(userEmail),
+                    ownerId
             );
         }
 
         Query timesteps = new Query(
-                Criteria.where("user_email").is(userEmail)
-                        .and("simulation_id").is(simulationId)
+                Criteria.where("simulation_id").is(simulationId)
         );
         mongoTemplate.remove(timesteps, TIMESTEPS);
-        resultCounts.remove(new ResultKey(userEmail, simulationId));
+        resultCounts.remove(new ResultKey(ownerId, simulationId));
         mongoTemplate.remove(
                 new Query(new Criteria().andOperator(
                         idCriteria(simulationId),
@@ -264,8 +261,7 @@ public class SimulationService {
             throw new IllegalArgumentException("Wait for the simulation to finish before exporting");
         }
         String metadata = new Document(normalizeDocument(simulation)).toJson();
-        Query query = new Query(Criteria.where("user_email").is(userEmail)
-                .and("simulation_id").is(simulationId))
+        Query query = new Query(Criteria.where("simulation_id").is(simulationId))
                 .with(Sort.by(Sort.Order.asc("timestep_number"), Sort.Order.asc("_id")));
         return output -> {
             var writer = new java.io.BufferedWriter(new java.io.OutputStreamWriter(
@@ -297,9 +293,8 @@ public class SimulationService {
             Integer limit
     ) {
         Document simulation = requireOwned(ownerId, userEmail, simulationId);
-        Criteria criteria = Criteria.where("user_email").is(userEmail)
-                .and("simulation_id").is(simulationId);
-        ResultKey key = new ResultKey(userEmail, simulationId);
+        Criteria criteria = Criteria.where("simulation_id").is(simulationId);
+        ResultKey key = new ResultKey(ownerId, simulationId);
         boolean completed = "COMPLETED".equals(string(simulation.get("status")));
         if (!completed) resultCounts.remove(key);
         long now = System.currentTimeMillis();
@@ -336,12 +331,12 @@ public class SimulationService {
 
     public Map<String, Object> analytics(String ownerId, String email, String id, int start, Integer end) {
         requireOwned(ownerId, email, id);
-        return cosimulator.analytics(email, id, start, end);
+        return cosimulator.analytics("USER", ownerId, id, start, end);
     }
 
     public Map<String, Object> analyticsGuest(String guestSessionId, String id, int start, Integer end) {
         requireOwned(guestSessionId, null, id);
-        return cosimulator.analytics(null, guestSessionId, id, start, end);
+        return cosimulator.analytics("GUEST", guestSessionId, id, start, end);
     }
 
     public Map<String, Object> availableAnalytics() {
@@ -350,28 +345,28 @@ public class SimulationService {
 
     public Map<String, Object> selectedAnalytics(String ownerId, String email, String id, Map<String, Object> options) {
         requireOwned(ownerId, email, id);
-        return cosimulator.selectedAnalytics(email, id, options);
+        return cosimulator.selectedAnalytics("USER", ownerId, id, options);
     }
 
     public Map<String, Object> selectedAnalyticsGuest(String guestSessionId, String id, Map<String, Object> options) {
         requireOwned(guestSessionId, null, id);
-        return cosimulator.selectedAnalytics(null, guestSessionId, id, options);
+        return cosimulator.selectedAnalytics("GUEST", guestSessionId, id, options);
     }
 
-    /** Deletes an ownerless guest simulation during scheduled cleanup. */
+    /** Deletes one guest-owned simulation during scheduled cleanup. */
     public void deleteUnownedSimulation(String simulationId) {
         Document document = mongoTemplate.findOne(
                 new Query(new Criteria().andOperator(
                         idCriteria(simulationId),
-                        Criteria.where("user_email").is(null)
+                        Criteria.where("owner_type").is("GUEST")
                 )),
                 Document.class,
                 SIMULATIONS
         );
         if (document == null) return;
-        String guestSessionId = string(document.get("guest_session_id"));
+        String guestSessionId = string(document.get("owner_id"));
         if (guestSessionId == null || guestSessionId.isBlank()) {
-            throw new IllegalStateException("Ownerless simulation has no guest session id");
+            throw new IllegalStateException("Guest simulation has no owner id");
         }
         if (ACTIVE_STATUSES.contains(string(document.get("status")))) {
             cancel(guestSessionId, null, simulationId);
@@ -396,7 +391,7 @@ public class SimulationService {
         );
         long plantModels = mongoTemplate.count(
                 new Query(new Criteria().andOperator(
-                        Criteria.where("user_email").is(userEmail),
+                        ownerCriteria(ownerId, userEmail),
                         Criteria.where("status").is("COMPLETED")
                 )),
                 "plants"
@@ -450,20 +445,18 @@ public class SimulationService {
 
     private Update metadataUpdate(
             String ownerId,
-            String userEmail,
-            String guestSessionId,
+            String ownerType,
             StartSimulationRequest request,
             ConstructionSetSnapshot snapshot,
             Instant requestedAt
     ) {
         Update update = new Update()
                 .set("owner_id", ownerId)
-                .set("user_email", userEmail)
+                .set("owner_type", ownerType)
                 .set("display_name", request.name().trim())
                 .set("scenario_type", request.scenarioType().name())
                 .set("requested_at", Date.from(requestedAt))
                 .set("construction_set_snapshot", snapshotMap(snapshot));
-        if (guestSessionId != null) update.set("guest_session_id", guestSessionId);
         // The engine may use a temporary copy, but previews need the selected plant's stable ID.
         if (request.plantSimulation() != null && request.plantSimulation().plantId() != null) {
             update.set("plant_preview_id", request.plantSimulation().plantId());
@@ -493,7 +486,7 @@ public class SimulationService {
     private SimulationSummaryResponse toSummary(Document document, String userEmail) {
         String id = objectId(document.get("_id"));
         Map<String, Object> parameters = map(document.get("parameters"));
-        ResultMeta resultMeta = resultMeta(userEmail, id);
+        ResultMeta resultMeta = resultMeta(id);
         return new SimulationSummaryResponse(
                 id,
                 nonBlank(string(document.get("display_name")), "Simulation " + shortId(id)),
@@ -518,9 +511,8 @@ public class SimulationService {
         );
     }
 
-    private ResultMeta resultMeta(String userEmail, String simulationId) {
-        Criteria criteria = Criteria.where("user_email").is(userEmail)
-                .and("simulation_id").is(simulationId);
+    private ResultMeta resultMeta(String simulationId) {
+        Criteria criteria = Criteria.where("simulation_id").is(simulationId);
         long count = mongoTemplate.count(new Query(criteria), TIMESTEPS);
         if (count == 0) {
             return new ResultMeta(0, null, null);
@@ -540,9 +532,8 @@ public class SimulationService {
         );
     }
 
-    private Optional<Map<String, Object>> latestTimestep(String userEmail, String simulationId) {
-        Query query = new Query(Criteria.where("user_email").is(userEmail)
-                .and("simulation_id").is(simulationId))
+    private Optional<Map<String, Object>> latestTimestep(String simulationId) {
+        Query query = new Query(Criteria.where("simulation_id").is(simulationId))
                 .with(Sort.by(Sort.Direction.DESC, "timestep_number"))
                 .limit(1);
         Document latest = mongoTemplate.findOne(query, Document.class, TIMESTEPS);
@@ -550,16 +541,12 @@ public class SimulationService {
     }
 
     private Criteria ownerCriteria(String ownerId, String userEmail) {
-        if (userEmail == null) {
-            return new Criteria().orOperator(
-                    Criteria.where("owner_id").is(ownerId),
-                    Criteria.where("guest_session_id").is(ownerId)
-            );
-        }
-        return new Criteria().orOperator(
-                Criteria.where("owner_id").is(ownerId),
-                Criteria.where("user_email").is(userEmail)
-        );
+        return Criteria.where("owner_type").is(ownerType(userEmail))
+                .and("owner_id").is(ownerId);
+    }
+
+    private String ownerType(String userEmail) {
+        return userEmail == null ? "GUEST" : "USER";
     }
 
     private Query idQuery(String simulationId) {

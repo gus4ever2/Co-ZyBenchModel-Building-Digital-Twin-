@@ -34,7 +34,8 @@ def _plant_response(document: dict) -> dict:
 
 @plants_router.post("", status_code=201)
 async def create_plant(
-    user_email: str = Form(...),
+    owner_type: str = Form(...),
+    owner_id: str = Form(...),
     plant_name: str = Form(...),
     reflectance: float = Form(...),
     transmittance: float = Form(...),
@@ -78,7 +79,8 @@ async def create_plant(
 
         get_grid_config(grid_preset)
         plant_id = plant_service.initialize_process(
-            user_email=user_email,
+            owner_type=owner_type,
+            owner_id=owner_id,
             plant_name=normalized_name,
             parameters=parameters,
             grid_preset=grid_preset,
@@ -119,9 +121,9 @@ async def create_plant(
 
 
 @plants_router.get("")
-def list_plants(user_email: str) -> dict:
+def list_plants(owner_type: str, owner_id: str) -> dict:
     """Return plants owned by the user with response-grid metadata."""
-    documents = plant_service.list_for_user(user_email=user_email)
+    documents = plant_service.list_for_owner(owner_type=owner_type, owner_id=owner_id)
     return {
         "count": len(documents),
         "plants": [_plant_response(document) for document in documents],
@@ -129,12 +131,13 @@ def list_plants(user_email: str) -> dict:
 
 
 @plants_router.get("/{plant_id}")
-def get_plant(plant_id: str, user_email: str) -> dict:
+def get_plant(plant_id: str, owner_type: str, owner_id: str) -> dict:
     """Return one owned plant after validating its MongoDB identifier."""
     try:
         document = plant_service.get(
             plant_id=plant_id,
-            user_email=user_email,
+            owner_type=owner_type,
+            owner_id=owner_id,
         )
     except Exception as error:
         raise HTTPException(status_code=400, detail="Invalid plant_id") from error
@@ -144,10 +147,10 @@ def get_plant(plant_id: str, user_email: str) -> dict:
 
 
 @plants_router.get("/{plant_id}/export")
-def export_plant(plant_id: str, user_email: str) -> dict:
+def export_plant(plant_id: str, owner_type: str, owner_id: str) -> dict:
     """Export the plant and its grid after checking ownership."""
     try:
-        plant = plant_service.get(plant_id=plant_id, user_email=user_email)
+        plant = plant_service.get(plant_id=plant_id, owner_type=owner_type, owner_id=owner_id)
     except Exception as error:
         raise HTTPException(status_code=400, detail="Invalid plant_id") from error
     if plant is None:
@@ -166,7 +169,8 @@ def export_plant(plant_id: str, user_email: str) -> dict:
 @plants_router.post("/{plant_id}/regenerate", status_code=202)
 def regenerate_plant_grid(
     plant_id: str,
-    user_email: str = Form(...),
+    owner_type: str = Form(...),
+    owner_id: str = Form(...),
     grid_preset: str | None = Form(None),
 ) -> dict[str, str]:
     """Regenerate an existing plant's PhotosynEB response grid.
@@ -176,7 +180,7 @@ def regenerate_plant_grid(
     frontend can update a grid schema without uploading the same model again.
     """
     try:
-        plant = plant_service.get(plant_id=plant_id, user_email=user_email)
+        plant = plant_service.get(plant_id=plant_id, owner_type=owner_type, owner_id=owner_id)
     except Exception as error:
         raise HTTPException(status_code=400, detail="Invalid plant_id") from error
     if plant is None:
@@ -208,7 +212,8 @@ def regenerate_plant_grid(
         # Restore the already owned OBJ from GridFS into a worker workspace.
         stored_obj = plant_service.read_model_file(
             plant_id=plant_id,
-            user_email=user_email,
+            owner_type=owner_type,
+            owner_id=owner_id,
             field="obj_file_id",
         )
         if stored_obj is None:
@@ -237,13 +242,14 @@ def regenerate_plant_grid(
 
 
 def _send_model_file(
-    *, plant_id: str, user_email: str, field: str, media_type: str
+    *, plant_id: str, owner_type: str, owner_id: str, field: str, media_type: str
 ) -> Response:
     """Return one owned OBJ/MTL GridFS file with an inline filename."""
     try:
         grid_file = plant_service.read_model_file(
             plant_id=plant_id,
-            user_email=user_email,
+            owner_type=owner_type,
+            owner_id=owner_id,
             field=field,
         )
     except Exception as error:
@@ -260,34 +266,37 @@ def _send_model_file(
 
 
 @plants_router.get("/{plant_id}/obj")
-def get_plant_obj(plant_id: str, user_email: str) -> Response:
+def get_plant_obj(plant_id: str, owner_type: str, owner_id: str) -> Response:
     """Return OBJ geometry for the 3D preview renderer."""
     return _send_model_file(
         plant_id=plant_id,
-        user_email=user_email,
+        owner_type=owner_type,
+        owner_id=owner_id,
         field="obj_file_id",
         media_type="text/plain",
     )
 
 
 @plants_router.get("/{plant_id}/mtl")
-def get_plant_mtl(plant_id: str, user_email: str) -> Response:
+def get_plant_mtl(plant_id: str, owner_type: str, owner_id: str) -> Response:
     """Return the MTL material file referenced by the OBJ geometry."""
     return _send_model_file(
         plant_id=plant_id,
-        user_email=user_email,
+        owner_type=owner_type,
+        owner_id=owner_id,
         field="mtl_file_id",
         media_type="text/plain",
     )
 
 
 @plants_router.delete("/{plant_id}", status_code=204)
-def delete_plant(plant_id: str, user_email: str) -> Response:
+def delete_plant(plant_id: str, owner_type: str, owner_id: str) -> Response:
     """Delete an owned plant and related grid/files through the service."""
     try:
         deleted = plant_service.delete(
             plant_id=plant_id,
-            user_email=user_email,
+            owner_type=owner_type,
+            owner_id=owner_id,
         )
     except RuntimeError as error:
         raise HTTPException(status_code=409, detail=str(error)) from error

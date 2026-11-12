@@ -25,22 +25,15 @@ class SimulationProcessService:
     def initialize_process(
             self,
             *,
-            owner: SimulationOwner | None = None,
-            user_email: str | None = None,
-            guest_session_id: str | None = None,
+            owner: SimulationOwner,
             parameters: SimulationContext,
             construction_set_snapshot: dict[str, Any],
     ) -> str:
-        if owner is None:
-            owner = SimulationOwnerMiddleware.resolve(
-                user_email=user_email,
-                guest_session_id=guest_session_id,
-            )
         # The process record exists before the child worker starts, allowing
         # Spring to show PENDING immediately after the start request.
         document: dict[str, Any] = build_base_process_document(
-            user_email=owner.user_email,
-            guest_session_id=owner.guest_session_id,
+            owner_type=owner.owner_type.value,
+            owner_id=owner.owner_id,
             parameters=parameters,
         )
         # Save the immutable input before the worker can start reading it.
@@ -131,7 +124,6 @@ class SimulationProcessService:
             simulations.append(
                 {
                     "simulation_id": str(document["_id"]),
-                    "user_email": document.get("user_email"),
                     "status": document.get("status"),
                     "start_time": document.get("start_time"),
                     "end_time": document.get("end_time"),

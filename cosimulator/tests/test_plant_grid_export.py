@@ -18,20 +18,21 @@ def test_grid_export_requires_owner_and_returns_full_grid():
     ) as get_grid:
         owner.return_value = {"_id": ObjectId(plant_id)}
         get_grid.return_value = grid
-        response = client.get(f"/plants/{plant_id}/export", params={"user_email": "owner@example.com"})
+        owner_params = {"owner_type": "USER", "owner_id": "user-1"}
+        response = client.get(f"/plants/{plant_id}/export", params=owner_params)
         assert response.status_code == 200
         assert response.json()["plant"]["_id"] == plant_id
         assert response.json()["grid"]["values"] == [1, 2]
         assert response.json()["grid"]["_id"] == str(grid["_id"])
-        owner.assert_called_with(plant_id=plant_id, user_email="owner@example.com")
+        owner.assert_called_with(plant_id=plant_id, owner_type="USER", owner_id="user-1")
 
         owner.return_value = None
         get_grid.reset_mock()
-        response = client.get(f"/plants/{plant_id}/export", params={"user_email": "other@example.com"})
+        response = client.get(f"/plants/{plant_id}/export", params={"owner_type": "USER", "owner_id": "user-2"})
         assert response.status_code == 404
         get_grid.assert_not_called()
 
         owner.return_value = {"_id": ObjectId(plant_id)}
         get_grid.return_value = None
-        response = client.get(f"/plants/{plant_id}/export", params={"user_email": "owner@example.com"})
+        response = client.get(f"/plants/{plant_id}/export", params=owner_params)
         assert response.status_code == 404

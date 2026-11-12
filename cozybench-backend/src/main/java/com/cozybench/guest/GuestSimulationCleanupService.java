@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Deletes every simulation without an email owner at the configured daily time. */
+/** Deletes guest-owned simulations at the configured daily time. */
 @Service
 public class GuestSimulationCleanupService {
     private static final Logger LOGGER =
@@ -47,7 +47,7 @@ public class GuestSimulationCleanupService {
         Set<String> failedSimulationIds = new HashSet<>();
         try {
             var ownerless = mongo.find(
-                    Query.query(Criteria.where("user_email").is(null)),
+                    Query.query(Criteria.where("owner_type").is("GUEST")),
                     Document.class,
                     SIMULATIONS
             );
@@ -60,7 +60,7 @@ public class GuestSimulationCleanupService {
                 } catch (Exception error) {
                     failedSimulationIds.add(simulationId);
                     LOGGER.error(
-                            "Could not clean ownerless simulation {}; keeping its records for retry",
+                            "Could not clean guest simulation {}; keeping its records for retry",
                             simulationId,
                             error
                     );

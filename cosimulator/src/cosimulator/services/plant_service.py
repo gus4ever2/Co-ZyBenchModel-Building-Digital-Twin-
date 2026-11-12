@@ -43,7 +43,8 @@ class PlantService:
     def initialize_process(
         self,
         *,
-        user_email: str,
+        owner_type: str,
+        owner_id: str,
         plant_name: str,
         parameters: PlantParameters,
         grid_preset: str = "standard",
@@ -51,7 +52,8 @@ class PlantService:
         """Create a PENDING plant document before the background worker starts."""
         return self.dao.create(
             build_base_plant_document(
-                user_email=user_email,
+                owner_type=owner_type,
+                owner_id=owner_id,
                 plant_name=plant_name,
                 parameters=parameters,
                 grid_preset=grid_preset,
@@ -62,16 +64,22 @@ class PlantService:
         """Apply worker lifecycle/progress fields without replacing the document."""
         self.dao.update_fields(plant_id, fields)
 
-    def get(self, *, plant_id: str, user_email: str) -> dict[str, Any] | None:
+    def get(self, *, plant_id: str, owner_type: str, owner_id: str) -> dict[str, Any] | None:
         """Read one owned plant and repair a stale in-memory worker status."""
-        document = self.dao.find_by_id_and_user_email(plant_id, user_email)
+        if not ObjectId.is_valid(plant_id):
+            return None
+        document = self.dao.find_by_id_and_owner(
+            plant_id=plant_id,
+            owner_type=owner_type,
+            owner_id=owner_id,
+        )
         return self._reconcile_process_status(document)
 
-    def list_for_user(self, *, user_email: str) -> list[dict[str, Any]]:
+    def list_for_owner(self, *, owner_type: str, owner_id: str) -> list[dict[str, Any]]:
         """Read all owned plants while reconciling stopped local workers."""
         return [
             document
-            for item in self.dao.find_all_by_user(user_email=user_email)
+            for item in self.dao.find_all_by_owner(owner_type=owner_type, owner_id=owner_id)
             if (document := self._reconcile_process_status(item)) is not None
         ]
 
@@ -136,18 +144,19 @@ class PlantService:
         self,
         *,
         plant_id: str,
-        user_email: str,
+        owner_type: str,
+        owner_id: str,
         field: str,
     ) -> GridOut | None:
         """Return an owned GridFS file, or None when the requested file is absent."""
-        plant = self.get(plant_id=plant_id, user_email=user_email)
+        plant = self.get(plant_id=plant_id, owner_type=owner_type, owner_id=owner_id)
         if plant is None or plant.get(field) is None:
             return None
         return self.gridfs.get(plant[field])
 
-    def delete(self, *, plant_id: str, user_email: str) -> bool:
+    def delete(self, *, plant_id: str, owner_type: str, owner_id: str) -> bool:
         """Delete an owned finished plant, its files, grid and local workspace."""
-        plant = self.get(plant_id=plant_id, user_email=user_email)
+        plant = self.get(plant_id=plant_id, owner_type=owner_type, owner_id=owner_id)
         if plant is None:
             return False
         if plant.get("defaultLibraryId") is not None:
@@ -165,7 +174,11 @@ class PlantService:
                 self.gridfs.delete(file_id)
 
         plant_profile_grid_service.dao.delete_by_plant_id(plant_id=plant_id)
-        result = self.dao.delete_by_id_and_user_email(plant_id, user_email)
+        result = self.dao.delete_by_id_and_owner(
+            plant_id=plant_id,
+            owner_type=owner_type,
+            owner_id=owner_id,
+        )
         if result.deleted_count == 0:
             return False
 

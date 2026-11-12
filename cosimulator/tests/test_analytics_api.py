@@ -19,19 +19,19 @@ class AnalyticsApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("energy", [item["id"] for item in response.json()["analytics"]])
         with patch.object(api.analytics_service, "_assert_owned", side_effect=api.SimulationNotFoundError("Simulation not found")):
-            response = self.client.get("/simulations/0123456789abcdef01234567/analytics?user_email=owner@example.com")
+            response = self.client.get("/simulations/0123456789abcdef01234567/analytics?owner_type=USER&owner_id=user-1")
             self.assertEqual(response.status_code, 404)
 
     def test_empty_data_null_through_http(self):
         with patch.object(api.analytics_service, "_timesteps") as cursor:
             cursor.return_value.__enter__.return_value.__iter__.return_value = iter([])
-            response = self.client.get("/simulations/0123456789abcdef01234567/analytics?user_email=owner@example.com")
+            response = self.client.get("/simulations/0123456789abcdef01234567/analytics?owner_type=USER&owner_id=user-1")
             self.assertEqual(response.status_code, 200)
             self.assertIsNone(response.json()["metrics"]["averageCo2Ppm"])
             self.assertIsNone(response.json()["metrics"]["totalHvacKwh"])
 
     def test_unknown_selection_is_validation_error(self):
-        response = self.client.post("/simulations/0123456789abcdef01234567/analytics?user_email=owner@example.com",
+        response = self.client.post("/simulations/0123456789abcdef01234567/analytics?owner_type=USER&owner_id=user-1",
                                     json={"selected": ["unknown"]})
         self.assertEqual(response.status_code, 422)
 
@@ -48,7 +48,7 @@ class AnalyticsApiTests(unittest.TestCase):
         with patch.object(api.analytics_service, "_timesteps", side_effect=lambda key, *args:
                           Rows([step(co2=600 if key == first else 500)])):
             response = self.client.post("/simulations/analytics/comparison", json={
-                "user_email": "owner@example.com", "simulationIds": [first, second],
+                "owner_type": "USER", "owner_id": "user-1", "simulationIds": [first, second],
                 "references": [{"id": first, "name": "Baseline"}, {"id": second, "name": "Scenario"}]})
             self.assertEqual(response.status_code, 200, response.text)
             data = response.json()

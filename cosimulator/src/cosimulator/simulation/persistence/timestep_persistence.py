@@ -13,7 +13,6 @@ from cosimulator.simulation_variables.schemas.results import SimulationTimestepR
 
 def save_timestep(
     *,
-    user_email: str,
     simulation_id: str,
     timestep_number: int,
     simulation_timestamp: datetime,
@@ -33,7 +32,6 @@ def save_timestep(
             persistence_fields[field_name] = field_value
 
     return simulation_timestep_service.save_timestep(
-        user_email=user_email,
         simulation_id=simulation_id,
         timestep_number=timestep_number,
         simulation_timestamp=simulation_timestamp,
