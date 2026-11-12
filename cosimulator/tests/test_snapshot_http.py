@@ -27,7 +27,8 @@ def test_start_handler_accepts_and_passes_the_snapshot(monkeypatch, request):
 
     monkeypatch.setattr(routes, "prepare_simulation", prepare)
     request_data = {
-        "user_email": "user@example.com",
+        "owner_type": "USER",
+        "owner_id": "user-1",
         "simulation_context": {"city": "Paris", "construction_set": "Set"},
         "construction_set_snapshot": {
             "constructionSet": {"id": "s1", "name": "Set", "type": "construction_set", "properties": {}},
@@ -40,7 +41,8 @@ def test_start_handler_accepts_and_passes_the_snapshot(monkeypatch, request):
     with TestClient(app) as client:
         response = client.post("/simulations/start-simulation", json=request_data)
         without_snapshot = client.post("/simulations/start-simulation", json={
-            "user_email": request_data["user_email"],
+            "owner_type": request_data["owner_type"],
+            "owner_id": request_data["owner_id"],
             "simulation_context": request_data["simulation_context"],
         })
     assert response.status_code == 201

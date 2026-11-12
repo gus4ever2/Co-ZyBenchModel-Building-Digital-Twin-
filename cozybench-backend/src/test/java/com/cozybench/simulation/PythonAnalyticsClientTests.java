@@ -21,7 +21,7 @@ class PythonAnalyticsClientTests {
         server.start();
         try {
             var client = new CosimulatorSimulationClient("http://127.0.0.1:" + server.getAddress().getPort(), null);
-            var result = client.analytics("owner@example.com", "test", 0, null);
+            var result = client.analytics("USER", "owner-id", "test", 0, null);
             var metrics = (Map<?, ?>) result.get("metrics");
             assertTrue(metrics.containsKey("averageCo2Ppm"));
             assertNull(metrics.get("averageCo2Ppm"));

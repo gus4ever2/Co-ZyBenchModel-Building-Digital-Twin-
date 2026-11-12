@@ -25,7 +25,6 @@ class SimulationTimestepDAO(GeneralDAO):
 
             cls._collection.create_index(
                 [
-                    ("user_email", ASCENDING),
                     ("simulation_id", ASCENDING),
                     ("timestep_number", ASCENDING),
                 ],
@@ -50,13 +49,11 @@ class SimulationTimestepDAO(GeneralDAO):
 
     def find_by_simulation_and_number(
             self,
-            user_email: str,
             simulation_id: str,
             timestep_number: int,
     ) -> dict[str, Any] | None:
         return self.collection.find_one(
             {
-                "user_email": user_email,
                 "simulation_id": simulation_id,
                 "timestep_number": timestep_number,
             }
@@ -64,13 +61,11 @@ class SimulationTimestepDAO(GeneralDAO):
 
     def find_next(
             self,
-            user_email: str,
             simulation_id: str,
             current_timestep_number: int,
     ) -> dict[str, Any] | None:
         return self.collection.find_one(
             {
-                "user_email": user_email,
                 "simulation_id": simulation_id,
                 "timestep_number": {
                     "$gt": current_timestep_number,
@@ -81,13 +76,11 @@ class SimulationTimestepDAO(GeneralDAO):
 
     def find_previous(
             self,
-            user_email: str,
             simulation_id: str,
             current_timestep_number: int,
     ) -> dict[str, Any] | None:
         return self.collection.find_one(
             {
-                "user_email": user_email,
                 "simulation_id": simulation_id,
                 "timestep_number": {
                     "$lt": current_timestep_number,
@@ -98,14 +91,12 @@ class SimulationTimestepDAO(GeneralDAO):
 
     def find_all_by_simulation(
             self,
-            user_email: str,
             simulation_id: str,
             limit: int | None = None,
             offset: int = 0,
     ) -> list[Mapping[str, Any]]:
         cursor = self.collection.find(
             {
-                "user_email": user_email,
                 "simulation_id": simulation_id,
             }
         ).sort("timestep_number", ASCENDING).skip(offset)
@@ -117,12 +108,10 @@ class SimulationTimestepDAO(GeneralDAO):
 
     def delete_all_by_simulation(
             self,
-            user_email: str,
             simulation_id: str,
     ) -> DeleteResult:
         return self.collection.delete_many(
             {
-                "user_email": user_email,
                 "simulation_id": simulation_id,
             }
         )

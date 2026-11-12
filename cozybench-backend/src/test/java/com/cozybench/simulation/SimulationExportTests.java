@@ -41,7 +41,6 @@ class SimulationExportTests {
         var query = org.mockito.ArgumentCaptor.forClass(Query.class);
         verify(mongo).stream(query.capture(), eq(Document.class), eq("simulation_timesteps"));
         assertEquals(0, query.getValue().getLimit());
-        assertEquals("user@example.com", query.getValue().getQueryObject().getString("user_email"));
         assertEquals(id, query.getValue().getQueryObject().getString("simulation_id"));
         assertEquals(1, query.getValue().getSortObject().getInteger("timestep_number"));
     }

@@ -28,14 +28,14 @@ def _remove_finished_process(
     *,
     simulation_id: str,
     process: BaseProcess,
-    user_email: str | None,
+    owner: SimulationOwner,
     temporary_plant_id: str | None,
 ) -> None:
     """Wait in a monitor thread, then clean local process-only resources."""
     process.join()
     delete_temporary_plant_if_owned(
         simulation_id=simulation_id,
-        user_email=user_email,
+        owner=owner,
         temporary_plant_id=temporary_plant_id,
     )
     remove_simulation_process(simulation_id=simulation_id, process=process)
@@ -45,7 +45,7 @@ def _remove_finished_process(
 def launch_simulation(
     *,
     simulation_id: str,
-    user_email: str | None,
+    owner: SimulationOwner,
     simulation_context: SimulationContext,
 ) -> None:
     """Start one isolated Windows EnergyPlus worker and its monitor thread."""
@@ -53,7 +53,7 @@ def launch_simulation(
         target=run_simulation_worker,
         kwargs={
             "simulation_id": simulation_id,
-            "user_email": user_email,
+            "owner": owner,
             "simulation_context": simulation_context,
         },
         name=f"simulation-{simulation_id}",
@@ -72,7 +72,7 @@ def launch_simulation(
         kwargs={
             "simulation_id": simulation_id,
             "process": process,
-            "user_email": user_email,
+            "owner": owner,
             "temporary_plant_id": temporary_plant_id,
         },
         name=f"simulation-monitor-{simulation_id}",
@@ -116,7 +116,7 @@ def prepare_simulation(
     )
     launch_simulation(
         simulation_id=simulation_id,
-        user_email=owner.user_email,
+        owner=owner,
         simulation_context=simulation_context,
     )
     return simulation_id

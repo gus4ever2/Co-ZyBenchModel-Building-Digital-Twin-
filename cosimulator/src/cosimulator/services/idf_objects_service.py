@@ -142,12 +142,15 @@ def _archive_construction_set(
 
 def start_idf_preparation(
     *,
-    user_email: str,
+    owner,
     simulation_id: str,
     simulation_context: SimulationContext,
 ) -> None:
     # Read the saved snapshot, not the workspace that the user may have edited.
-    simulation = simulation_dao.find_by_id_and_user_email(simulation_id, user_email)
+    simulation = simulation_dao.find_by_id_and_owner(
+        document_id=simulation_id,
+        owner=owner,
+    )
     if simulation is None:
         raise LookupError("Simulation was not found for this user")
     snapshot = simulation.get("construction_set_snapshot")

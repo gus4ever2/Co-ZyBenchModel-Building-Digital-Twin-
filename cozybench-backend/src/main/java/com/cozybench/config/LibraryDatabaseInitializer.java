@@ -9,6 +9,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.PartialIndexFilter;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -60,20 +62,121 @@ public class LibraryDatabaseInitializer implements ApplicationRunner {
     }
 
     private void initializeSimulationIndexes() {
+        migrateSimulationOwnership();
+        migratePlantOwnership();
+        if (mongoTemplate.collectionExists(SIMULATIONS_COLLECTION)) {
+            mongoTemplate.updateMulti(
+                    new Query(org.springframework.data.mongodb.core.query.Criteria.where("user_email").exists(true)),
+                    new Update().unset("user_email").unset("guest_session_id"),
+                    SIMULATIONS_COLLECTION
+            );
+        }
+        if (mongoTemplate.collectionExists("plants")) {
+            mongoTemplate.updateMulti(
+                    new Query(org.springframework.data.mongodb.core.query.Criteria.where("owner_type").exists(true)
+                            .and("user_email").exists(true)),
+                    new Update().unset("user_email"),
+                    "plants"
+            );
+        }
+        if (mongoTemplate.collectionExists("simulation_timesteps")) {
+            // A timestep is a child of its simulation. The parent record is the
+            // authorization boundary, so timesteps do not duplicate owner data.
+            mongoTemplate.updateMulti(
+                    new Query(org.springframework.data.mongodb.core.query.Criteria.where("user_email").exists(true)),
+                    new Update().unset("user_email"),
+                    "simulation_timesteps"
+            );
+        }
         mongoTemplate.indexOps(SIMULATIONS_COLLECTION).createIndex(
                 new Index()
-                        .on("user_email", ASC)
+                        .on("owner_type", ASC)
+                        .on("owner_id", ASC)
                         .on("display_name", ASC)
-                        .named("uq_simulation_user_email_display_name")
+                        .named("uq_simulation_owner_display_name")
                         .unique()
                         .partial(PartialIndexFilter.of(
-                                new Document("user_email", new Document("$type", "string"))
+                                new Document("owner_type", new Document("$type", "string"))
+                                        .append("owner_id", new Document("$type", "string"))
                                         .append("display_name", new Document("$type", "string"))
                         ))
         );
 
         LOGGER.info(
-                "Ensured unique simulation index for user_email and display_name"
+                "Ensured unique simulation index for owner_type, owner_id and display_name"
         );
+    }
+
+    private void migrateSimulationOwnership() {
+        if (!mongoTemplate.collectionExists(SIMULATIONS_COLLECTION)) return;
+        var legacy = mongoTemplate.find(
+                new Query(org.springframework.data.mongodb.core.query.Criteria.where("owner_type").exists(false)),
+                Document.class,
+                SIMULATIONS_COLLECTION
+        );
+        for (Document simulation : legacy) {
+            String email = string(simulation.get("user_email"));
+            String ownerId = string(simulation.get("owner_id"));
+            String ownerType;
+            if (email != null && !email.isBlank()) {
+                ownerType = "USER";
+                if (ownerId == null || ownerId.isBlank()) ownerId = userIdForEmail(email);
+                if (ownerId == null || ownerId.isBlank()) ownerType = "GUEST";
+            } else {
+                ownerType = "GUEST";
+                if (ownerId == null || ownerId.isBlank()) {
+                    ownerId = string(simulation.get("guest_session_id"));
+                }
+            }
+            if (ownerId == null || ownerId.isBlank()) {
+                // No email/session/user ID means no recoverable owner. Mark it
+                // as an isolated guest record so the scheduled cleanup removes it.
+                ownerType = "GUEST";
+                ownerId = string(simulation.get("_id"));
+            }
+            if (ownerId == null || ownerId.isBlank()) {
+                LOGGER.warn("Leaving simulation {} without a usable owner key", simulation.get("_id"));
+                continue;
+            }
+            mongoTemplate.updateFirst(
+                    Query.query(org.springframework.data.mongodb.core.query.Criteria.where("_id").is(simulation.get("_id"))),
+                    new Update().set("owner_type", ownerType).set("owner_id", ownerId)
+                            .unset("user_email").unset("guest_session_id"),
+                    SIMULATIONS_COLLECTION
+            );
+        }
+    }
+
+    private void migratePlantOwnership() {
+        if (!mongoTemplate.collectionExists("plants")) return;
+        var legacy = mongoTemplate.find(
+                new Query(org.springframework.data.mongodb.core.query.Criteria.where("owner_type").exists(false)
+                        .and("user_email").type(2)),
+                Document.class,
+                "plants"
+        );
+        for (Document plant : legacy) {
+            String ownerId = userIdForEmail(string(plant.get("user_email")));
+            if (ownerId == null) continue;
+            mongoTemplate.updateFirst(
+                    Query.query(org.springframework.data.mongodb.core.query.Criteria.where("_id").is(plant.get("_id"))),
+                    new Update().set("owner_type", "USER").set("owner_id", ownerId).unset("user_email"),
+                    "plants"
+            );
+        }
+    }
+
+    private String userIdForEmail(String email) {
+        if (email == null || email.isBlank()) return null;
+        Document user = mongoTemplate.findOne(
+                Query.query(org.springframework.data.mongodb.core.query.Criteria.where("email").is(email)),
+                Document.class,
+                "users"
+        );
+        return user == null ? null : string(user.get("_id"));
+    }
+
+    private String string(Object value) {
+        return value == null ? null : String.valueOf(value);
     }
 }

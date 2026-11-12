@@ -43,8 +43,8 @@ public class SimulationComparisonService {
             return reference;
         }).toList();
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("user_email", email);
-        body.put("guest_session_id", guestSessionId);
+        body.put("owner_type", email == null ? "GUEST" : "USER");
+        body.put("owner_id", ownerId);
         body.put("simulationIds", request.simulationIds());
         body.put("analysisStart", request.analysisStart() == null ? null : request.analysisStart().toString());
         body.put("analysisEnd", request.analysisEnd() == null ? null : request.analysisEnd().toString());

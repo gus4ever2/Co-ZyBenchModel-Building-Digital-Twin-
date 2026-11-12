@@ -34,7 +34,7 @@ class FixedWindowPercentageTests {
             var client=new CosimulatorSimulationClient("http://127.0.0.1:"+server.getAddress().getPort(),mock(DefaultPlantLibrary.class));
             var request=new StartSimulationRequest("Fixed",ScenarioType.REFERENCE,"andravida","Set",null,
                 new OpenWindowsRequest(WindowOpeningStrategy.FIXED_PERCENTAGE,2,800,percentage),null,null,Map.of());
-            assertEquals("fixed-window-test",client.start("test@example.com","Set",request,new ConstructionSetSnapshot(
+            assertEquals("fixed-window-test",client.start("USER","test-user-id","Set",request,new ConstructionSetSnapshot(
                 new ComponentSnapshot("set-id","Set","construction_set",Map.of("Name","Set")),java.util.List.of(),java.util.List.of())));
             assertTrue(body.get().contains("\"opening_strategy\":\"fixed_percentage\""));
             assertTrue(body.get().contains("\"opening_percentage\":"+percentage));

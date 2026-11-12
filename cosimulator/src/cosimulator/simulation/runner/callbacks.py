@@ -28,7 +28,6 @@ class SimulationCallbacks:
         self,
         *,
         ep: EPlusAPIHelper,
-        user_email: str,
         simulation_id: str,
         zone_names: set[str],
         air_loop_names: set[str],
@@ -38,7 +37,6 @@ class SimulationCallbacks:
         openable_window_geometry_by_zone: dict[str, dict[str, float]] | None = None,
     ) -> None:
         self._ep = ep  # EnergyPlus API instance used by both callbacks.
-        self._user_email = user_email  # MongoDB ownership key.
         self._simulation_id = simulation_id  # Workspace, MongoDB and progress key.
         self._zone_names = zone_names  # Requested zone-level output scope.
         self._air_loop_names = air_loop_names  # Requested HVAC output scope.
@@ -108,7 +106,6 @@ class SimulationCallbacks:
             for callback in self._registry.end_timestep_callbacks
         ]
         save_timestep(
-            user_email=self._user_email,
             simulation_id=self._simulation_id,
             timestep_number=self._timestep_count,
             simulation_timestamp=timestamp,

@@ -21,7 +21,7 @@ class PlantDAO(GeneralDAO):
             cls._database = mongo_config.database
             cls._collection = mongo_config.collection
             cls._collection.create_index(
-                [("user_email", 1), ("created_at", DESCENDING)]
+                [("owner_type", 1), ("owner_id", 1), ("created_at", DESCENDING)]
             )
         return cls._instance
 
@@ -37,12 +37,34 @@ class PlantDAO(GeneralDAO):
             raise RuntimeError("MongoDB collection is not initialized")
         return self._collection
 
-    def find_all_by_user(self, *, user_email: str) -> list[dict[str, Any]]:
+    def find_all_by_owner(self, *, owner_type: str, owner_id: str) -> list[dict[str, Any]]:
         return list(
-            self.collection.find({"user_email": user_email, "defaultLibraryId": {"$exists": False}}).sort(
+            self.collection.find({
+                "owner_type": owner_type,
+                "owner_id": owner_id,
+                "defaultLibraryId": {"$exists": False},
+            }).sort(
                 "created_at", DESCENDING
             )
         )
+
+    def find_by_id_and_owner(
+        self, *, plant_id: str, owner_type: str, owner_id: str
+    ) -> dict[str, Any] | None:
+        return self.collection.find_one({
+            "_id": ObjectId(plant_id),
+            "owner_type": owner_type,
+            "owner_id": owner_id,
+        })
+
+    def delete_by_id_and_owner(
+        self, *, plant_id: str, owner_type: str, owner_id: str
+    ):
+        return self.collection.delete_one({
+            "_id": ObjectId(plant_id),
+            "owner_type": owner_type,
+            "owner_id": owner_id,
+        })
 
     def find_completed_by_city_and_name(
         self,

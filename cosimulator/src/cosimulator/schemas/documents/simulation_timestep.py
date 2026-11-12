@@ -9,7 +9,6 @@ from cosimulator.simulation_variables.schemas.results import SimulationTimestepR
 
 def build_base_timestep_document(
     *,
-    user_email: str,
     simulation_id: str,
     timestep_number: int,
     simulation_timestamp: datetime,
@@ -21,7 +20,6 @@ def build_base_timestep_document(
     if case_study_fragments is not None:
         serialized_results.update(case_study_fragments)
     return {
-        "user_email": user_email,
         "simulation_id": simulation_id,
         "timestep_number": timestep_number,
         "simulation_timestamp": simulation_timestamp,
