@@ -30,8 +30,6 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
 
-    maintenance_token: str = ""
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_prefix="COSIMULATOR_",

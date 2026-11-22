@@ -119,7 +119,6 @@ Click the Command Prompt window running Spring Boot and press **Ctrl+C**. Close 
 | Spring session cookie | Identifies the current browser workspace | Created automatically |
 | `CORS_ALLOWED_ORIGINS` | Browser origin allowed to call the API | `http://localhost:3000` |
 | `COZYBENCH_COSIMULATOR_BASE_URL` | Python co-simulator base URL | `http://localhost:5000` |
-| `COZYBENCH_MAINTENANCE_TOKEN` | Shared secret for the private nightly cleanup call | Set the same random value in Compose and Spring |
 
 ## Run backend tests (optional)
 
