@@ -1,5 +1,63 @@
 import type { SimulationTimestep, ZoneResult } from "./simulationsService";
 
+export type EnergyAggregation = "day" | "month";
+
+export type EnergyAggregationPoint = {
+  key: string;
+  label: string;
+  timestamp: number;
+  heatingKwh: number | null;
+  coolingKwh: number | null;
+  hvacKwh: number | null;
+};
+
+/** Sum interval energy values into calendar-day or calendar-month buckets. */
+export function aggregateEnergy(
+  timesteps: SimulationTimestep[],
+  aggregation: EnergyAggregation,
+): EnergyAggregationPoint[] {
+  const buckets = new Map<string, EnergyAggregationPoint>();
+  for (const timestep of timesteps) {
+    const date = timestep.simulation_timestamp
+      ? new Date(timestep.simulation_timestamp)
+      : null;
+    if (!date || Number.isNaN(date.getTime())) continue;
+
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const key = aggregation === "day"
+      ? `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+      : `${year}-${String(month).padStart(2, "0")}`;
+    const label = aggregation === "day"
+      ? date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" })
+      : date.toLocaleDateString(undefined, { year: "numeric", month: "short" });
+    const timestamp = new Date(
+      aggregation === "day" ? `${key}T00:00:00` : `${key}-01T00:00:00`,
+    ).getTime();
+    const meter = timestep.results?.meter_results;
+    const bucket = buckets.get(key) ?? {
+      key,
+      label,
+      timestamp,
+      heatingKwh: 0,
+      coolingKwh: 0,
+      hvacKwh: 0,
+    };
+    if (typeof meter?.heating_electricity_kwh === "number") {
+      bucket.heatingKwh = (bucket.heatingKwh ?? 0) + meter.heating_electricity_kwh;
+    }
+    if (typeof meter?.cooling_electricity_kwh === "number") {
+      bucket.coolingKwh = (bucket.coolingKwh ?? 0) + meter.cooling_electricity_kwh;
+    }
+    if (typeof meter?.hvac_electricity_kwh === "number") {
+      bucket.hvacKwh = (bucket.hvacKwh ?? 0) + meter.hvac_electricity_kwh;
+    }
+    buckets.set(key, bucket);
+  }
+  return [...buckets.values()].sort((left, right) => left.timestamp - right.timestamp);
+}
+
 
 export function timestampLabel(timestep: SimulationTimestep, index: number) {
   const value = timestep.simulation_timestamp;
