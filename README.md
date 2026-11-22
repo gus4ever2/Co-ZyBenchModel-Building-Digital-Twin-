@@ -43,11 +43,10 @@ On the server, from the cosimulator folder:
 
 ~~~bash
 cp .env.example .env
-openssl rand -base64 32
 nano .env
 ~~~
 
-Copy the generated value into JWT_SECRET in .env. Set CORS_ALLOWED_ORIGINS to the browser origin you plan to use, for example http://SERVER_HOST:3000. Keep .env private; Git ignores it.
+Set CORS_ALLOWED_ORIGINS to the browser origin you plan to use, for example http://SERVER_HOST:3000. Keep .env private; Git ignores it.
 
 ## 5. Build and start the stack
 
@@ -96,5 +95,4 @@ Do not run docker compose down -v unless you intend to delete persistent MongoDB
 - Compose reports a missing build context: all three project directories must be siblings inside the same checkout.
 - A service is unhealthy: inspect docker compose ps and docker compose logs SERVICE_NAME.
 - The browser cannot connect: check the server firewall and that CORS_ALLOWED_ORIGINS matches the browser origin.
-- JWT secret is missing: confirm cosimulator/.env exists and JWT_SECRET is not the example placeholder.
 
