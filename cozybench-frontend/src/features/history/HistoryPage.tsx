@@ -33,13 +33,14 @@ const filters = [
   "CANCELED",
   "CUSTOM_READY",
 ] as const;
-export default function HistoryPage() {
+export default function HistoryPage(props: { guestMode?: boolean } = {}) {
+  const guestMode = props.guestMode === true;
   const queryClient = useQueryClient();
   const [filter, setFilter] = createSignal<(typeof filters)[number]>("ALL");
   const [selectedId, setSelectedId] = createSignal("");
   const history = createQuery(() => ({
-    queryKey: ["simulations", "history"],
-    queryFn: loadSimulationHistory,
+    queryKey: ["simulations", "history", guestMode],
+    queryFn: () => loadSimulationHistory(guestMode),
   }));
 
   createEffect(() => {
@@ -66,8 +67,8 @@ export default function HistoryPage() {
     ),
   );
   const results = createQuery(() => ({
-    queryKey: ["simulations", selectedId(), "results"],
-    queryFn: () => loadSimulationResults(selectedId()),
+    queryKey: ["simulations", selectedId(), "results", guestMode],
+    queryFn: () => loadSimulationResults(selectedId(), guestMode),
     enabled: Boolean(selectedId()),
     // Completed simulation outputs never change. Keep them ready when a user
     // returns to a history card instead of downloading every timestep again.
@@ -76,18 +77,18 @@ export default function HistoryPage() {
     refetchOnWindowFocus: false,
   }));
   const removeSimulation = createMutation(() => ({
-    mutationFn: deleteSimulation,
+    mutationFn: (simulationId: string) => deleteSimulation(simulationId, guestMode),
     onSuccess: async (_, simulationId) => {
       if (selectedId() === simulationId) setSelectedId("");
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["simulations", "history"] }),
+        queryClient.invalidateQueries({ queryKey: ["simulations", "history", guestMode] }),
         queryClient.invalidateQueries({ queryKey: ["simulations", "all"] }),
         queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
       ]);
     },
   }));
   const exportSimulation = createMutation(() => ({
-    mutationFn: downloadSimulationJson,
+    mutationFn: (simulationId: string) => downloadSimulationJson(simulationId, guestMode),
   }));
 
   const confirmDelete = (simulationId: string, simulationName: string) => {
