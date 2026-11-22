@@ -46,7 +46,9 @@ cp .env.example .env
 nano .env
 ~~~
 
-Set CORS_ALLOWED_ORIGINS to the browser origin you plan to use, for example http://SERVER_HOST:3000. Keep .env private; Git ignores it.
+> **CORS configuration**  
+> Set `CORS_ALLOWED_ORIGINS` to the browser origin you plan to use, for example `http://SERVER_HOST:3000`.  
+> Keep `.env` private; Git ignores it.
 
 ## 5. Build and start the stack
 
