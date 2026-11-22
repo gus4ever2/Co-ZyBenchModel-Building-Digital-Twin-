@@ -34,8 +34,10 @@ import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavig
 import EditorIdentityHeader from "../../components/form/EditorIdentityHeader";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
 import {
+  aggregateEnergy,
   timestampLabel,
   zoneWindowOpeningPercent,
+  type EnergyAggregation,
 } from "./simulationAnalytics";
 import {
   loadSimulationResults,
@@ -452,6 +454,7 @@ function ComparisonResults(props: {
 }) {
   const [selectedThermalZone, setSelectedThermalZone] = createSignal("");
   const [analysisPlantId, setAnalysisPlantId] = createSignal("");
+  const [energyAggregation, setEnergyAggregation] = createSignal<EnergyAggregation>("day");
   const hasGreenWall = () => props.compared.some(item => Boolean(item.simulation.plantSimulation))
     || props.analysis.plantConfigurations.some(item => item.enabled);
   const hasOpenWindows = () => props.compared.some(item => Boolean(item.simulation.openWindows));
@@ -626,19 +629,23 @@ function ComparisonResults(props: {
               <Switch>
                 <Match when={panel === "energy"}>
                   <EnergyTotals compared={props.compared} />
+                  <EnergyAggregationToggle
+                    value={energyAggregation()}
+                    onChange={setEnergyAggregation}
+                  />
                   <div class="mt-4 space-y-4">
                     <Chart title="Heating consumption">
-                      <EChart option={meterOption(props.compared, "heating_electricity_j")} />
+                      <EChart option={meterOption(props.compared, "heating_electricity_j", energyAggregation())} />
                     </Chart>
                     <Chart title="Cooling consumption">
-                      <EChart option={meterOption(props.compared, "cooling_electricity_j")} />
+                      <EChart option={meterOption(props.compared, "cooling_electricity_j", energyAggregation())} />
                     </Chart>
                     <Chart title="Total HVAC consumption">
-                      <EChart option={meterOption(props.compared, "hvac_electricity_j")} />
+                      <EChart option={meterOption(props.compared, "hvac_electricity_j", energyAggregation())} />
                     </Chart>
                     <Chart title="Total HVAC consumption difference (Compared − Baseline)">
                       <EChart
-                        option={deltaHvacConsumptionOption(props.compared, props.analysis.baseline)}
+                        option={deltaHvacConsumptionOption(props.compared, props.analysis.baseline, energyAggregation())}
                         class="h-[26rem] w-full sm:h-[30rem]"
                       />
                     </Chart>
@@ -1274,41 +1281,79 @@ function ZoneOverviewMetric(props: { label: string; value: string }) {
   );
 }
 
+function EnergyAggregationToggle(props: {
+  value: EnergyAggregation;
+  onChange: (value: EnergyAggregation) => void;
+}) {
+  return (
+    <div class="mt-4 flex items-center justify-end gap-2" aria-label="Energy aggregation">
+      <span class="mr-1 text-xs font-semibold text-graphite/50">Energy aggregation</span>
+      <For each={["day", "month"] as const}>
+        {(value) => (
+          <button
+            type="button"
+            onClick={() => props.onChange(value)}
+            class="rounded-lg border px-3 py-1.5 text-xs font-bold transition-colors"
+            classList={{
+              "border-citadel-blue bg-citadel-blue text-cloud-white": props.value === value,
+              "border-warm-stone/20 bg-cloud-white text-graphite/55 hover:border-citadel-blue/50": props.value !== value,
+            }}
+          >
+            {value === "day" ? "Daily" : "Monthly"}
+          </button>
+        )}
+      </For>
+    </div>
+  );
+}
+
 type MeterField =
   "heating_electricity_j" | "cooling_electricity_j" | "hvac_electricity_j";
 
 function meterOption(
   compared: ComparedSimulation[],
   field: MeterField,
+  aggregation: EnergyAggregation,
 ): EChartsOption {
-  return lineOption(compared, "kWh / timestep", (item, index) =>
-    item.timesteps[index]?.results?.meter_results?.[
-      field.replace("_j", "_kwh") as "heating_electricity_kwh" | "cooling_electricity_kwh" | "hvac_electricity_kwh"
+  const fieldName = field.replace("_j", "_kwh") as
+    | "heating_electricity_kwh"
+    | "cooling_electricity_kwh"
+    | "hvac_electricity_kwh";
+  const series = compared.map((item) => ({
+    item,
+    points: aggregateEnergy(item.timesteps, aggregation),
+  }));
+  const pointsBySimulation = new Map(
+    series.map(({ item, points }) => [
+      item.simulation.id,
+      new Map(points.map((point) => [point.key, point])),
+    ]),
+  );
+  const timeline = [...new Set(series.flatMap(({ points }) => points.map((point) => point.key)))].sort();
+  const labels = timeline.map((key) =>
+    series.flatMap(({ points }) => points).find((point) => point.key === key)?.label ?? key,
+  );
+  const unit = aggregation === "day" ? "kWh / day" : "kWh / month";
+  return lineOption(
+    compared,
+    unit,
+    (item, index) => pointsBySimulation.get(item.simulation.id)?.get(timeline[index])?.[
+      fieldName === "heating_electricity_kwh" ? "heatingKwh" : fieldName === "cooling_electricity_kwh" ? "coolingKwh" : "hvacKwh"
     ] ?? null,
+    labels,
   );
 }
 
 function deltaHvacConsumptionOption(
   compared: ComparedSimulation[],
   baseline: SimulationReference,
+  aggregation: EnergyAggregation,
 ): EChartsOption {
   const baselineSimulation = compared.find(
     (item) => item.simulation.id === baseline.id,
   );
-  const baselineValues = new Map<number, number>();
-  for (const timestep of baselineSimulation?.timesteps ?? []) {
-    const timestamp = timestep.simulation_timestamp
-      ? Date.parse(timestep.simulation_timestamp)
-      : NaN;
-    const value = timestep.results?.meter_results?.hvac_electricity_kwh;
-    if (
-      Number.isFinite(timestamp) &&
-      typeof value === "number" &&
-      Number.isFinite(value)
-    ) {
-      baselineValues.set(timestamp, value);
-    }
-  }
+  const baselinePoints = aggregateEnergy(baselineSimulation?.timesteps ?? [], aggregation);
+  const baselineValues = new Map(baselinePoints.map((point) => [point.key, point.hvacKwh]));
 
   const alternatives = compared.filter(
     (item) => item.simulation.id !== baseline.id,
@@ -1321,30 +1366,32 @@ function deltaHvacConsumptionOption(
     tooltip: { trigger: "axis" },
     legend: { data: names, bottom: 0, type: "scroll", selectedMode: true },
     grid: { left: 72, right: 18, top: 24, bottom: 108 },
-    xAxis: { type: "time", axisLabel: { hideOverlap: true } },
-    yAxis: { type: "value", name: "Compared − baseline [kWh / timestep]" },
+    xAxis: {
+      type: "category",
+      data: baselinePoints.map((point) => point.label),
+      axisLabel: { hideOverlap: true },
+    },
+    yAxis: {
+      type: "value",
+      name: aggregation === "day" ? "Compared − baseline [kWh / day]" : "Compared − baseline [kWh / month]",
+    },
     dataZoom: [{ type: "inside" }, { type: "slider", height: 18, bottom: 38 }],
-    series: alternatives.map((item, index) => ({
-      id: item.simulation.id,
-      name: names[index],
-      type: "line",
-      showSymbol: false,
-      data: item.timesteps.flatMap((timestep) => {
-        const timestamp = timestep.simulation_timestamp
-          ? Date.parse(timestep.simulation_timestamp)
-          : NaN;
-        const comparedValue = timestep.results?.meter_results?.hvac_electricity_kwh;
-        const baselineValue = baselineValues.get(timestamp);
-        if (
-          !Number.isFinite(timestamp) ||
-          typeof comparedValue !== "number" ||
-          !Number.isFinite(comparedValue) ||
-          baselineValue === undefined
-        ) {
-          return [];
-        }
-        return [[timestamp, comparedValue - baselineValue]];
-      }),
+    series: alternatives.map((item, index) => {
+      const comparedValues = new Map(
+        aggregateEnergy(item.timesteps, aggregation).map((point) => [point.key, point.hvacKwh]),
+      );
+      return {
+        id: item.simulation.id,
+        name: names[index],
+        type: "line",
+        showSymbol: false,
+        data: baselinePoints.map((point) => {
+          const baselineValue = baselineValues.get(point.key);
+          const comparedValue = comparedValues.get(point.key);
+          return baselineValue == null || comparedValue == null
+            ? null
+            : comparedValue - baselineValue;
+        }),
       markLine: index === 0
         ? {
             symbol: "none",
@@ -1352,8 +1399,9 @@ function deltaHvacConsumptionOption(
             lineStyle: { color: "#8B7D73", type: "dashed" },
             data: [{ yAxis: 0 }],
           }
-        : undefined,
-    })),
+          : undefined,
+      };
+    }),
   };
 }
 function outdoorAirFractionOption(
@@ -1834,13 +1882,14 @@ function lineOption(
   compared: ComparedSimulation[],
   unit: string,
   valueAt: (item: ComparedSimulation, index: number) => number | null,
+  labels?: string[],
 ): EChartsOption {
   const longest = compared.reduce(
     (current, item) =>
       item.timesteps.length > current.timesteps.length ? item : current,
     compared[0],
   );
-  const length = longest?.timesteps.length ?? 0;
+  const length = labels?.length ?? longest?.timesteps.length ?? 0;
   const seriesNames = compared.map(
     (item, index) => `${index + 1}. ${simulationTitle(item.simulation)}`,
   );
@@ -1856,7 +1905,7 @@ function lineOption(
     grid: { left: 58, right: 18, top: 24, bottom: 108 },
     xAxis: {
       type: "category",
-      data: longest?.timesteps.map(timestampLabel) ?? [],
+      data: labels ?? longest?.timesteps.map(timestampLabel) ?? [],
       axisLabel: { hideOverlap: true },
     },
     yAxis: { type: "value", name: unit },

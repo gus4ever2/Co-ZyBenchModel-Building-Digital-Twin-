@@ -31,9 +31,11 @@ import WorkspaceNavigationCard from "../../components/building-dt/WorkspaceNavig
 import { hasBuildingInformation } from "./BuildingInformation";
 import SimulationSetupCard from "./SimulationSetupCard";
 import {
+  aggregateEnergy,
   timestampLabel,
   zoneAt,
   zoneNames,
+  type EnergyAggregation,
 } from "./simulationAnalytics";
 import type {
   PlantSimulation,
@@ -65,6 +67,7 @@ export default function SimulationDataView(props: {
 }) {
   const [selectedZone, setSelectedZone] = createSignal("");
   const [activePanel, setActivePanel] = createSignal<AnalysisPanel | null>(null);
+  const [energyAggregation, setEnergyAggregation] = createSignal<EnergyAggregation>("day");
   const [previewPlantId, setPreviewPlantId] = createSignal("");
   const zones = createMemo(() => zoneNames(props.timesteps));
   const windowZones = createMemo(() => {
@@ -93,6 +96,9 @@ export default function SimulationDataView(props: {
     refetchOnWindowFocus: false,
   }));
   const energyMetrics = () => energyAnalytics.data?.metrics ?? {};
+  const energySeries = createMemo(() => aggregateEnergy(props.timesteps, energyAggregation()));
+  const energyLabels = () => energySeries().map((point) => point.label);
+  const energyUnit = () => energyAggregation() === "day" ? "kWh / day" : "kWh / month";
 
   createEffect(() => {
     if (!selectableZones().includes(selectedZone())) {
@@ -101,32 +107,26 @@ export default function SimulationDataView(props: {
   });
 
   const heatingOption = createMemo<EChartsOption>(() =>
-    activePanel() === "energy" ? chartOption(timestamps(), "kWh / timestep", [
+    activePanel() === "energy" ? chartOption(energyLabels(), energyUnit(), [
       line(
         "Heating",
-        props.timesteps.map((step) =>
-          step.results?.meter_results?.heating_electricity_kwh ?? null,
-        ),
+        energySeries().map((point) => point.heatingKwh),
       ),
     ]) : {},
   );
   const coolingOption = createMemo<EChartsOption>(() =>
-    activePanel() === "energy" ? chartOption(timestamps(), "kWh / timestep", [
+    activePanel() === "energy" ? chartOption(energyLabels(), energyUnit(), [
       line(
         "Cooling",
-        props.timesteps.map((step) =>
-          step.results?.meter_results?.cooling_electricity_kwh ?? null,
-        ),
+        energySeries().map((point) => point.coolingKwh),
       ),
     ]) : {},
   );
   const totalHvacOption = createMemo<EChartsOption>(() =>
-    activePanel() === "energy" ? chartOption(timestamps(), "kWh / timestep", [
+    activePanel() === "energy" ? chartOption(energyLabels(), energyUnit(), [
       line(
         "Total HVAC",
-        props.timesteps.map((step) =>
-          step.results?.meter_results?.hvac_electricity_kwh ?? null,
-        ),
+        energySeries().map((point) => point.hvacKwh),
       ),
     ]) : {},
   );
@@ -245,6 +245,10 @@ export default function SimulationDataView(props: {
                     <EnergyCard label="Total HVAC" value={format(energyMetrics().totalHvacKwh, "kWh")} />
                     <EnergyCard label="Total HVAC / floor area" value={format(energyMetrics().hvacKwhPerM2, "kWh/m²")} />
                   </div>
+                  <EnergyAggregationToggle
+                    value={energyAggregation()}
+                    onChange={setEnergyAggregation}
+                  />
                   <div class="mt-4 space-y-4">
                     <FullChart title="Heating consumption"><EChart option={heatingOption()} /></FullChart>
                     <FullChart title="Cooling consumption"><EChart option={coolingOption()} /></FullChart>
@@ -378,6 +382,32 @@ function EnergyCard(props: { label: string; value: string }) {
       <p class="text-xs font-semibold text-graphite/50">{props.label}</p>
       <p class="mt-1 text-lg font-bold text-graphite">{props.value}</p>
     </article>
+  );
+}
+
+function EnergyAggregationToggle(props: {
+  value: EnergyAggregation;
+  onChange: (value: EnergyAggregation) => void;
+}) {
+  return (
+    <div class="mt-4 flex items-center justify-end gap-2" aria-label="Energy aggregation">
+      <span class="mr-1 text-xs font-semibold text-graphite/50">Energy aggregation</span>
+      <For each={["day", "month"] as const}>
+        {(value) => (
+          <button
+            type="button"
+            onClick={() => props.onChange(value)}
+            class="rounded-lg border px-3 py-1.5 text-xs font-bold transition-colors"
+            classList={{
+              "border-citadel-blue bg-citadel-blue text-cloud-white": props.value === value,
+              "border-warm-stone/20 bg-cloud-white text-graphite/55 hover:border-citadel-blue/50": props.value !== value,
+            }}
+          >
+            {value === "day" ? "Daily" : "Monthly"}
+          </button>
+        )}
+      </For>
+    </div>
   );
 }
 function SingleCo2Summary(props: {
