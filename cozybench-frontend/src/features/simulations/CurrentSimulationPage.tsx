@@ -9,12 +9,19 @@ import { Show, createEffect, createSignal } from "solid-js";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
 import CurrentSimulationDataView from "./CurrentSimulationDataView";
 import SimulationSetupCard from "./SimulationSetupCard";
-import { cancelSimulation, loadCurrentSimulation } from "./simulationsService";
+import {
+  cancelSimulation,
+  loadCurrentSimulation,
+  loadSimulation,
+} from "./simulationsService";
 
 export default function CurrentSimulationPage(props: { guestMode?: boolean } = {}) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [hadActiveSimulation, setHadActiveSimulation] = createSignal(false);
+  const [activeSimulationId, setActiveSimulationId] = createSignal("");
+  const [checkingCompletion, setCheckingCompletion] = createSignal(false);
+  const [completionChecked, setCompletionChecked] = createSignal(false);
   const current = createQuery(() => ({
     queryKey: ["simulations", "current", props.guestMode === true],
     queryFn: () => loadCurrentSimulation(props.guestMode === true),
@@ -30,13 +37,31 @@ export default function CurrentSimulationPage(props: { guestMode?: boolean } = {
   createEffect(() => {
     if (current.data?.simulation) {
       setHadActiveSimulation(true);
+      if (activeSimulationId() !== current.data.simulation.id) {
+        setCompletionChecked(false);
+      }
+      setActiveSimulationId(current.data.simulation.id);
       return;
     }
-    if (hadActiveSimulation() && !current.isPending && !current.isError) {
-      void navigate({
-        to: props.guestMode ? "/guest/history" : "/history",
-        search: { select: "first-completed" },
-      });
+    if (
+      hadActiveSimulation() &&
+      activeSimulationId() &&
+      !completionChecked() &&
+      !checkingCompletion() &&
+      !current.isPending &&
+      !current.isError
+    ) {
+      setCompletionChecked(true);
+      setCheckingCompletion(true);
+      void loadSimulation(activeSimulationId(), props.guestMode === true)
+        .then((simulation) => {
+          if (simulation.status !== "COMPLETED") return;
+          void navigate({
+            to: props.guestMode ? "/guest/history" : "/history",
+            search: { select: "first-completed" },
+          });
+        })
+        .finally(() => setCheckingCompletion(false));
     }
   });
 
