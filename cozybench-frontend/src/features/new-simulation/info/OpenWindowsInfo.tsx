@@ -68,7 +68,7 @@ export default function OpenWindowsInfo() {
 
             <div>
                 <p class="text-sm font-semibold text-graphite">
-                    500 ppm
+                    Very Low
                 </p>
 
                 <p class="mt-1 text-xs leading-relaxed text-graphite/55">
@@ -79,7 +79,7 @@ export default function OpenWindowsInfo() {
 
             <div>
                 <p class="text-sm font-semibold text-graphite">
-                    600 ppm
+                    Low
                 </p>
 
                 <p class="mt-1 text-xs leading-relaxed text-graphite/55">
@@ -90,18 +90,18 @@ export default function OpenWindowsInfo() {
 
             <div>
                 <p class="text-sm font-semibold text-graphite">
-                    700 ppm
+                    Medium
                 </p>
 
                 <p class="mt-1 text-xs leading-relaxed text-graphite/55">
-                    Uses an intermediate-low CO₂ threshold for triggering the CO₂
+                    Uses an intermediate CO₂ threshold for triggering the CO₂
                     condition of the natural-ventilation strategy.
                 </p>
             </div>
 
             <div>
                 <p class="text-sm font-semibold text-graphite">
-                    800 ppm
+                    High
                 </p>
 
                 <p class="mt-1 text-xs leading-relaxed text-graphite/55">
@@ -113,18 +113,7 @@ export default function OpenWindowsInfo() {
 
             <div>
                 <p class="text-sm font-semibold text-graphite">
-                    900 ppm
-                </p>
-
-                <p class="mt-1 text-xs leading-relaxed text-graphite/55">
-                    Uses a higher CO₂ threshold, so the CO₂ condition is reached later as
-                    indoor concentration increases.
-                </p>
-            </div>
-
-            <div>
-                <p class="text-sm font-semibold text-graphite">
-                    1,000 ppm
+                    Very High
                 </p>
 
                 <p class="mt-1 text-xs leading-relaxed text-graphite/55">

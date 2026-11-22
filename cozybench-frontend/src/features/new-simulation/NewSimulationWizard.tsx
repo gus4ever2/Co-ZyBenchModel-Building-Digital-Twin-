@@ -61,15 +61,26 @@ const locations = [
 
 const co2Options = CO2_CONTROL_SETPOINT_OPTIONS.map((value) => ({
   value,
-  label: `${value.toLocaleString("en-US")} ppm`,
+  label: co2LevelLabel(value),
   detail: "CO₂ threshold for automatic window opening",
 }));
 
 const co2ControlOptions = CO2_CONTROL_SETPOINT_OPTIONS.map((value) => ({
   value: String(value),
-  label: `${value.toLocaleString("en-US")} ppm`,
+  label: co2LevelLabel(value),
   description: "Mechanical ventilation CO₂ setpoint",
 }));
+
+function co2LevelLabel(value: number): string {
+  switch (value) {
+    case 500: return "Very Low";
+    case 600: return "Low";
+    case 700: return "Medium";
+    case 800: return "High";
+    case 1000: return "Very High";
+    default: return "Medium";
+  }
+}
 
 const schemas = {
   options: z.object({
@@ -227,7 +238,7 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
             label: "CO₂ control",
             eyebrow: "Mechanical ventilation",
             description:
-              "Configure native EnergyPlus demand-controlled ventilation.",
+              "Configure decoupled demand-controlled ventilation.",
             info: Co2ControlInfo,
           },
         ]
@@ -447,7 +458,7 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
                       <ToggleCard
                           icon={<Gauge/>}
                           title="CO₂ control"
-                          description="Control mechanical outdoor air using a native EnergyPlus CO₂ setpoint."
+                          description="Control mechanical outdoor air using a decoupled CO₂ setpoint."
                           checked={form().co2ControlEnabled}
                           onChange={(value) => update("co2ControlEnabled", value)}/>
                     </div>
@@ -763,7 +774,7 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
                           )}
                           icon={<Gauge size={20}/>}/>
                       <p class="mt-3 max-w-3xl text-xs leading-relaxed text-graphite/55">
-                        EnergyPlus will modulate mechanical outdoor air to follow
+                        Decoupled control will modulate mechanical outdoor air to follow
                         this indoor CO₂ setpoint. This is independent of automatic
                         window opening and can be combined with the green wall.
                       </p>
@@ -976,7 +987,7 @@ export function LegacyReview(props: {
       {row(
         "CO₂ control",
         props.payload.co2ControlEnabled
-          ? `${props.payload.co2SetpointPpm ?? 800} ppm · native mechanical ventilation DCV`
+          ? `${co2LevelLabel(props.payload.co2SetpointPpm ?? 800)} · decoupled mechanical ventilation DCV`
           : "Disabled",
       )}
     </div>

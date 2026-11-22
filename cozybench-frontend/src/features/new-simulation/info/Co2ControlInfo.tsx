@@ -3,16 +3,16 @@ export default function Co2ControlInfo() {
     <>
       <h3 class="text-sm font-bold text-graphite">CO₂ control</h3>
       <p class="mt-2 text-sm leading-relaxed text-graphite/60">
-        Enable EnergyPlus demand-controlled mechanical ventilation. The HVAC
+        Enable decoupled demand-controlled mechanical ventilation. The HVAC
         system adjusts its outdoor-air supply according to indoor CO₂ concentration.
       </p>
       <div class="mt-5 space-y-4">
         <div>
           <p class="text-sm font-semibold text-graphite">CO₂ setpoint</p>
           <p class="mt-1 text-xs leading-relaxed text-graphite/55">
-            Choose a target concentration between 500 and 1,000 ppm (parts per
-            million). This target controls mechanical ventilation; it is not a
-            fixed concentration or a guaranteed maximum.
+            Choose a qualitative CO₂ target from Very Low to Very High. The selected
+            target controls mechanical ventilation; it is not a fixed concentration
+            or a guaranteed maximum.
           </p>
         </div>
         <div>
