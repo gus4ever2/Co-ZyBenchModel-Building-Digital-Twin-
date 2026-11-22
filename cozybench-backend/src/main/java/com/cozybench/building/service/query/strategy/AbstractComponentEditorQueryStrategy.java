@@ -55,7 +55,9 @@ abstract class AbstractComponentEditorQueryStrategy implements ComponentEditorQu
 
         ComponentListResponse editorOptions = new ComponentListResponse(descriptors(editorComponents));
         ComponentListResponse libraryOptions = new ComponentListResponse(descriptors(
-                libraryRepository.findByCategoryOrderByNameAsc(editorCategory().name())));
+                libraryRepository.findAll().stream()
+                        .filter(item -> types.resolve(item.getType()).category() == editorCategory())
+                        .toList()));
         ComponentListResponse referenceOptions = referenceCategory == null
                 ? ComponentListResponse.empty()
                 : new ComponentListResponse(descriptors(referenceComponents));
@@ -126,7 +128,7 @@ abstract class AbstractComponentEditorQueryStrategy implements ComponentEditorQu
                 : types.apiNameOf(((BuildingLibraryObjectDocument) document).getType());
 
         if (document instanceof BuildingLibraryObjectDocument item
-                && "CONSTRUCTION_SET".equals(item.getCategory())) {
+                && types.resolve(item.getType()).category() == ComponentCategory.CONSTRUCTION_SET) {
             String displayName = PredefinedConstructionSetName.displayNameFor(document.getName());
             return new ComponentDescriptorResponse(
                     document.getId(), apiType, document.getName(), displayName, true);

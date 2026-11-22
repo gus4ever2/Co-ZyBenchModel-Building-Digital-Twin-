@@ -9,8 +9,8 @@ import com.cozybench.building.idfobject.constructionset.ConstructionSetProperty;
 import com.cozybench.building.model.document.WorkspaceComponentDocument;
 import com.cozybench.building.model.type.ComponentCategory;
 import com.cozybench.building.model.type.ComponentType;
-import com.cozybench.building.model.type.ComponentTypePath;
 import com.cozybench.building.model.type.ComponentTypeRegistry;
+import com.cozybench.building.model.type.ComponentTypePath;
 import com.cozybench.building.model.type.ConstructionSetType;
 import com.cozybench.building.model.type.ConstructionType;
 import com.cozybench.building.model.type.MaterialType;
@@ -46,7 +46,7 @@ public class ImportToWorkspaceService {
 
     /** Writes a typed record after applying the metadata associated with its origin. */
     public WorkspaceComponentDocument importRecord(WorkspaceImportRequest request) {
-        ComponentFactory factory = factoryResolver.resolve(request.typePath());
+        ComponentFactory factory = factoryResolver.resolve(request.type());
         ComponentType type = factory.type();
         String requestedName = request.component().Name();
         String uniqueName = nameService.uniqueName(requestedName, request.ownerId());
@@ -64,22 +64,25 @@ public class ImportToWorkspaceService {
             record = factory.createFromValues(properties);
         }
 
-        return save(request.ownerId(), request.typePath(), type, record, request.origin(), properties);
+        return save(request.ownerId(), type, record, request.origin(), properties);
     }
 
     /** Builds the category-specific defaults with the final unique name in one factory call. */
-    public WorkspaceComponentDocument importDefault(String ownerId, ComponentTypePath typePath) {
-        ComponentFactory factory = factoryResolver.resolve(typePath);
+    public WorkspaceComponentDocument importDefault(String ownerId, String requestedType) {
+        ComponentFactory factory = factoryResolver.resolve(requestedType);
         ComponentType type = factory.type();
         String uniqueName = nameService.uniqueName(type.apiName(), ownerId);
         var record = factory.createDefault(uniqueName);
-        return save(ownerId, typePath, type, record, new WorkspaceImportOrigin.Created(), record.toProperties());
+        return save(ownerId, type, record, new WorkspaceImportOrigin.Created(), record.toProperties());
+    }
+
+    public WorkspaceComponentDocument importDefault(String ownerId, ComponentTypePath path) {
+        return importDefault(ownerId, path.type());
     }
 
     /** Copies the common type, name, provenance, and properties into Mongo's workspace document. */
     private WorkspaceComponentDocument save(
             String ownerId,
-            ComponentTypePath typePath,
             ComponentType type,
             IddPropertiesRecord record,
             WorkspaceImportOrigin origin,
@@ -89,8 +92,9 @@ public class ImportToWorkspaceService {
                 .ownerId(ownerId)
                 .name(record.Name())
                 .nameKey(nameService.nameKey(record.Name()))
-                .domain(typePath.domain().name())
-                .category(typePath.category().name())
+                // These legacy values remain in-memory only; @Transient keeps them out of Mongo.
+                .domain("CONSTRUCTIONS")
+                .category(type.category().name())
                 .type(type.apiName())
                 .epiName(type.eppyName())
                 .sourceLibraryId(origin.sourceLibraryId())

@@ -45,13 +45,13 @@ export default function PublicFooter() {
             </a>
           </nav>
 
-          <nav aria-label="Account links" class="flex flex-col gap-3">
-            <h2 class="mb-1 text-sm font-semibold text-cloud-white">Account</h2>
-            <Link to="/sign-in" class={footerLinkClass}>
-              Sign in
+          <nav aria-label="Workspace links" class="flex flex-col gap-3">
+            <h2 class="mb-1 text-sm font-semibold text-cloud-white">Workspace</h2>
+            <Link to="/new-simulation" class={footerLinkClass}>
+              Start simulating
             </Link>
-            <Link to="/sign-up" class={footerLinkClass}>
-              Create an account
+            <Link to="/history" class={footerLinkClass}>
+              History
             </Link>
           </nav>
         </div>

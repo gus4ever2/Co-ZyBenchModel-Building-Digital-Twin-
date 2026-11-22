@@ -1,17 +1,10 @@
 import { createSignal, type Component } from "solid-js";
-import { Outlet, createFileRoute, redirect } from "@tanstack/solid-router";
+import { Outlet, createFileRoute } from "@tanstack/solid-router";
 import AuthenticatedNavbar from "../../../components/layout/AuthenticatedNavbar";
-import { getAccessToken } from "../../../lib/api";
 import InfoModal from "../../../components/layout/InfoModal.tsx";
 import {InfoModalContext} from "../../../context/InfoModalContext";
 
 export const Route = createFileRoute("/(app)/_authenticated")({
-  beforeLoad: () => {
-    if (!getAccessToken()) {
-      throw redirect({ to: "/sign-in" });
-    }
-  },
-
   component: AuthenticatedLayout,
 });
 

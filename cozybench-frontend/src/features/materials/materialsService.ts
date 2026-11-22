@@ -1,11 +1,7 @@
 import { buildingDtApi } from "../../lib/api";
 import type { MaterialType } from "./materialTypes";
 
-const materialPath = (type: MaterialType) => ({
-  domain: "CONSTRUCTIONS",
-  category: "MATERIAL",
-  type,
-});
+const materialPath = (type: MaterialType) => ({ type });
 
 export type MaterialDescriptor = {
   id: string;
@@ -26,7 +22,7 @@ export type MaterialsState = {
 export async function loadMaterials(id = "0") {
   const { data } = await buildingDtApi.get<MaterialsState>(
     "/loadMaterialsData",
-    { params: { id } },
+    { params: { id, type: "MATERIAL" } },
   );
   return data;
 }

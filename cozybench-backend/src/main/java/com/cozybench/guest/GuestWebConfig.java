@@ -18,7 +18,7 @@ public class GuestWebConfig implements WebMvcConfigurer {
         GuestSessionRegistry sessions = guestSessions.getIfAvailable();
         if (sessions != null) {
             registry.addInterceptor(new GuestSessionMiddleware(sessions))
-                    .addPathPatterns("/api/v1/guest/**");
+                    .addPathPatterns("/api/**");
         }
     }
 }

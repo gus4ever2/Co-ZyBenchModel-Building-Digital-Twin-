@@ -105,16 +105,10 @@ const PublicNavbar = () => {
 
       <div class="flex items-center gap-2">
         <Link
-          to="/sign-in"
-          class="hidden rounded-full px-4 py-2 text-sm font-semibold text-cloud-white transition hover:bg-white/10 sm:inline-flex"
-        >
-          Sign in
-        </Link>
-        <Link
-          to="/sign-up"
+          to="/new-simulation"
           class="inline-flex rounded-full bg-citadel-blue px-4 py-2 text-sm font-semibold text-cloud-white shadow-lg shadow-black/15 transition hover:-translate-y-0.5 hover:bg-citadel-blue/90 sm:px-5"
         >
-          Sign up
+          Start simulating
         </Link>
       </div>
     </nav>

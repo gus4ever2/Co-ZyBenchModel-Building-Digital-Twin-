@@ -49,9 +49,11 @@ public class ConstructionSetSnapshotService {
         // Library presets use the same import path as workspace Add, then their
         // self-contained snapshot is built before newly created copies are cleaned up.
         var predefined = library.findById(idOrName)
-                .filter(item -> "CONSTRUCTION_SET".equals(item.getCategory()))
+                .filter(item -> types.resolve(item.getType()).category()
+                        == com.cozybench.building.model.type.ComponentCategory.CONSTRUCTION_SET)
                 .or(() -> library.findByNameKey(names.nameKey(idOrName)));
-        if (predefined.isPresent() && "CONSTRUCTION_SET".equals(predefined.get().getCategory())) {
+        if (predefined.isPresent() && types.resolve(predefined.get().getType()).category()
+                == com.cozybench.building.model.type.ComponentCategory.CONSTRUCTION_SET) {
             var set = predefined.get();
             // Use the same library-import graph as the workspace Add action. The snapshot is
             // self-contained, so only objects newly created for this operation are removed.

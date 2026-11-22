@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-/** Resolves stored EnergyPlus names and API enum names to the same component type. */
+/** Resolves canonical API type keys and legacy EnergyPlus names during migration. */
 @Component
 public class ComponentTypeRegistry {
 
@@ -41,7 +41,15 @@ public class ComponentTypeRegistry {
         return resolve(eppyName).apiName();
     }
 
-    /** Returns both current and legacy names accepted by repository queries for a category. */
+    /** Returns canonical API names for new documents and API queries. */
+    public Set<String> apiNames(ComponentCategory category) {
+        return allTypes()
+                .filter(type -> type.category() == category)
+                .map(ComponentType::apiName)
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
+
+    /** Returns both current and legacy names while old Mongo documents are migrated. */
     public Set<String> eppyNames(ComponentCategory category) {
         // Include current API identifiers and legacy IDD names during workspace data transition.
         return allTypes()
