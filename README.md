@@ -46,9 +46,13 @@ cp .env.example .env
 nano .env
 ~~~
 
-> **CORS configuration**  
-> Set `CORS_ALLOWED_ORIGINS` to the browser origin you plan to use, for example `http://SERVER_HOST:3000`.  
-> Keep `.env` private; Git ignores it.
+`CORS_ALLOWED_ORIGINS` is the comma-separated list of browser origins allowed to call the backend:
+
+~~~dotenv
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://SERVER_HOST:3000
+~~~
+
+Keep both origins: `localhost:3000` is for local access and `SERVER_HOST:3000` is for the deployed server. Replace `SERVER_HOST` with the server hostname or IP address. Keep `.env` private; Git ignores it.
 
 ## 5. Build and start the stack
 
