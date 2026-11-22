@@ -34,4 +34,12 @@ Each project README separates one-time setup from the commands to repeat when st
 
 Switch to docker-deployment and read this file there. It contains Compose, SSH and server deployment instructions.
 
+`CORS_ALLOWED_ORIGINS` is the comma-separated list of browser origins allowed to call the backend:
+
+~~~dotenv
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://SERVER_HOST:3000
+~~~
+
+Keep both origins: `localhost:3000` is for local access and `SERVER_HOST:3000` is for the deployed server. Replace `SERVER_HOST` with the server hostname or IP address. Keep `.env` private; Git ignores it.
+
 Never commit secrets such as .env files, JWT keys, SSH private keys, or server credentials.
