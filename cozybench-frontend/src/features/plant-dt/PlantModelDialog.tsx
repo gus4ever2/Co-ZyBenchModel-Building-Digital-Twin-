@@ -6,7 +6,11 @@ import { useGuestMode } from "../../context/GuestModeContext";
 import { loadPlant } from "./plantDtService";
 import PlantModelPanel from "./PlantModelPanel";
 
-export default function PlantModelDialog(props: { plantId: string; onClose: () => void }) {
+export default function PlantModelDialog(props: {
+  plantId: string;
+  onClose: () => void;
+  showDescription?: boolean;
+}) {
   let dialog!: HTMLDialogElement;
   const guest = useGuestMode();
   const plant = createQuery(() => ({
@@ -28,7 +32,7 @@ export default function PlantModelDialog(props: { plantId: string; onClose: () =
           <Show when={!plant.isPending} fallback={<LoaderCircle class="m-auto size-8 animate-spin text-citadel-blue" />}>
             <Show when={!plant.isError && plant.data}
               fallback={<p role="alert" class="m-auto text-sm text-red-wine">Plant preview could not be loaded.</p>}>
-              {data => <PlantModelPanel plant={data()} />}
+              {data => <PlantModelPanel plant={data()} showDescription={props.showDescription} />}
             </Show>
           </Show>
         </div>

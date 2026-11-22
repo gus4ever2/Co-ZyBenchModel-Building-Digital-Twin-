@@ -141,17 +141,6 @@ export default function GreenWallInfo() {
                 </p>
             </div>
 
-            <div class="border-t border-warm-stone/15 pt-4">
-                <p class="text-sm font-semibold text-graphite">
-                    Plant CO₂ exchange
-                </p>
-
-                <p class="mt-1 text-xs leading-relaxed text-graphite/55">
-                    Determines which components of the plant's CO₂ exchange with the
-                    thermal zone are included in the simulation.
-                </p>
-            </div>
-
             <div>
                 <p class="text-sm font-semibold text-graphite">
                     Full CO₂ exchange
@@ -161,19 +150,6 @@ export default function GreenWallInfo() {
                     Includes both photosynthetic CO₂ uptake and respiratory CO₂
                     emissions. This represents the complete CO₂ exchange calculated by
                     the plant model.
-                </p>
-            </div>
-
-            <div>
-                <p class="text-sm font-semibold text-graphite">
-                    Uptake-only scenario
-                </p>
-
-                <p class="mt-1 text-xs leading-relaxed text-graphite/55">
-                    Includes plant CO₂ uptake but excludes respiratory emissions. This is
-                    an explicit sensitivity scenario used to isolate the effect of CO₂
-                    uptake and should not be interpreted as the plant's complete
-                    physiological behaviour.
                 </p>
             </div>
 

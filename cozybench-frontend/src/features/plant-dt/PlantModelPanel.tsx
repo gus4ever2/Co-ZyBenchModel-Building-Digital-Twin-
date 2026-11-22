@@ -3,7 +3,10 @@ import { Show, createSignal, createEffect } from "solid-js";
 import PlantThreeViewer from "./PlantThreeViewer";
 import type { PlantCreationEvent } from "./plantDtService";
 
-export default function PlantModelPanel(props: { plant: PlantCreationEvent }) {
+export default function PlantModelPanel(props: {
+  plant: PlantCreationEvent;
+  showDescription?: boolean;
+}) {
   const plant = () => props.plant;
   const [physiologyOpen, setPhysiologyOpen] = createSignal(false);
   const [leafAreaOpen, setLeafAreaOpen] = createSignal(false);
@@ -24,6 +27,11 @@ export default function PlantModelPanel(props: { plant: PlantCreationEvent }) {
                     >
                       {plant().name}
                     </h1>
+                    <Show when={props.showDescription}>
+                      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-graphite/60">
+                        {plantDescription(plant().name)}
+                      </p>
+                    </Show>
                   </div>
                   <div class="flex flex-wrap items-center gap-2">
                     <button
@@ -116,6 +124,17 @@ export default function PlantModelPanel(props: { plant: PlantCreationEvent }) {
 
 function formatSquareMeters(value: number | null | undefined) {
   return Number.isFinite(value) ? `${value!.toLocaleString()} m²` : "—";
+}
+
+function plantDescription(name: string) {
+  const normalized = name.trim().toLowerCase();
+  if (normalized.includes("spathiphyllum")) {
+    return "A shade-tolerant foliage plant with broad leaves, suitable for indoor green-wall studies and low-light conditions.";
+  }
+  if (normalized.includes("aglaonema")) {
+    return "A resilient, low-light foliage plant with broad leaves, suitable for indoor green-wall studies.";
+  }
+  return "A plant digital twin used to model green-wall geometry, leaf physiology and indoor CO₂ exchange.";
 }
 
 function PhysiologyMetric(props: { label: string; value: number; unit: string }) {

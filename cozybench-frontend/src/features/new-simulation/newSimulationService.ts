@@ -22,7 +22,6 @@ export type NewSimulationPayload = {
   plantName?: string;
   greenWallSize?: "VERY_SMALL" | "SMALL" | "MEDIUM" | "LARGE" | "VERY_LARGE";
   lightingLevel?: "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH";
-  exchangeMode?: "FULL_EXCHANGE" | "UPTAKE_ONLY";
   openWindowsEnabled: boolean;
   openingStrategy?: "LINEAR" | "ON_OFF" | "FIXED_PERCENTAGE";
   minCo2Level?: 500 | 600 | 700 | 800 | 900 | 1000;
@@ -125,7 +124,7 @@ export async function startSimulation(
           plantName: payload.plantName,
           greenWallSize: payload.greenWallSize ?? "MEDIUM",
           lightingLevel: payload.lightingLevel ?? "MEDIUM",
-          exchangeMode: payload.exchangeMode ?? "FULL_EXCHANGE",
+          exchangeMode: "FULL_EXCHANGE",
         }
       : null,
     openWindows: payload.openWindowsEnabled
