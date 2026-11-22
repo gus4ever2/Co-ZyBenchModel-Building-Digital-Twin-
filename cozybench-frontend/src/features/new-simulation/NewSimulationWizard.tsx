@@ -5,6 +5,7 @@ import {
   Cloud,
   Eye,
   Gauge,
+  Info,
   Leaf,
   LoaderCircle,
   MapPin,
@@ -88,7 +89,6 @@ const schemas = {
     plantName: z.string().min(1),
     greenWallSize: z.enum(["VERY_SMALL", "SMALL", "MEDIUM", "LARGE", "VERY_LARGE"]),
     lightingLevel: z.enum(["LOW", "MEDIUM", "HIGH", "VERY_HIGH"]),
-    exchangeMode: z.enum(["FULL_EXCHANGE", "UPTAKE_ONLY"]),
   }),
   windows: z.object({
     openingStrategy: z.enum(["LINEAR", "ON_OFF", "FIXED_PERCENTAGE"]),
@@ -141,6 +141,7 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
   const queryClient = useQueryClient();
   const [stepIndex, setStepIndex] = createSignal(0);
   const [previewPlantId, setPreviewPlantId] = createSignal("");
+  const [previewPlantDescription, setPreviewPlantDescription] = createSignal(false);
   const [form, setForm] = createSignal<NewSimulationPayload>({
     name: "",
     location: "",
@@ -154,7 +155,6 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
     plantName: "",
     greenWallSize: "MEDIUM",
     lightingLevel: "MEDIUM",
-    exchangeMode: "FULL_EXCHANGE",
     openingStrategy: "LINEAR",
     openingPercentage: 10,
     minCo2Level: 800,
@@ -574,8 +574,13 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
                                           <span class="mt-0.5 block text-sm text-graphite/55">{isDefault ? "Default plant model" : "Your workspace"}</span>
                                         </span>
                                       </button>
+                                      <button type="button" aria-label={`Describe ${plant.name}`} title="Plant description"
+                                        onClick={() => { setPreviewPlantDescription(true); setPreviewPlantId(plant.id); }}
+                                        class="absolute right-12 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-sky-mist/40 text-citadel-blue hover:bg-citadel-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-citadel-blue">
+                                        <Info class="size-4"/>
+                                      </button>
                                       <button type="button" aria-label={`Preview ${plant.name}`} title="View plant model"
-                                        onClick={() => setPreviewPlantId(plant.id)}
+                                        onClick={() => { setPreviewPlantDescription(false); setPreviewPlantId(plant.id); }}
                                         class="absolute right-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-sky-mist/40 text-citadel-blue hover:bg-citadel-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-citadel-blue">
                                         <Eye class="size-4"/>
                                       </button>
@@ -590,7 +595,7 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
                           )}
                         </For>
                         <Show when={previewPlantId()}>
-                          {id => <PlantModelDialog plantId={id()} onClose={() => setPreviewPlantId("")}/>}
+                          {id => <PlantModelDialog plantId={id()} showDescription={previewPlantDescription()} onClose={() => { setPreviewPlantId(""); setPreviewPlantDescription(false); }}/>}
                         </Show>
                       </div>
                       <div class="md:col-span-2">
@@ -670,32 +675,6 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
                         <p class="mt-2 text-xs text-graphite/50">
                           Selected light is active from 08:00 to 22:00; PPFD is zero
                           outside that interval.
-                        </p>
-                      </div>
-                      <div class="md:col-span-2">
-                        <p class="mb-2 text-sm font-semibold">Plant CO₂ exchange</p>
-                        <ChoiceGrid
-                            items={[
-                              {
-                                value: "FULL_EXCHANGE",
-                                label: "Full CO₂ exchange",
-                                description: "Apply both uptake and respiration to the zone.",
-                              },
-                              {
-                                value: "UPTAKE_ONLY",
-                                label: "Uptake-only scenario",
-                                description: "Apply uptake only; net respiratory emissions are excluded.",
-                              },
-                            ]}
-                            value={form().exchangeMode ?? "FULL_EXCHANGE"}
-                            onChange={(value) => update(
-                                "exchangeMode",
-                                value as "FULL_EXCHANGE" | "UPTAKE_ONLY"
-                            )}
-                            icon={<Leaf size={20}/>}/>
-                        <p class="mt-2 text-xs text-graphite/50">
-                          Uptake-only is an explicit sensitivity scenario, not the
-                          plant's full physiology.
                         </p>
                       </div>
                     </div>
@@ -986,14 +965,6 @@ export function LegacyReview(props: {
         "Green wall",
         props.payload.plantsEnabled
           ? `${props.plants.find((item) => item.id === props.payload.plantId)?.name ?? ""} · ${(props.payload.greenWallSize ?? "MEDIUM").replace("_", " ")} green wall · ${props.payload.lightingLevel ?? "MEDIUM"} light`
-          : "Disabled",
-      )}
-      {row(
-        "Plant CO₂ exchange",
-        props.payload.plantsEnabled
-          ? props.payload.exchangeMode === "UPTAKE_ONLY"
-            ? "Uptake-only scenario"
-            : "Full CO₂ exchange"
           : "Disabled",
       )}
       {row(
