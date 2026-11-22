@@ -3,9 +3,9 @@ import {
   createQuery,
   useQueryClient,
 } from "@tanstack/solid-query";
-import { Link } from "@tanstack/solid-router";
+import { Link, useNavigate } from "@tanstack/solid-router";
 import { Ban, LoaderCircle, PlayCircle } from "lucide-solid";
-import { Show } from "solid-js";
+import { Show, createEffect, createSignal } from "solid-js";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
 import CurrentSimulationDataView from "./CurrentSimulationDataView";
 import SimulationSetupCard from "./SimulationSetupCard";
@@ -13,16 +13,32 @@ import { cancelSimulation, loadCurrentSimulation } from "./simulationsService";
 
 export default function CurrentSimulationPage(props: { guestMode?: boolean } = {}) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [hadActiveSimulation, setHadActiveSimulation] = createSignal(false);
   const current = createQuery(() => ({
-    queryKey: ["simulations", "current"],
-    queryFn: loadCurrentSimulation,
+    queryKey: ["simulations", "current", props.guestMode === true],
+    queryFn: () => loadCurrentSimulation(props.guestMode === true),
     refetchInterval: 1000,
   }));
   const cancel = createMutation(() => ({
-    mutationFn: cancelSimulation,
+    mutationFn: (simulationId: string) =>
+      cancelSimulation(simulationId, props.guestMode === true),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["simulations"] }),
   }));
+
+  createEffect(() => {
+    if (current.data?.simulation) {
+      setHadActiveSimulation(true);
+      return;
+    }
+    if (hadActiveSimulation() && !current.isPending && !current.isError) {
+      void navigate({
+        to: props.guestMode ? "/guest/history" : "/history",
+        search: { select: "first-completed" },
+      });
+    }
+  });
 
   return (
     <section class="mx-auto flex h-[calc(100vh-10rem)] min-h-0 w-full max-w-7xl flex-col gap-4 lg:h-[calc(100vh-4rem)]">

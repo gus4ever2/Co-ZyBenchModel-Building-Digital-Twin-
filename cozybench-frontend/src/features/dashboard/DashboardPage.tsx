@@ -41,7 +41,7 @@ export default function DashboardPage() {
 
   const current = createQuery(() => ({
     queryKey: ["simulations", "current"],
-    queryFn: loadCurrentSimulation,
+    queryFn: () => loadCurrentSimulation(),
     // Fetch once on entry. Continue polling only while Spring reports an active run,
     // so an idle dashboard does not repeatedly re-render its scroll containers.
     refetchInterval: (query) => (query.state.data ? 3000 : false),
