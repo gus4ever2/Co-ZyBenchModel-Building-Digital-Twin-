@@ -48,6 +48,12 @@ export default function DashboardPage() {
   }));
 
   const recent = createMemo(() => (simulations.data ?? []).slice(0, 6));
+  const mapLocations = createMemo(() => dashboardMockData.locations.map((location) => ({
+    ...location,
+    simulations: (simulations.data ?? []).filter(
+      (simulation) => simulation.city?.trim().toLowerCase() === location.city.toLowerCase(),
+    ).length,
+  })));
 
   const statistics = createMemo(() => [
     {
@@ -166,14 +172,14 @@ export default function DashboardPage() {
               CozyBench reference sites
             </h2>
             <p class="mt-1 text-sm text-graphite/55">
-              Paris and Andravida with their static ASHRAE climate-zone
-              classification.
+              Simulation counts from your workspace, with static ASHRAE climate-zone
+              classifications for the reference locations.
             </p>
           </header>
 
           <div class="grid min-h-[22rem] lg:h-96 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_18rem]">
             <div class="min-h-64">
-              <ClimateMap locations={dashboardMockData.locations} />
+              <ClimateMap locations={mapLocations()} />
             </div>
             <ClimateZoneLegend />
           </div>

@@ -586,7 +586,10 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
                                         </span>
                                       </button>
                                       <button type="button" aria-label={`Describe ${plant.name}`} title="Plant description"
-                                        onClick={() => { setPreviewPlantDescription(true); setPreviewPlantId(plant.id); }}
+                                        onClick={() => {
+                                          infoModalContextValue.setInfoModalContent(() => () => <PlantSelectionInfo name={plant.name} />);
+                                          infoModalContextValue.setInfoModalOpen(true);
+                                        }}
                                         class="absolute right-12 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-sky-mist/40 text-citadel-blue hover:bg-citadel-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-citadel-blue">
                                         <Info class="size-4"/>
                                       </button>
@@ -990,6 +993,24 @@ export function LegacyReview(props: {
           ? `${co2LevelLabel(props.payload.co2SetpointPpm ?? 800)} · decoupled mechanical ventilation DCV`
           : "Disabled",
       )}
+    </div>
+  );
+}
+
+function PlantSelectionInfo(props: { name: string }) {
+  const description = props.name.toLowerCase().includes("spathiphyllum")
+    ? "Choose Spathiphyllum for a shade-tolerant green wall with broad foliage. It is a good fit for indoor studies and lower-light conditions."
+    : props.name.toLowerCase().includes("aglaonema")
+      ? "Choose Aglaonema for a resilient, broad-leaved green wall suited to indoor spaces and lower-light conditions."
+      : "Choose this plant model to represent the green wall's foliage and plant–environment exchange in the simulation.";
+
+  return (
+    <div class="space-y-3">
+      <p class="text-xs font-bold uppercase tracking-[0.16em] text-citadel-blue">
+        Plant selection
+      </p>
+      <h2 class="text-xl font-bold text-graphite">Why choose {props.name}?</h2>
+      <p class="max-w-2xl text-sm leading-relaxed text-graphite/65">{description}</p>
     </div>
   );
 }
