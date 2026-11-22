@@ -9,7 +9,7 @@ function RouteComponent() {
   return (
     <>
       <div
-        class="min-h-screen inset-0 p-8 bg-[url(/citadel.webp)]"
+        class="relative min-h-screen w-full overflow-hidden bg-[#203946] bg-[url('/citadel.webp')] bg-cover bg-center bg-no-repeat p-4 sm:p-6 lg:p-8"
         aria-hidden="true"
       >
         <HeroSection />
