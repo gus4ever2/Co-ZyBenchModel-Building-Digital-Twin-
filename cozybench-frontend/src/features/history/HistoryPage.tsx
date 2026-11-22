@@ -35,7 +35,7 @@ const filters = [
 export default function HistoryPage(props: { guestMode?: boolean } = {}) {
   const guestMode = props.guestMode === true;
   const queryClient = useQueryClient();
-  const [filter, setFilter] = createSignal<(typeof filters)[number]>("ALL");
+  const [filter, setFilter] = createSignal<(typeof filters)[number]>("COMPLETED");
   const [selectedId, setSelectedId] = createSignal("");
   const history = createQuery(() => ({
     queryKey: ["simulations", "history", guestMode],
