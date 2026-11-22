@@ -35,7 +35,6 @@ import {
   startSimulation,
   type NewSimulationPayload,
 } from "./newSimulationService";
-import { waitForSimulationCompletion } from "../simulations/simulationsService";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
 import WorkspaceIntroPanel from "../../components/layout/WorkspaceIntroPanel";
 import EditorNotification from "../../components/building-dt/EditorNotification";
@@ -280,12 +279,10 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
   const startAction = createMutation(() => ({
     mutationFn: (payload: NewSimulationPayload) =>
       startSimulation(payload, props.guestMode === true),
-    onSuccess: async (started) => {
-      await waitForSimulationCompletion(started.id, props.guestMode === true);
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["simulations", "current"] });
       void navigate({
-        to: props.guestMode ? "/guest/history" : "/history",
-        search: { select: "first-completed" },
+        to: props.guestMode ? "/guest/current-simulation" : "/current-simulation",
       });
     },
   }));

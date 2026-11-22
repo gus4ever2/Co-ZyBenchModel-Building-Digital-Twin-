@@ -293,21 +293,6 @@ export async function loadSimulation(simulationId: string, guestMode = false) {
   return data;
 }
 
-const terminalSimulationStatuses = new Set(["COMPLETED", "ERROR", "CANCELED"]);
-
-export async function waitForSimulationCompletion(
-  simulationId: string,
-  guestMode = false,
-) {
-  const maxAttempts = 60 * 60;
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const simulation = await loadSimulation(simulationId, guestMode);
-    if (terminalSimulationStatuses.has(simulation.status)) return simulation;
-    await new Promise((resolve) => window.setTimeout(resolve, 1000));
-  }
-  return undefined;
-}
-
 export async function loadSimulationResults(simulationId: string, guestMode = false) {
   const client = guestMode ? guestApi : api;
   const basePath = guestMode
@@ -376,16 +361,22 @@ export async function loadSimulationComparison(
   return data;
 }
 
-export async function loadCurrentSimulation() {
-  const response = await api.get<CurrentSimulationResponse | undefined>(
-    "/v1/simulations/current",
+export async function loadCurrentSimulation(guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const path = guestMode ? "/v1/guest/simulations/current" : "/v1/simulations/current";
+  const response = await client.get<CurrentSimulationResponse | undefined>(
+    path,
   );
   return response.status === 204 ? null : (response.data ?? null);
 }
 
-export async function cancelSimulation(simulationId: string) {
-  const { data } = await api.post<SimulationListItem>(
-    `/v1/simulations/${simulationId}/cancel`,
+export async function cancelSimulation(simulationId: string, guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const path = guestMode
+    ? `/v1/guest/simulations/${simulationId}/cancel`
+    : `/v1/simulations/${simulationId}/cancel`;
+  const { data } = await client.post<SimulationListItem>(
+    path,
   );
   return data;
 }
