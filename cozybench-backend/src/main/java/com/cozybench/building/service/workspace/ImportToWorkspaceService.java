@@ -69,7 +69,10 @@ public class ImportToWorkspaceService {
 
     /** Builds the category-specific defaults with the final unique name in one factory call. */
     public WorkspaceComponentDocument importDefault(String ownerId, String requestedType) {
-        ComponentFactory factory = factoryResolver.resolve(requestedType);
+        return importDefault(ownerId, factoryResolver.resolve(requestedType));
+    }
+
+    private WorkspaceComponentDocument importDefault(String ownerId, ComponentFactory factory) {
         ComponentType type = factory.type();
         String uniqueName = nameService.uniqueName(type.apiName(), ownerId);
         var record = factory.createDefault(uniqueName);
@@ -77,7 +80,7 @@ public class ImportToWorkspaceService {
     }
 
     public WorkspaceComponentDocument importDefault(String ownerId, ComponentTypePath path) {
-        return importDefault(ownerId, path.type());
+        return importDefault(ownerId, factoryResolver.resolve(path));
     }
 
     /** Copies the common type, name, provenance, and properties into Mongo's workspace document. */
