@@ -60,7 +60,7 @@ public class PlantService {
         }
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("owner_type", "USER");
+        body.add("owner_type", "GUEST");
         body.add("owner_id", ownerId);
         body.add("plant_name", plantName.trim());
         body.add("reflectance", reflectance);
@@ -95,7 +95,7 @@ public class PlantService {
     public PlantListResponse list(String ownerId) {
         Map<String, Object> response = cosimulator.get()
                 .uri(uri -> uri.path("/plants")
-                        .queryParam("owner_type", "USER")
+                        .queryParam("owner_type", "GUEST")
                         .queryParam("owner_id", ownerId)
                         .build())
                 .retrieve()
@@ -117,7 +117,7 @@ public class PlantService {
         if (defaultPlant != null) return defaultPlant;
         Map<String, Object> document = cosimulator.get()
                 .uri(uri -> uri.path("/plants/{plantId}")
-                        .queryParam("owner_type", "USER")
+                        .queryParam("owner_type", "GUEST")
                         .queryParam("owner_id", ownerId)
                         .build(plantId))
                 .retrieve()
@@ -136,7 +136,7 @@ public class PlantService {
         if (defaultFile != null) return defaultFile;
         byte[] body = cosimulator.get()
                 .uri(uri -> uri.path("/plants/{plantId}/{extension}")
-                        .queryParam("owner_type", "USER")
+                        .queryParam("owner_type", "GUEST")
                         .queryParam("owner_id", ownerId)
                         .build(plantId, extension))
                 .retrieve()
@@ -150,7 +150,7 @@ public class PlantService {
     public byte[] exportJson(String ownerId, String plantId) {
         byte[] body = cosimulator.get()
                 .uri(uri -> uri.path("/plants/{plantId}/export")
-                        .queryParam("owner_type", "USER")
+                        .queryParam("owner_type", "GUEST")
                         .queryParam("owner_id", ownerId)
                         .build(plantId))
                 .accept(MediaType.APPLICATION_JSON)
@@ -165,7 +165,7 @@ public class PlantService {
     public void delete(String ownerId, String plantId) {
         cosimulator.delete()
                 .uri(uri -> uri.path("/plants/{plantId}")
-                        .queryParam("owner_type", "USER")
+                        .queryParam("owner_type", "GUEST")
                         .queryParam("owner_id", ownerId)
                         .build(plantId))
                 .retrieve()

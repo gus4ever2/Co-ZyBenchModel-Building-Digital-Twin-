@@ -50,7 +50,7 @@ function descriptors(data: DescriptorState) {
 export async function loadSimulationConstructionSets() {
   const { data } = await buildingDtApi.get<DescriptorState>(
     "/loadConstructionSetsData",
-    { params: { id: "0" } },
+    { params: { id: "0", type: "CONSTRUCTION_SET" } },
   );
   return [
     ...(data.libraryDescriptions?.componentParts ?? []).map(item => ({

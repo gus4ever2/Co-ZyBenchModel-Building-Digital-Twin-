@@ -1,5 +1,5 @@
 import { buildingDtApi } from "../../lib/api";
-const constructionSetPath = { domain: "CONSTRUCTIONS", category: "CONSTRUCTION_SET", type: "CONSTRUCTION_SET" };
+const constructionSetPath = { type: "CONSTRUCTION_SET" };
 
 export type Descriptor = { id: string; type: string | null; name: string; displayName?: string; defaultOption?: boolean };
 export type ConstructionSetComponent = {
@@ -17,7 +17,7 @@ export type ConstructionSetState = {
 export async function loadConstructionSets(id = "0") {
   const { data } = await buildingDtApi.get<ConstructionSetState>(
     "/loadConstructionSetsData",
-    { params: { id } },
+    { params: { id, type: "CONSTRUCTION_SET" } },
   );
   return data;
 }

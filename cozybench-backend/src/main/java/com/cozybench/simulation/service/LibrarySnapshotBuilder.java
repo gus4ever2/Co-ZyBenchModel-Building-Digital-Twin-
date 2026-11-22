@@ -3,6 +3,8 @@ package com.cozybench.simulation.service;
 import com.cozybench.building.model.document.BuildingLibraryObjectDocument;
 import com.cozybench.building.model.document.WorkspaceComponentDocument;
 import com.cozybench.building.model.type.ComponentTypeRegistry;
+import com.cozybench.building.model.type.ComponentCategory;
+import com.cozybench.building.model.type.ConstructionType;
 import com.cozybench.building.idfobject.construction.ConstructionLayerProperty;
 import com.cozybench.simulation.dto.ComponentSnapshot;
 import com.cozybench.simulation.dto.ConstructionSetSnapshot;
@@ -48,21 +50,12 @@ public class LibrarySnapshotBuilder {
         List<BuildingLibraryObjectDocument> objects = workspaceObjects.stream()
                 .filter(object -> ownerId.equals(object.getOwnerId()))
                 .<BuildingLibraryObjectDocument>map(object -> {
-                    // New workspace documents keep API type and IDD name separately;
-                    // legacy documents can still be adapted from their former IDD type field.
                     var resolvedType = types.resolve(object.getType());
-                    String epiName = object.getEpiName() == null
-                            ? resolvedType.eppyName()
-                            : object.getEpiName();
-                    String category = object.getCategory() == null
-                            ? resolvedType.category().name()
-                            : object.getCategory();
                     return BuildingLibraryObjectDocument.builder()
                             .id(object.getId())
                             .name(object.getName())
                             .nameKey(object.getNameKey())
-                            .category(category)
-                            .type(epiName)
+                            .type(resolvedType.apiName())
                             .properties(new LinkedHashMap<>(object.getProperties()))
                             .build();
                 })
@@ -75,6 +68,7 @@ public class LibrarySnapshotBuilder {
             String displayName,
             List<BuildingLibraryObjectDocument> libraryObjects
     ) {
+        ComponentTypeRegistry types = new ComponentTypeRegistry();
         // First make IDs easy to find; an invalid reference must fail clearly.
         Map<String, BuildingLibraryObjectDocument> byId = new LinkedHashMap<>();
         for (BuildingLibraryObjectDocument object : libraryObjects) {
@@ -83,7 +77,7 @@ public class LibrarySnapshotBuilder {
             }
         }
 
-        BuildingLibraryObjectDocument set = require(byId, setId, "CONSTRUCTION_SET");
+        BuildingLibraryObjectDocument set = require(byId, setId, "CONSTRUCTION_SET", types);
         Map<String, ComponentSnapshot> constructions = new LinkedHashMap<>();
         Map<String, ComponentSnapshot> materials = new LinkedHashMap<>();
         Map<String, String> heatSourcesByConstruction = new LinkedHashMap<>();
@@ -96,14 +90,14 @@ public class LibrarySnapshotBuilder {
             if ("Name".equals(field.getKey()) || blank(field.getValue())) {
                 continue;
             }
-            BuildingLibraryObjectDocument construction = require(byId, field.getValue(), "CONSTRUCTION");
+            BuildingLibraryObjectDocument construction = require(byId, field.getValue(), "CONSTRUCTION", types);
             pending.add(construction.getId());
-            if ("CONSTRUCTIONPROPERTY:INTERNALHEATSOURCE".equalsIgnoreCase(construction.getType())) {
+            if (isType(construction, ConstructionType.CONSTRUCTION_PROPERTY_INTERNAL_HEAT_SOURCE, types)) {
                 // Surfaces point to the Construction; the separate property attaches to it.
                 BuildingLibraryObjectDocument parent = require(
-                        byId, construction.getProperties().get("Construction_Name"), "CONSTRUCTION"
+                        byId, construction.getProperties().get("Construction_Name"), "CONSTRUCTION", types
                 );
-                if (!"CONSTRUCTION".equalsIgnoreCase(parent.getType())) {
+                if (!isType(parent, ConstructionType.CONSTRUCTION, types)) {
                     throw new IllegalArgumentException("Internal heat source requires a layered construction");
                 }
                 field.setValue(parent.getName());
@@ -119,23 +113,23 @@ public class LibrarySnapshotBuilder {
             if (constructions.containsKey(id)) {
                 continue;
             }
-            BuildingLibraryObjectDocument construction = require(byId, id, "CONSTRUCTION");
+            BuildingLibraryObjectDocument construction = require(byId, id, "CONSTRUCTION", types);
             LinkedHashMap<String, String> properties = new LinkedHashMap<>(construction.getProperties());
             String snapshotName = construction.getName();
-            if ("CONSTRUCTION".equalsIgnoreCase(construction.getType())) {
+            if (isType(construction, ConstructionType.CONSTRUCTION, types)) {
                 for (ConstructionLayerProperty layer : ConstructionLayerProperty.values()) {
                     String field = layer.fieldName();
                     String materialId = properties.get(field);
                     if (blank(materialId)) {
                         continue;
                     }
-                    BuildingLibraryObjectDocument material = require(byId, materialId, "MATERIAL");
-                    materials.putIfAbsent(materialId, snapshot(material, material.getProperties()));
+                    BuildingLibraryObjectDocument material = require(byId, materialId, "MATERIAL", types);
+                    materials.putIfAbsent(materialId, snapshot(material, material.getProperties(), types));
                     properties.put(field, material.getName());
                 }
-            } else if ("CONSTRUCTIONPROPERTY:INTERNALHEATSOURCE".equalsIgnoreCase(construction.getType())) {
+            } else if (isType(construction, ConstructionType.CONSTRUCTION_PROPERTY_INTERNAL_HEAT_SOURCE, types)) {
                 String parentId = properties.get("Construction_Name");
-                BuildingLibraryObjectDocument parent = require(byId, parentId, "CONSTRUCTION");
+                BuildingLibraryObjectDocument parent = require(byId, parentId, "CONSTRUCTION", types);
                 String previousSource = heatSourcesByConstruction.putIfAbsent(parentId, id);
                 if (previousSource != null && !previousSource.equals(id)) {
                     throw new IllegalArgumentException("Two heat source properties would have the same generated name for: "
@@ -149,13 +143,13 @@ public class LibrarySnapshotBuilder {
                 properties.put("Name", snapshotName);
             }
             constructions.put(id, new ComponentSnapshot(construction.getId(), snapshotName,
-                    construction.getType(), nonBlankProperties(properties)));
+                    types.resolve(construction.getType()).eppyName(), nonBlankProperties(properties)));
         }
 
         String name = blank(displayName) ? set.getName() : displayName;
         setProperties.put("Name", name);
         ComponentSnapshot selected = new ComponentSnapshot(
-                set.getId(), name, set.getType(), nonBlankProperties(setProperties)
+                set.getId(), name, types.resolve(set.getType()).eppyName(), nonBlankProperties(setProperties)
         );
         return new ConstructionSetSnapshot(
                 selected,
@@ -164,8 +158,8 @@ public class LibrarySnapshotBuilder {
         );
     }
 
-    private ComponentSnapshot snapshot(BuildingLibraryObjectDocument object, Map<String, String> properties) {
-        return new ComponentSnapshot(object.getId(), object.getName(), object.getType(), nonBlankProperties(properties));
+    private ComponentSnapshot snapshot(BuildingLibraryObjectDocument object, Map<String, String> properties, ComponentTypeRegistry types) {
+        return new ComponentSnapshot(object.getId(), object.getName(), types.resolve(object.getType()).eppyName(), nonBlankProperties(properties));
     }
 
     private Map<String, String> nonBlankProperties(Map<String, String> properties) {
@@ -177,13 +171,18 @@ public class LibrarySnapshotBuilder {
     }
 
     private BuildingLibraryObjectDocument require(
-            Map<String, BuildingLibraryObjectDocument> byId, String id, String category
+            Map<String, BuildingLibraryObjectDocument> byId, String id, String category, ComponentTypeRegistry types
     ) {
         BuildingLibraryObjectDocument object = byId.get(id);
-        if (object == null || !Objects.equals(category, object.getCategory())) {
+        if (object == null || types.resolve(object.getType()).category() != ComponentCategory.valueOf(category)) {
             throw new IllegalArgumentException("Missing or invalid " + category + " reference: " + id);
         }
         return object;
+    }
+
+    private boolean isType(BuildingLibraryObjectDocument object, com.cozybench.building.model.type.ComponentType expected,
+                           ComponentTypeRegistry types) {
+        return types.resolve(object.getType()) == expected;
     }
 
     private boolean blank(String value) {

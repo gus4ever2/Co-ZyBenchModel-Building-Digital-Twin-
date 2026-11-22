@@ -1,7 +1,5 @@
 package com.cozybench.common.exception;
 
-import com.cozybench.auth.exception.EmailAlreadyExistsException;
-import com.cozybench.auth.exception.InvalidCredentialsException;
 import com.cozybench.building.exception.BuildingComponentNotFoundException;
 import com.cozybench.building.exception.BuildingComponentValidationException;
 import com.cozybench.user.exception.UserNotFoundException;
@@ -23,16 +21,6 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ProblemDetail handleEmailAlreadyExists(EmailAlreadyExistsException exception) {
-        return problem(HttpStatus.CONFLICT, "Account already exists", exception.getMessage());
-    }
-
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException exception) {
-        return problem(HttpStatus.UNAUTHORIZED, "Authentication failed", exception.getMessage());
-    }
 
     @ExceptionHandler(BuildingComponentValidationException.class)
     public ProblemDetail handleComponentValidation(BuildingComponentValidationException exception) {

@@ -1,9 +1,10 @@
 package com.cozybench.simulation.controller;
 
+import com.cozybench.guest.GuestSessionRecord;
+import com.cozybench.guest.GuestSessionRegistry;
 import com.cozybench.simulation.dto.DashboardSummaryResponse;
 import com.cozybench.simulation.service.SimulationService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,16 +14,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class DashboardController {
 
     private final SimulationService simulationService;
+    private final GuestSessionRegistry guestSessions;
 
-    public DashboardController(SimulationService simulationService) {
+    public DashboardController(SimulationService simulationService, GuestSessionRegistry guestSessions) {
         this.simulationService = simulationService;
+        this.guestSessions = guestSessions;
     }
 
     @GetMapping("/summary")
-    public DashboardSummaryResponse summary(@AuthenticationPrincipal Jwt jwt) {
+    public DashboardSummaryResponse summary(HttpServletRequest request) {
         return simulationService.dashboard(
-                jwt.getSubject(),
-                jwt.getClaimAsString("email")
+                ownerId(request),
+                null
         );
+    }
+
+    private String ownerId(HttpServletRequest request) {
+        Object value = request.getAttribute(GuestSessionRegistry.REQUEST_ATTRIBUTE);
+        if (value instanceof GuestSessionRecord record) return record.guestSessionId();
+        return guestSessions.getOrCreate(request.getSession(true)).guestSessionId();
     }
 }

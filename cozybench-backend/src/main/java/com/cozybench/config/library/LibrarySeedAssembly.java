@@ -1,5 +1,6 @@
 package com.cozybench.config.library;
 
+import com.cozybench.building.model.type.ComponentTypeRegistry;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -20,6 +21,7 @@ final class LibrarySeedAssembly {
     private final Map<String, Map<String, Document>> objectsBySeedAndName = new LinkedHashMap<>();
     private final Map<String, List<Document>> objectsBySeed = new LinkedHashMap<>();
     private final List<Document> objects = new ArrayList<>();
+    private final ComponentTypeRegistry typeRegistry = new ComponentTypeRegistry();
 
     void register(String seedName, String category, List<Document> sourceObjects) {
         Map<String, Document> objectsByName = new LinkedHashMap<>();
@@ -42,8 +44,7 @@ final class LibrarySeedAssembly {
             Document object = new Document("_id", new ObjectId())
                     .append("name", name.trim())
                     .append("nameKey", nameKey)
-                    .append("category", category)
-                    .append("type", input.getString("type"))
+                    .append("type", typeRegistry.resolve(input.getString("type")).apiName())
                     .append("properties", properties);
             allObjectsByName.put(nameKey, object);
             objectsByName.put(nameKey, object);

@@ -1,5 +1,7 @@
 package com.cozybench.simulation.controller;
 
+import com.cozybench.guest.GuestSessionRecord;
+import com.cozybench.guest.GuestSessionRegistry;
 import com.cozybench.simulation.dto.CurrentSimulationResponse;
 import com.cozybench.simulation.dto.SimulationListResponse;
 import com.cozybench.simulation.dto.SimulationComparisonRequest;
@@ -14,8 +16,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,99 +34,102 @@ public class SimulationController {
 
     private final SimulationService simulationService;
     private final SimulationComparisonService comparisonService;
+    private final GuestSessionRegistry guestSessions;
 
     public SimulationController(
             SimulationService simulationService,
-            SimulationComparisonService comparisonService
+            SimulationComparisonService comparisonService,
+            GuestSessionRegistry guestSessions
     ) {
         this.simulationService = simulationService;
         this.comparisonService = comparisonService;
+        this.guestSessions = guestSessions;
     }
 
     @PostMapping("/comparison")
     public java.util.Map<String, Object> compare(
-            @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody SimulationComparisonRequest request
+            HttpServletRequest httpRequest,
+            @Valid @RequestBody SimulationComparisonRequest body
     ) {
         return comparisonService.compare(
-                jwt.getSubject(),
-                jwt.getClaimAsString("email"),
-                request
+                ownerId(httpRequest),
+                null,
+                body
         );
     }
 
     @PostMapping
     public ResponseEntity<SimulationSummaryResponse> start(
-            @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody StartSimulationRequest request
+            HttpServletRequest httpRequest,
+            @Valid @RequestBody StartSimulationRequest body
     ) {
         return ResponseEntity.status(201).body(simulationService.start(
-                jwt.getSubject(),
-                jwt.getClaimAsString("email"),
-                request
+                ownerId(httpRequest),
+                null,
+                body
         ));
     }
 
     @GetMapping
-    public SimulationListResponse all(@AuthenticationPrincipal Jwt jwt) {
-        return simulationService.all(jwt.getSubject(), jwt.getClaimAsString("email"));
+    public SimulationListResponse all(HttpServletRequest request) {
+        return simulationService.all(ownerId(request), null);
     }
 
     @GetMapping("/history")
-    public SimulationListResponse history(@AuthenticationPrincipal Jwt jwt) {
-        return simulationService.history(jwt.getSubject(), jwt.getClaimAsString("email"));
+    public SimulationListResponse history(HttpServletRequest request) {
+        return simulationService.history(ownerId(request), null);
     }
 
     @GetMapping("/name-availability")
     public java.util.Map<String, Boolean> nameAvailability(
-            @AuthenticationPrincipal Jwt jwt,
+            HttpServletRequest request,
             @RequestParam @NotBlank @Size(max = 80) String name
     ) {
         return java.util.Map.of("available", simulationService.isNameAvailable(
-                jwt.getSubject(), jwt.getClaimAsString("email"), name));
+                ownerId(request), null, name));
     }
 
     @GetMapping("/current")
     public ResponseEntity<CurrentSimulationResponse> current(
-            @AuthenticationPrincipal Jwt jwt
+            HttpServletRequest request
     ) {
-        return simulationService.current(jwt.getSubject(), jwt.getClaimAsString("email"))
+        return simulationService.current(ownerId(request), null)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @GetMapping("/{simulationId}")
     public SimulationSummaryResponse get(
-            @AuthenticationPrincipal Jwt jwt,
+            HttpServletRequest request,
             @PathVariable String simulationId
     ) {
         return simulationService.get(
-                jwt.getSubject(),
-                jwt.getClaimAsString("email"),
+                ownerId(request),
+                null,
                 simulationId
         );
     }
 
     @PostMapping("/{simulationId}/cancel")
     public SimulationSummaryResponse cancel(
-            @AuthenticationPrincipal Jwt jwt,
+            HttpServletRequest request,
             @PathVariable String simulationId
     ) {
         return simulationService.cancel(
-                jwt.getSubject(),
-                jwt.getClaimAsString("email"),
+                ownerId(request),
+                null,
                 simulationId
         );
     }
 
     @DeleteMapping("/{simulationId}")
     public ResponseEntity<Void> delete(
-            @AuthenticationPrincipal Jwt jwt,
+            HttpServletRequest request,
             @PathVariable String simulationId
     ) {
         simulationService.delete(
-                jwt.getSubject(),
-                jwt.getClaimAsString("email"),
+                ownerId(request),
+                null,
                 simulationId
         );
         return ResponseEntity.noContent().build();
@@ -133,10 +137,10 @@ public class SimulationController {
 
     @GetMapping(value = "/{simulationId}/export", produces = "application/json")
     public ResponseEntity<org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody> export(
-            @AuthenticationPrincipal Jwt jwt,
+            HttpServletRequest request,
             @PathVariable String simulationId
     ) {
-        var body = simulationService.exportJson(jwt.getSubject(), jwt.getClaimAsString("email"), simulationId);
+        var body = simulationService.exportJson(ownerId(request), null, simulationId);
         return ResponseEntity.ok()
                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .header("Content-Disposition", org.springframework.http.ContentDisposition.attachment()
@@ -147,38 +151,44 @@ public class SimulationController {
 
     @GetMapping("/{simulationId}/analytics")
     public java.util.Map<String, Object> analytics(
-            @AuthenticationPrincipal Jwt jwt, @PathVariable String simulationId,
+            HttpServletRequest request, @PathVariable String simulationId,
             @RequestParam(defaultValue = "0") @Min(0) int startIndex,
             @RequestParam(required = false) @Min(0) Integer endIndex) {
-        return simulationService.analytics(jwt.getSubject(), jwt.getClaimAsString("email"),
+        return simulationService.analytics(ownerId(request), null,
                 simulationId, startIndex, endIndex);
     }
 
     @GetMapping("/analytics/available")
-    public java.util.Map<String, Object> availableAnalytics(@AuthenticationPrincipal Jwt jwt) {
+    public java.util.Map<String, Object> availableAnalytics() {
         return simulationService.availableAnalytics();
     }
 
     @PostMapping("/{simulationId}/analytics")
     public java.util.Map<String, Object> selectedAnalytics(
-            @AuthenticationPrincipal Jwt jwt, @PathVariable String simulationId,
+            HttpServletRequest request, @PathVariable String simulationId,
             @RequestBody java.util.Map<String, Object> options) {
-        return simulationService.selectedAnalytics(jwt.getSubject(), jwt.getClaimAsString("email"), simulationId, options);
+        return simulationService.selectedAnalytics(ownerId(request), null, simulationId, options);
     }
 
     @GetMapping("/{simulationId}/results")
     public SimulationResultsResponse results(
-            @AuthenticationPrincipal Jwt jwt,
+            HttpServletRequest request,
             @PathVariable String simulationId,
             @RequestParam(defaultValue = "0") @Min(0) int offset,
             @RequestParam(required = false) @Min(1) @Max(10000) Integer limit
     ) {
         return simulationService.results(
-                jwt.getSubject(),
-                jwt.getClaimAsString("email"),
+                ownerId(request),
+                null,
                 simulationId,
                 offset,
                 limit
         );
+    }
+
+    private String ownerId(HttpServletRequest request) {
+        Object value = request.getAttribute(GuestSessionRegistry.REQUEST_ATTRIBUTE);
+        if (value instanceof GuestSessionRecord record) return record.guestSessionId();
+        return guestSessions.getOrCreate(request.getSession(true)).guestSessionId();
     }
 }

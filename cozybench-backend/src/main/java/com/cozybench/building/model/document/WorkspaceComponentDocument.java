@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -31,19 +32,16 @@ public class WorkspaceComponentDocument extends BaseComponentDocument {
     @NotBlank
     private String nameKey;
 
-    /** Structured path fields keep type selection explicit in workspace documents. */
-    @NotBlank
-    private String domain;
-
-    @NotBlank
-    private String category;
-
     /** Stable API enum identifier, distinct from the EnergyPlus IDD object name. */
     @NotBlank
     private String type;
 
-    /** Exact IDD object name used when generating simulation input. */
-    @NotBlank
+    /** Legacy compatibility fields; transient so new Mongo documents store only type metadata. */
+    @Transient
+    private String domain;
+    @Transient
+    private String category;
+    @Transient
     private String epiName;
 
     // User-created and duplicated objects have no library source.

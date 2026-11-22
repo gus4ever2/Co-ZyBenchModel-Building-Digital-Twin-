@@ -42,6 +42,11 @@ abstract class AbstractComponentCategoryFactory implements ComponentCategoryFact
     protected abstract Map<ComponentType, ComponentFactory> definitions();
 
     @Override
+    public final Map<ComponentType, ComponentFactory> factories() {
+        return definitions();
+    }
+
+    @Override
     public final ComponentFactory create(ComponentType type) {
         return requireFactory(definitions(), type);
     }
