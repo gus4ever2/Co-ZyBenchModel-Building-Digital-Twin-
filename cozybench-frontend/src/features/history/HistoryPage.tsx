@@ -31,7 +31,6 @@ const filters = [
   "COMPLETED",
   "ERROR",
   "CANCELED",
-  "CUSTOM_READY",
 ] as const;
 export default function HistoryPage(props: { guestMode?: boolean } = {}) {
   const guestMode = props.guestMode === true;
