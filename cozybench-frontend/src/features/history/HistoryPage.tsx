@@ -15,7 +15,7 @@ import {
   Trash2,
   Wind,
 } from "lucide-solid";
-import { For, Show, Suspense, createMemo, createSignal } from "solid-js";
+import { For, Show, Suspense, createEffect, createMemo, createSignal } from "solid-js";
 import WorkspaceHeader from "../../components/layout/WorkspaceHeader";
 import SimulationDataView from "../simulations/SimulationDataView";
 import {
@@ -41,6 +41,22 @@ export default function HistoryPage() {
     queryKey: ["simulations", "history"],
     queryFn: loadSimulationHistory,
   }));
+
+  createEffect(() => {
+    const simulations = history.data;
+    const selectFirstCompleted =
+      new URLSearchParams(window.location.search).get("select") ===
+      "first-completed";
+    if (!selectFirstCompleted || history.isPending || history.isError || !simulations) {
+      return;
+    }
+
+    setFilter("COMPLETED");
+    const firstCompleted = simulations.find(
+      (simulation) => simulation.status === "COMPLETED",
+    );
+    setSelectedId(firstCompleted?.id ?? "");
+  });
   const selected = createMemo(() =>
     history.data?.find((simulation) => simulation.id === selectedId()),
   );
