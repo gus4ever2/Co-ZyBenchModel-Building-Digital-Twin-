@@ -6,8 +6,8 @@ import com.cozybench.building.idfobject.construction.InternalHeatSourceProperty;
 import com.cozybench.building.idfobject.constructionset.ConstructionSetProperty;
 import com.cozybench.building.model.document.WorkspaceComponentDocument;
 import com.cozybench.building.model.type.ComponentType;
-import com.cozybench.building.model.type.ComponentTypePath;
 import com.cozybench.building.model.type.ComponentTypeRegistry;
+import com.cozybench.building.model.type.ComponentTypePath;
 import com.cozybench.building.model.type.ConstructionSetType;
 import com.cozybench.building.model.type.ConstructionType;
 import com.cozybench.building.model.validation.IddPropertiesRecord;
@@ -47,7 +47,6 @@ public class UpdateDocumentInWorkspaceService {
     public WorkspaceComponentDocument update(
             String ownerId,
             WorkspaceComponentDocument document,
-            ComponentTypePath path,
             ComponentType type,
             IddPropertiesRecord submittedRecord
     ) {
@@ -76,8 +75,8 @@ public class UpdateDocumentInWorkspaceService {
 
         document.setName(validName);
         document.setNameKey(nameService.nameKey(validName));
-        document.setDomain(path.domain().name());
-        document.setCategory(path.category().name());
+        document.setDomain("CONSTRUCTIONS");
+        document.setCategory(type.category().name());
         document.setType(type.apiName());
         document.setEpiName(type.eppyName());
         document.setProperties(normalized);
@@ -92,6 +91,13 @@ public class UpdateDocumentInWorkspaceService {
             repository.saveAll(dependants);
         }
         return saved;
+    }
+
+    public WorkspaceComponentDocument update(
+            String ownerId, WorkspaceComponentDocument document, ComponentTypePath ignoredPath,
+            ComponentType type, IddPropertiesRecord submittedRecord
+    ) {
+        return update(ownerId, document, type, submittedRecord);
     }
 
     /** Derives the heat-source name from its selected parent construction. */
@@ -139,7 +145,7 @@ public class UpdateDocumentInWorkspaceService {
             }
             dependant.setName(sourceName);
             dependant.setNameKey(nameService.nameKey(sourceName));
-            dependant.setDomain(construction.getDomain());
+            dependant.setDomain("CONSTRUCTIONS");
             dependant.setCategory(ConstructionType.CONSTRUCTION_PROPERTY_INTERNAL_HEAT_SOURCE.category().name());
             dependant.setType(ConstructionType.CONSTRUCTION_PROPERTY_INTERNAL_HEAT_SOURCE.apiName());
             dependant.setEpiName(ConstructionType.CONSTRUCTION_PROPERTY_INTERNAL_HEAT_SOURCE.eppyName());
@@ -156,7 +162,7 @@ public class UpdateDocumentInWorkspaceService {
         ConstructionType type = ConstructionType.CONSTRUCTION_PROPERTY_INTERNAL_HEAT_SOURCE;
         return type.apiName().equalsIgnoreCase(document.getType())
                 || type.eppyName().equalsIgnoreCase(document.getType())
-                || type.eppyName().equalsIgnoreCase(document.getEpiName());
+                ;
     }
 
     /**

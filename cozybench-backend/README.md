@@ -63,23 +63,8 @@ set "CORS_ALLOWED_ORIGINS=http://localhost:3000"
 set "COZYBENCH_COSIMULATOR_BASE_URL=http://localhost:5000"
 ```
 
-Generate a unique JWT secret. Open a **separate PowerShell** window and run:
-
-```powershell
-$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
-$bytes = New-Object byte[] 32
-$rng.GetBytes($bytes)
-[Convert]::ToBase64String($bytes)
-$rng.Dispose()
-```
-
-Copy the printed value. Return to the backend Command Prompt and set it (replace the placeholder):
-
-```cmd
-set "JWT_SECRET=PASTE_THE_GENERATED_VALUE_HERE"
-```
-
-Do not share or commit this secret. If you close this Command Prompt, set the variables again in the new window.
+The application uses a Spring `HttpSession` cookie to create an isolated browser
+session. No login, password, JWT, or token secret is required.
 
 ### 6. Know what starts automatically
 
@@ -104,12 +89,11 @@ If it is already running, Windows will say so. You do not need to start it again
 ```cmd
 cd /d "%USERPROFILE%\Desktop\thesis\Web Co-ZyBench final\cozybench-backend"
 set "MONGODB_URI=mongodb://localhost:27017/cozybench"
-set "JWT_SECRET=PASTE_THE_GENERATED_VALUE_HERE"
 set "CORS_ALLOWED_ORIGINS=http://localhost:3000"
 set "COZYBENCH_COSIMULATOR_BASE_URL=http://localhost:5000"
 ```
 
-Replace the JWT placeholder with the secret you generated in Part B. If your repositories are elsewhere, update the `cd` path.
+If your repositories are elsewhere, update the `cd` path.
 
 ### 9. Start Spring Boot
 
@@ -132,7 +116,7 @@ Click the Command Prompt window running Spring Boot and press **Ctrl+C**. Close 
 | Variable | Purpose | Local value |
 | --- | --- | --- |
 | `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/cozybench` |
-| `JWT_SECRET` | Signs and verifies authentication tokens | A unique random value generated in Part B |
+| Spring session cookie | Identifies the current browser workspace | Created automatically |
 | `CORS_ALLOWED_ORIGINS` | Browser origin allowed to call the API | `http://localhost:3000` |
 | `COZYBENCH_COSIMULATOR_BASE_URL` | Python co-simulator base URL | `http://localhost:5000` |
 

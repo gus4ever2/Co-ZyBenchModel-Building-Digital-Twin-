@@ -1,60 +1,70 @@
 package com.cozybench.building.factory;
 
-import com.cozybench.building.model.type.ComponentCategory;
 import com.cozybench.building.model.type.ComponentType;
+import com.cozybench.building.model.type.ComponentTypeRegistry;
 import com.cozybench.building.model.type.ComponentTypePath;
-import com.cozybench.building.resolver.ComponentTypeHierarchyResolver;
 import org.springframework.stereotype.Component;
 
-import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 
 /**
  * Single entry point used by create, update, duplicate, and library import.
- * It resolves the request's type path, then chooses the factory for its category.
- * That factory maps the type to its IDD record; defaults belong to the record.
+ * It resolves the canonical API type directly and selects its concrete factory.
+ * The registry is assembled from every Spring-provided category factory.
  */
 @Component
 public final class ComponentFactoryResolver {
 
-    private final ComponentTypeHierarchyResolver hierarchyResolver;
-    private final Map<ComponentCategory, ComponentCategoryFactory> factoriesByCategory;
+    private final ComponentTypeRegistry typeRegistry;
+    private final Map<String, ComponentFactory> factoriesByType;
 
     public ComponentFactoryResolver(
-            ComponentTypeHierarchyResolver hierarchyResolver,
+            ComponentTypeRegistry typeRegistry,
             List<ComponentCategoryFactory> categoryFactories
     ) {
-        this.hierarchyResolver = hierarchyResolver;
-        this.factoriesByCategory = indexFactories(categoryFactories);
+        this.typeRegistry = typeRegistry;
+        this.factoriesByType = indexFactories(categoryFactories);
     }
 
-    /** Resolves a user-facing domain/category/type path to its IDD record factory. */
+    /** Resolves the canonical API type sent by the frontend. */
+    public ComponentFactory resolve(String type) {
+        return resolve(typeRegistry.resolve(type));
+    }
+
+    /** Compatibility overload for callers still holding the old path object. */
     public ComponentFactory resolve(ComponentTypePath path) {
-        return resolve(hierarchyResolver.resolve(path));
+        return resolve(path.type());
     }
 
-    /** Selects the category factory first, then asks it for the exact component type. */
+    /** Resolves a known enum value through the type-keyed registry. */
     public ComponentFactory resolve(ComponentType type) {
-        // The category selects the correct family-specific factory before exact type lookup.
-        ComponentCategoryFactory factory = factoriesByCategory.get(type.category());
+        ComponentFactory factory = factoriesByType.get(normalize(type.apiName()));
         if (factory == null) {
-            throw new IllegalArgumentException("No factory for category: " + type.category());
+            throw new IllegalArgumentException("No factory for component type: " + type.apiName());
         }
-        return factory.create(type);
+        return factory;
     }
 
-    /** Indexes Spring-provided factories and rejects duplicate handlers at startup. */
-    private Map<ComponentCategory, ComponentCategoryFactory> indexFactories(
+    /** Indexes every concrete factory by its stable API type and rejects duplicates. */
+    private Map<String, ComponentFactory> indexFactories(
             List<ComponentCategoryFactory> categoryFactories
     ) {
-        Map<ComponentCategory, ComponentCategoryFactory> values = new EnumMap<>(ComponentCategory.class);
-        for (ComponentCategoryFactory factory : categoryFactories) {
-            // Duplicate Spring beans for a category would make factory selection ambiguous.
-            if (values.put(factory.category(), factory) != null) {
-                throw new IllegalStateException("More than one factory handles " + factory.category());
+        Map<String, ComponentFactory> values = new LinkedHashMap<>();
+        for (ComponentCategoryFactory categoryFactory : categoryFactories) {
+            for (ComponentFactory factory : categoryFactory.factories().values()) {
+                String key = normalize(factory.type().apiName());
+                if (values.putIfAbsent(key, factory) != null) {
+                    throw new IllegalStateException("More than one factory handles " + key);
+                }
             }
         }
         return Map.copyOf(values);
+    }
+
+    private String normalize(String value) {
+        return value.trim().toUpperCase(Locale.ROOT);
     }
 }

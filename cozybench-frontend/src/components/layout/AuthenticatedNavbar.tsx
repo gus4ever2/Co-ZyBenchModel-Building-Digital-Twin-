@@ -1,7 +1,7 @@
 import type { Accessor, Component, Setter } from "solid-js";
 import type { LucideProps } from "lucide-solid";
 import { For, Show } from "solid-js";
-import { Link, useNavigate } from "@tanstack/solid-router";
+import { Link } from "@tanstack/solid-router";
 import {
   Building2,
   ChartNoAxesCombined,
@@ -12,7 +12,6 @@ import {
   Info,
   LayoutDashboard,
   Leaf,
-  LogOut,
   Mail,
   Menu,
   PanelLeftClose,
@@ -20,8 +19,6 @@ import {
   PlusCircle,
   X,
 } from "lucide-solid";
-import { logout } from "../../services/authService";
-import { getAuthenticatedEmail } from "../../lib/api";
 
 type AuthenticatedNavbarProps = {
   expanded: Accessor<boolean>;
@@ -63,16 +60,7 @@ const navItemClass =
   "group flex h-11 items-center gap-3 rounded-xl text-sm font-medium text-cloud-white/75 hover:bg-cloud-white/10 hover:text-cloud-white data-[status=active]:bg-citadel-blue data-[status=active]:text-cloud-white data-[status=active]:shadow-lg data-[status=active]:shadow-black/15";
 
 export default function AuthenticatedNavbar(props: AuthenticatedNavbarProps) {
-  const navigate = useNavigate();
-  const email = getAuthenticatedEmail() ?? "Signed-in user";
-  const avatarInitial = email.charAt(0).toUpperCase();
-
   const closeOnMobile = () => props.setMobileOpen(false);
-
-  const handleLogout = async () => {
-    logout();
-    await navigate({ to: "/sign-in" });
-  };
 
   return (
     <>
@@ -169,7 +157,7 @@ export default function AuthenticatedNavbar(props: AuthenticatedNavbarProps) {
 
         <nav
           class="mt-3 flex min-h-0 flex-1 flex-col"
-          aria-label="Authenticated navigation"
+          aria-label="CozyBench navigation"
         >
           <ul class="space-y-1">
             <For each={navigationItems}>
@@ -232,46 +220,6 @@ export default function AuthenticatedNavbar(props: AuthenticatedNavbarProps) {
               </Show>
             </a>
 
-            <div class="my-2 border-t border-cloud-white/10 pt-3">
-              <div
-                class="flex h-11 items-center rounded-xl"
-                classList={{
-                  "w-full gap-3 px-2": props.expanded(),
-                  "mx-auto w-11 justify-center": !props.expanded(),
-                }}
-                title={!props.expanded() ? email : undefined}
-              >
-                <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-citadel-blue text-sm font-bold text-cloud-white shadow-lg shadow-black/15">
-                  {avatarInitial}
-                </span>
-                <Show when={props.expanded()}>
-                  <span class="min-w-0">
-                    <span class="block text-xs text-cloud-white/45">
-                      Signed in as
-                    </span>
-                    <span class="block truncate text-sm font-medium text-cloud-white/80">
-                      {email}
-                    </span>
-                  </span>
-                </Show>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              class={`${navItemClass} text-cloud-white/75 hover:bg-error/20 hover:text-cloud-white`}
-              classList={{
-                "w-full justify-start px-3": props.expanded(),
-                "mx-auto w-11 justify-center px-0": !props.expanded(),
-              }}
-              title={!props.expanded() ? "Logout" : undefined}
-              onClick={() => void handleLogout()}
-            >
-              <LogOut class="size-5 shrink-0" aria-hidden="true" />
-              <Show when={props.expanded()}>
-                <span class="truncate">Logout</span>
-              </Show>
-            </button>
           </div>
         </nav>
       </aside>

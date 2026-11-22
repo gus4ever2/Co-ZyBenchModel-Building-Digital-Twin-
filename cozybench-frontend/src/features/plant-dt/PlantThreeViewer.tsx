@@ -228,7 +228,7 @@ export default function PlantThreeViewer(props: { plantId: string }) {
             })
             .catch(() => {
                 setError(
-                    "The authenticated plant model could not be loaded from Spring.",
+                    "The plant model could not be loaded from Spring.",
                 );
             });
 

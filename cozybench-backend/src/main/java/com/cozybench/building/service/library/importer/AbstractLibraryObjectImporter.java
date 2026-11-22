@@ -4,9 +4,7 @@ import com.cozybench.building.factory.ComponentFactoryResolver;
 import com.cozybench.building.model.document.BuildingLibraryObjectDocument;
 import com.cozybench.building.model.document.WorkspaceComponentDocument;
 import com.cozybench.building.model.type.ComponentCategory;
-import com.cozybench.building.model.type.ComponentDomain;
 import com.cozybench.building.model.type.ComponentType;
-import com.cozybench.building.model.type.ComponentTypePath;
 import com.cozybench.building.model.type.ComponentTypeRegistry;
 import com.cozybench.building.repository.BuildingLibraryObjectRepository;
 import com.cozybench.building.repository.WorkspaceComponentRepository;
@@ -93,7 +91,7 @@ public abstract class AbstractLibraryObjectImporter implements LibraryObjectImpo
             WorkspaceComponentDocument copy = importToWorkspace.importRecord(
                     new WorkspaceImportRequest(
                             context.ownerId(),
-                            new ComponentTypePath(ComponentDomain.CONSTRUCTIONS, type.category(), type.apiName()),
+                            type.apiName(),
                             record,
                             new WorkspaceImportOrigin.LibraryCopy(source.getId())
                     ));

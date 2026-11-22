@@ -331,7 +331,7 @@ public class SimulationService {
 
     public Map<String, Object> analytics(String ownerId, String email, String id, int start, Integer end) {
         requireOwned(ownerId, email, id);
-        return cosimulator.analytics("USER", ownerId, id, start, end);
+        return cosimulator.analytics(ownerType(email), ownerId, id, start, end);
     }
 
     public Map<String, Object> analyticsGuest(String guestSessionId, String id, int start, Integer end) {
@@ -345,7 +345,7 @@ public class SimulationService {
 
     public Map<String, Object> selectedAnalytics(String ownerId, String email, String id, Map<String, Object> options) {
         requireOwned(ownerId, email, id);
-        return cosimulator.selectedAnalytics("USER", ownerId, id, options);
+        return cosimulator.selectedAnalytics(ownerType(email), ownerId, id, options);
     }
 
     public Map<String, Object> selectedAnalyticsGuest(String guestSessionId, String id, Map<String, Object> options) {

@@ -1,9 +1,8 @@
 package com.cozybench.user.controller;
 
-import com.cozybench.user.dto.UserResponse;
-import com.cozybench.user.service.UserService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import com.cozybench.guest.GuestSessionRecord;
+import com.cozybench.guest.GuestSessionRegistry;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,14 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final UserService userService;
+    private final GuestSessionRegistry guestSessions;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(GuestSessionRegistry guestSessions) {
+        this.guestSessions = guestSessions;
     }
 
     @GetMapping("/me")
-    public UserResponse currentUser(@AuthenticationPrincipal Jwt jwt) {
-        return userService.getCurrentUser(jwt.getSubject());
+    public java.util.Map<String, String> currentUser(HttpServletRequest request) {
+        Object value = request.getAttribute(GuestSessionRegistry.REQUEST_ATTRIBUTE);
+        String sessionId = value instanceof GuestSessionRecord record
+                ? record.guestSessionId()
+                : guestSessions.getOrCreate(request.getSession(true)).guestSessionId();
+        return java.util.Map.of("sessionId", sessionId);
     }
 }
