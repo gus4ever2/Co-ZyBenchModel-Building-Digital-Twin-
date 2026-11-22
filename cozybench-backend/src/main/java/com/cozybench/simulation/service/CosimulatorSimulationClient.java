@@ -7,6 +7,7 @@ import com.cozybench.simulation.dto.ThermostatSetpointsRequest;
 import com.cozybench.simulation.dto.PlantSimulationRequest;
 import com.cozybench.simulation.dto.StartSimulationRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -32,12 +33,23 @@ public class CosimulatorSimulationClient {
     private final RestTemplate cosimulator;
     private final RestTemplate analyticsHttp;
     private final com.cozybench.plant.service.DefaultPlantLibrary defaultPlants;
+    private final String maintenanceToken;
 
     public CosimulatorSimulationClient(
+            String baseUrl,
+            com.cozybench.plant.service.DefaultPlantLibrary defaultPlants
+    ) {
+        this(baseUrl, "", defaultPlants);
+    }
+
+    @Autowired
+    public CosimulatorSimulationClient(
             @Value("${cozybench.cosimulator.base-url:http://localhost:5000}") String baseUrl,
+            @Value("${cozybench.maintenance.token:}") String maintenanceToken,
             com.cozybench.plant.service.DefaultPlantLibrary defaultPlants
     ) {
         this.baseUrl = baseUrl;
+        this.maintenanceToken = maintenanceToken;
         this.cosimulator = new RestTemplate();
         var analyticsRequests = new org.springframework.http.client.SimpleClientHttpRequestFactory();
         analyticsRequests.setConnectTimeout(java.time.Duration.ofSeconds(5));
@@ -128,6 +140,19 @@ public class CosimulatorSimulationClient {
                 .encode()
                 .toUri();
         cosimulator.exchange(uri, HttpMethod.DELETE, HttpEntity.EMPTY, Void.class);
+    }
+
+    /** Purges all non-library simulation/plant records and local Python workspaces. */
+    public Map<String, Object> cleanupUserData() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Internal-Maintenance-Token", maintenanceToken);
+        ResponseEntity<Map<String, Object>> response = cosimulator.exchange(
+                baseUrl + "/maintenance/cleanup-user-data",
+                HttpMethod.POST,
+                new HttpEntity<>(headers),
+                MAP_TYPE
+        );
+        return response.getBody() == null ? Map.of() : response.getBody();
     }
 
     public Map<String, Object> comparison(Map<String, Object> body) {

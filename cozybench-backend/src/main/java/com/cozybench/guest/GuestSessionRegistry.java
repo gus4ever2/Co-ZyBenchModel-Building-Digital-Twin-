@@ -44,4 +44,10 @@ public class GuestSessionRegistry {
     public Map<String, GuestSessionRecord> snapshot() {
         return Map.copyOf(guests);
     }
+
+    public void clear() {
+        for (String guestSessionId : snapshot().keySet()) {
+            removeGuest(guestSessionId);
+        }
+    }
 }
