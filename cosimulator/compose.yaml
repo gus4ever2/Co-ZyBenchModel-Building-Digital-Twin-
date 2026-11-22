@@ -27,6 +27,7 @@ services:
       COSIMULATOR_PORT: 5000
       COSIMULATOR_MONGO_URI: mongodb://mongo:27017/
       COSIMULATOR_MONGO_DATABASE: cozybench
+      COSIMULATOR_MAINTENANCE_TOKEN: ${COZYBENCH_MAINTENANCE_TOKEN:-}
       COSIMULATOR_PROJECT_ROOT: /app
       COSIMULATOR_CORS_ORIGINS: '["http://localhost:3000"]'
     ports:
@@ -53,6 +54,7 @@ services:
     environment:
       MONGODB_URI: mongodb://mongo:27017/cozybench
       COZYBENCH_COSIMULATOR_BASE_URL: http://cosimulator:5000
+      COZYBENCH_MAINTENANCE_TOKEN: ${COZYBENCH_MAINTENANCE_TOKEN:-}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
     expose:
       - "8080"

@@ -343,6 +343,10 @@ public class SimulationService {
         return cosimulator.availableAnalytics();
     }
 
+    public void clearResultCache() {
+        resultCounts.clear();
+    }
+
     public Map<String, Object> selectedAnalytics(String ownerId, String email, String id, Map<String, Object> options) {
         requireOwned(ownerId, email, id);
         return cosimulator.selectedAnalytics(ownerType(email), ownerId, id, options);
@@ -351,27 +355,6 @@ public class SimulationService {
     public Map<String, Object> selectedAnalyticsGuest(String guestSessionId, String id, Map<String, Object> options) {
         requireOwned(guestSessionId, null, id);
         return cosimulator.selectedAnalytics("GUEST", guestSessionId, id, options);
-    }
-
-    /** Deletes one guest-owned simulation during scheduled cleanup. */
-    public void deleteUnownedSimulation(String simulationId) {
-        Document document = mongoTemplate.findOne(
-                new Query(new Criteria().andOperator(
-                        idCriteria(simulationId),
-                        Criteria.where("owner_type").is("GUEST")
-                )),
-                Document.class,
-                SIMULATIONS
-        );
-        if (document == null) return;
-        String guestSessionId = string(document.get("owner_id"));
-        if (guestSessionId == null || guestSessionId.isBlank()) {
-            throw new IllegalStateException("Guest simulation has no owner id");
-        }
-        if (ACTIVE_STATUSES.contains(string(document.get("status")))) {
-            cancel(guestSessionId, null, simulationId);
-        }
-        delete(guestSessionId, null, simulationId);
     }
 
     public DashboardSummaryResponse dashboard(String ownerId, String userEmail) {

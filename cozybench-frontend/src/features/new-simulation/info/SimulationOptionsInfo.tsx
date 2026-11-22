@@ -34,8 +34,8 @@ export default function SimulationOptionsInfo() {
 
                     <InfoSection title="CO₂ control">
                         Enable demand-controlled mechanical ventilation based on indoor CO₂
-                        concentration. EnergyPlus adjusts the outdoor-air supply according
-                        to the specified CO₂ setpoint.
+                        concentration. Decoupled control adjusts the outdoor-air supply
+                        according to the specified CO₂ setpoint.
                     </InfoSection>
 
                     <div class="border-t border-warm-stone/15 pt-4">
