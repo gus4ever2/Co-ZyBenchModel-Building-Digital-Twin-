@@ -5,6 +5,7 @@ import com.cozybench.building.service.query.BuildingComponentQueryService;
 import com.cozybench.guest.GuestSessionRecord;
 import com.cozybench.guest.GuestSessionRegistry;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,7 @@ public class BuildingComponentQueryController {
     private final BuildingComponentQueryService queryService;
     private final GuestSessionRegistry guestSessions;
 
+    @Autowired
     public BuildingComponentQueryController(
             BuildingComponentQueryService queryService,
             GuestSessionRegistry guestSessions
