@@ -36,13 +36,6 @@ export const CO2_CONTROL_SETPOINT_OPTIONS = [
   500, 600, 700, 800, 900, 1000,
 ] as const;
 
-export type CustomSimulationPayload = {
-  name: string;
-  city: string;
-  constructionSet: string;
-  configuration: Record<string, unknown>;
-};
-
 function descriptors(data: DescriptorState) {
   return data.componentDescriptions?.componentParts ?? [];
 }
@@ -74,6 +67,26 @@ export function constructionSetClimateDescription(name: string): string {
     "7_8": "For very cold and subarctic climates",
   };
   return (zone && descriptions[zone]) || "Standard office construction set";
+}
+
+const climateZoneByLocation: Record<string, string> = {
+  mumbai: "1",
+  andravida: "3",
+  paris: "4",
+  beijing: "4",
+  scranton: "5",
+  la: "3",
+};
+
+export function defaultConstructionSetForLocation(
+  location: string,
+  sets: Descriptor[],
+): Descriptor | undefined {
+  const zone = climateZoneByLocation[location];
+  if (!zone) return undefined;
+  return sets.find(
+    (item) => item.defaultOption && item.name === `189_1_2009_CZ${zone}_Office`,
+  );
 }
 
 export async function loadSimulationPlants(guestMode = false) {
@@ -143,18 +156,4 @@ export async function checkSimulationName(name: string, guestMode = false) {
     { params: { name: name.trim() } },
   );
   return data.available;
-}
-
-export async function startCustomSimulation(payload: CustomSimulationPayload) {
-  const { data } = await api.post<SimulationListItem>("/v1/simulations", {
-    name: payload.name,
-    scenarioType: "CUSTOM",
-    city: payload.city,
-    constructionSet: payload.constructionSet,
-    plantSimulation: null,
-    openWindows: null,
-    co2Control: null,
-    customScenario: payload.configuration,
-  });
-  return data;
 }
