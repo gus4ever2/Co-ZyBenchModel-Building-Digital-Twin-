@@ -1,7 +1,11 @@
-import api from "../../lib/api";
+import api, { guestApi } from "../../lib/api";
 
-export async function downloadSimulationJson(simulationId: string) {
-  const response = await api.get<Blob>(`/v1/simulations/${simulationId}/export`, {
+export async function downloadSimulationJson(simulationId: string, guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const path = guestMode
+    ? `/v1/guest/simulations/${simulationId}/export`
+    : `/v1/simulations/${simulationId}/export`;
+  const response = await client.get<Blob>(path, {
     responseType: "blob",
     timeout: 0,
   });
@@ -269,25 +273,50 @@ export async function loadUserSimulations() {
   return data.simulations ?? [];
 }
 
-export async function loadSimulationHistory() {
-  const { data } = await api.get<SimulationListResponse>(
-    "/v1/simulations/history",
+export async function loadSimulationHistory(guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const path = guestMode ? "/v1/guest/simulations/history" : "/v1/simulations/history";
+  const { data } = await client.get<SimulationListResponse>(
+    path,
   );
   return data.simulations ?? [];
 }
 
-export async function loadSimulation(simulationId: string) {
-  const { data } = await api.get<SimulationListItem>(
-    `/v1/simulations/${simulationId}`,
+export async function loadSimulation(simulationId: string, guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const path = guestMode
+    ? `/v1/guest/simulations/${simulationId}`
+    : `/v1/simulations/${simulationId}`;
+  const { data } = await client.get<SimulationListItem>(
+    path,
   );
   return data;
 }
 
-export async function loadSimulationResults(simulationId: string) {
+const terminalSimulationStatuses = new Set(["COMPLETED", "ERROR", "CANCELED"]);
+
+export async function waitForSimulationCompletion(
+  simulationId: string,
+  guestMode = false,
+) {
+  const maxAttempts = 60 * 60;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const simulation = await loadSimulation(simulationId, guestMode);
+    if (terminalSimulationStatuses.has(simulation.status)) return simulation;
+    await new Promise((resolve) => window.setTimeout(resolve, 1000));
+  }
+  return undefined;
+}
+
+export async function loadSimulationResults(simulationId: string, guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const basePath = guestMode
+    ? `/v1/guest/simulations/${simulationId}/results`
+    : `/v1/simulations/${simulationId}/results`;
   const limit = 1000;
   const fetchPage = async (offset: number) => {
-    const { data } = await api.get<SimulationResultsResponse>(
-      `/v1/simulations/${simulationId}/results`,
+    const { data } = await client.get<SimulationResultsResponse>(
+      basePath,
       { params: { offset, limit } },
     );
     return { offset, data };
@@ -361,8 +390,12 @@ export async function cancelSimulation(simulationId: string) {
   return data;
 }
 
-export async function deleteSimulation(simulationId: string) {
-  await api.delete(`/v1/simulations/${simulationId}`);
+export async function deleteSimulation(simulationId: string, guestMode = false) {
+  const client = guestMode ? guestApi : api;
+  const path = guestMode
+    ? `/v1/guest/simulations/${simulationId}`
+    : `/v1/simulations/${simulationId}`;
+  await client.delete(path);
 }
 
 export async function loadDashboardSummary() {
