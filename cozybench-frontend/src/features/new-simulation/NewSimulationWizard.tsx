@@ -17,6 +17,7 @@ import {
   Match,
   Show,
   Switch,
+  createEffect,
   createMemo,
   createSignal,
   lazy,
@@ -27,6 +28,7 @@ import axios from "axios";
 import {
   loadSimulationConstructionSets,
   constructionSetClimateDescription,
+  defaultConstructionSetForLocation,
   loadSimulationPlants,
   CO2_CONTROL_SETPOINT_OPTIONS,
   checkSimulationName,
@@ -241,6 +243,11 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
     () => steps()[Math.min(stepIndex(), steps().length - 1)],
   );
 
+  const update = <K extends keyof NewSimulationPayload>(
+    key: K,
+    value: NewSimulationPayload[K],
+  ) => setForm((previous) => ({ ...previous, [key]: value }));
+
   const setsQuery = createQuery(() => ({
     queryKey: ["new-simulation", "construction-sets"],
     queryFn: loadSimulationConstructionSets,
@@ -250,13 +257,33 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
     queryFn: () => loadSimulationPlants(props.guestMode === true),
     enabled: form().plantsEnabled,
   }));
+
+  const [automaticConstructionSet, setAutomaticConstructionSet] = createSignal("");
+  createEffect(() => {
+    const location = form().location;
+    const sets = setsQuery.data;
+    if (!location || !sets?.length) return;
+
+    const preferred = defaultConstructionSetForLocation(location, sets);
+    if (!preferred) return;
+
+    const currentSelection = form().constructionSet;
+    if (!currentSelection || currentSelection === automaticConstructionSet()) {
+      if (currentSelection !== preferred.name) {
+        update("constructionSet", preferred.name);
+      }
+      setAutomaticConstructionSet(preferred.name);
+    }
+  });
+
   const startAction = createMutation(() => ({
     mutationFn: (payload: NewSimulationPayload) =>
       startSimulation(payload, props.guestMode === true),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["simulations", "current"] });
       void navigate({
-        to: props.guestMode ? "/guest/current-simulation" : "/current-simulation",
+        to: props.guestMode ? "/guest/history" : "/history",
+        search: { select: "first-completed" },
       });
     },
   }));
@@ -303,10 +330,6 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
     }
   });
 
-  const update = <K extends keyof NewSimulationPayload>(
-    key: K,
-    value: NewSimulationPayload[K],
-  ) => setForm((previous) => ({ ...previous, [key]: value }));
   const next = () =>
     valid() && setStepIndex((index) => Math.min(index + 1, steps().length - 1));
   const back = () => setStepIndex((index) => Math.max(index - 1, 0));
@@ -326,11 +349,15 @@ export default function NewSimulationWizard(props: { guestMode?: boolean }) {
         <section
             class="mx-auto flex h-[calc(100vh-10rem)] min-h-[38rem] w-full max-w-6xl flex-col gap-4 lg:h-[calc(100vh-4rem)] lg:min-h-0">
           <WorkspaceHeader
-              eyebrow="New simulation"
-              title={current().label}
-              backTo={stepIndex() === 0 ? "/new-simulation" : undefined}
-              onBack={stepIndex() > 0 ? back : undefined}
-              class="w-full"
+            eyebrow="New simulation"
+            title={current().label}
+            backTo={
+              stepIndex() === 0
+                ? props.guestMode ? "/guest/new-simulation" : "/new-simulation"
+                : undefined
+            }
+            onBack={stepIndex() > 0 ? back : undefined}
+            class="w-full"
           >
             <div class="relative ml-auto hidden w-full max-w-3xl items-start justify-between md:flex">
               <div class="absolute left-12 right-12 top-[0.7rem] h-0.5 overflow-hidden rounded-full bg-cloud-white/20">
